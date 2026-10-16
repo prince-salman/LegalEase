@@ -1,0 +1,199 @@
+/* LegalEase - Custom Stylesheet */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap');
+
+:root {
+  --primary-navy: #0A192F;
+  --secondary-navy: #112240;
+  --accent-gold: #D4A373;
+  --accent-gold-light: #F4E8C1;
+  --accent-teal: #0D9488;
+  --accent-teal-light: #CCFBF1;
+  --bg-slate: #F8FAFC;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: #1E293B;
+  background-color: #F8FAFC;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+.font-serif-title {
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #F1F5F9;
+}
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
+/* Glassmorphism */
+.glass-nav {
+  background: rgba(10, 25, 47, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.glass-card-dark {
+  background: rgba(17, 34, 64, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(212, 163, 115, 0.2);
+}
+
+/* Gold Gradient & Accents */
+.gold-gradient-text {
+  background: linear-gradient(135deg, #F59E0B 0%, #D4A373 50%, #B45309 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gold-border {
+  border-color: #D4A373;
+}
+
+/* Smartphone Mockup Frame */
+.phone-chassis {
+  width: 380px;
+  height: 760px;
+  background: #1E293B;
+  border-radius: 52px;
+  padding: 12px;
+  box-shadow: 
+    0 25px 60px -15px rgba(10, 25, 47, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.1),
+    inset 0 0 0 3px #334155,
+    inset 0 0 0 6px #0F172A;
+  position: relative;
+  margin: 0 auto;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (max-width: 480px) {
+  .phone-chassis {
+    width: 320px;
+    height: 640px;
+    border-radius: 42px;
+    padding: 8px;
+  }
+}
+
+.phone-screen {
+  width: 100%;
+  height: 100%;
+  background: #F8FAFC;
+  border-radius: 40px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.phone-notch {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 110px;
+  height: 24px;
+  background: #0F172A;
+  border-radius: 20px;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+}
+
+.phone-notch-camera {
+  width: 10px;
+  height: 10px;
+  background: #1E293B;
+  border-radius: 50%;
+  border: 1px solid #334155;
+}
+
+.phone-notch-sensor {
+  width: 6px;
+  height: 6px;
+  background: #0284C7;
+  border-radius: 50%;
+  opacity: 0.6;
+}
+
+.phone-home-indicator {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 130px;
+  height: 4px;
+  background: #94A3B8;
+  border-radius: 2px;
+  z-index: 40;
+}
+
+/* Polaroid Card Style */
+.polaroid-card {
+  background: #FFFFFF;
+  padding: 12px 12px 24px 12px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  border: 1px solid #E2E8F0;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.polaroid-card:hover {
+  transform: translateY(-6px) scale(1.02) rotate(0deg) !important;
+  box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.2);
+  z-index: 20;
+}
+
+/* Animations */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 15px rgba(212, 163, 115, 0.4); }
+  50% { box-shadow: 0 0 30px rgba(212, 163, 115, 0.8); }
+}
+
+.pulse-glow {
+  animation: pulseGlow 2.5s infinite;
+}
+
+/* Badges & Checkmarks */
+.custom-checkbox:checked {
+  background-color: #0D9488;
+  border-color: #0D9488;
+}
+
+/* Smooth modal fade */
+.modal-overlay {
+  background: rgba(10, 25, 47, 0.8);
+  backdrop-filter: blur(8px);
+}
