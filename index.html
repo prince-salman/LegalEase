@@ -761,120 +761,212 @@
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
       
       <!-- Section Header -->
-      <div class="max-w-3xl mx-auto text-center mb-16">
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-200 text-slate-800 text-[10px] font-bold uppercase tracking-wider mb-3">
-          Dokumentasi Arsip • Halaman 1 sampai 7
+      <div class="max-w-3xl mx-auto text-center mb-12">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F7EEDB] text-[#936616] text-[10px] font-bold uppercase tracking-wider mb-3 border border-[#E9D5A6]">
+          Dokumentasi Arsip Lengkap • Halaman 1 sampai 7
         </div>
         <h2 class="text-3xl sm:text-4xl font-serif-editorial font-normal text-[#0C1E36] tracking-tight">
           Arsip Slide Presentasi Asli
         </h2>
         <p class="mt-3 text-slate-600 text-sm sm:text-base leading-relaxed">
-          Setiap halaman dari berkas presentasi <span class="font-semibold text-slate-800">economic_surv_revised.pdf</span> telah diintegrasikan langsung ke dalam repositori web ini. Klik slide untuk memperbesar.
+          Setiap halaman dari berkas presentasi <span class="font-semibold text-slate-800">economic_surv_revised.pdf</span> telah diintegrasikan langsung ke dalam repositori web ini. Klik slide untuk memperbesar atau beralih halaman di bawah ini.
         </p>
       </div>
 
-      <!-- Slide Cards Grid (Slides 1 to 7) -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+      <!-- FEATURED IN-PAGE SLIDE DECK INSPECTOR -->
+      <div class="max-w-5xl mx-auto mb-14 bg-white border border-slate-200 rounded-3xl p-5 sm:p-7 shadow-sm">
+        
+        <!-- Inspector Top Controls -->
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pb-4 mb-5 border-b border-slate-100">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span id="inpage-slide-badge" class="px-2.5 py-0.5 rounded-full bg-[#F7EEDB] text-[#936616] text-[10px] font-bold border border-[#E9D5A6]">
+                Slide 1 dari 7
+              </span>
+              <span class="text-xs text-slate-400">Pratinjau Resolusi Tinggi</span>
+            </div>
+            <h3 id="inpage-slide-title" class="text-base sm:text-lg font-serif-editorial font-bold text-[#0C1E36]">
+              Cover & Kolase Tim: Group 4 - Economic Survival
+            </h3>
+            <p id="inpage-slide-desc" class="text-xs text-slate-500 mt-0.5">
+              Halaman judul dan kolase asli 8 mahasiswa perancang konsep LegalEase: Legal Solutions, Made Easy.
+            </p>
+          </div>
+
+          <div class="flex items-center gap-2 shrink-0">
+            <button onclick="stepInPageSlide(-1)" class="p-2 sm:px-3 sm:py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold flex items-center gap-1.5 transition">
+              <i data-lucide="chevron-left" class="w-4 h-4"></i>
+              <span class="hidden sm:inline">Sebelumnya</span>
+            </button>
+            <button onclick="stepInPageSlide(1)" class="p-2 sm:px-3 sm:py-2 rounded-xl bg-[#0C1E36] hover:bg-slate-800 text-white text-xs font-semibold flex items-center gap-1.5 transition">
+              <span class="hidden sm:inline">Berikutnya</span>
+              <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </button>
+            <button onclick="openSlideModal(state.currentSlide)" class="p-2 sm:px-3 sm:py-2 rounded-xl bg-[#C29236] hover:bg-[#d8a543] text-[#0C1E36] text-xs font-bold flex items-center gap-1.5 transition shadow-sm" title="Perbesar Layar Penuh">
+              <i data-lucide="maximize-2" class="w-4 h-4"></i>
+              <span class="hidden sm:inline">Layar Penuh</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Featured Slide Display Frame -->
+        <div class="aspect-[16/9] bg-slate-900 rounded-2xl overflow-hidden shadow-inner relative group cursor-pointer" onclick="openSlideModal(state.currentSlide)">
+          <img id="inpage-slide-img" src="assets/slides/slide_1.png" alt="Slide Preview" class="w-full h-full object-contain">
+          
+          <div class="absolute inset-0 bg-[#0C1E36]/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+            <span class="px-4 py-2 rounded-full bg-white text-[#0C1E36] text-xs font-bold shadow-lg flex items-center gap-2">
+              <i data-lucide="maximize-2" class="w-4 h-4 text-[#C29236]"></i> Klik untuk Layar Penuh
+            </span>
+          </div>
+        </div>
+
+        <!-- In-Page Quick Pagination Buttons -->
+        <div class="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between flex-wrap gap-2">
+          <span class="text-xs font-semibold text-slate-500">Pilih Slide:</span>
+          <div class="flex items-center gap-1.5 flex-wrap">
+            <button onclick="selectInPageSlide(1)" data-slide="1" class="inpage-slide-btn w-8 h-8 rounded-lg text-xs font-bold border border-slate-200 transition bg-[#0C1E36] text-white shadow-sm">1</button>
+            <button onclick="selectInPageSlide(2)" data-slide="2" class="inpage-slide-btn w-8 h-8 rounded-lg text-xs font-bold border border-slate-200 transition bg-white text-slate-700 hover:bg-slate-100">2</button>
+            <button onclick="selectInPageSlide(3)" data-slide="3" class="inpage-slide-btn w-8 h-8 rounded-lg text-xs font-bold border border-slate-200 transition bg-white text-slate-700 hover:bg-slate-100">3</button>
+            <button onclick="selectInPageSlide(4)" data-slide="4" class="inpage-slide-btn w-8 h-8 rounded-lg text-xs font-bold border border-slate-200 transition bg-white text-slate-700 hover:bg-slate-100">4</button>
+            <button onclick="selectInPageSlide(5)" data-slide="5" class="inpage-slide-btn w-8 h-8 rounded-lg text-xs font-bold border border-slate-200 transition bg-white text-slate-700 hover:bg-slate-100">5</button>
+            <button onclick="selectInPageSlide(6)" data-slide="6" class="inpage-slide-btn w-8 h-8 rounded-lg text-xs font-bold border border-slate-200 transition bg-white text-slate-700 hover:bg-slate-100">6</button>
+            <button onclick="selectInPageSlide(7)" data-slide="7" class="inpage-slide-btn w-8 h-8 rounded-lg text-xs font-bold border border-slate-200 transition bg-white text-slate-700 hover:bg-slate-100">7</button>
+          </div>
+          <button onclick="openSlideModal(1)" class="text-xs font-semibold text-[#0D7A68] hover:underline flex items-center gap-1">
+            Buka Mode Lightbox <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- ALL 7 SLIDES FULL GALLERY GRID -->
+      <div class="mb-6">
+        <h3 class="text-lg font-serif-editorial font-bold text-[#0C1E36] mb-1">
+          Koleksi Seluruh Halaman Slide (1 s/d 7)
+        </h3>
+        <p class="text-xs text-slate-500 mb-6">
+          Klik pada kartu mana pun untuk memuat pratinjau atau membuka dalam resolusi penuh.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 mb-12">
         
         <!-- Slide 1 -->
-        <div onclick="openSlideModal(1)" class="group cursor-pointer bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-[#C29236] transition shadow-sm hover:shadow-md">
+        <div onclick="selectInPageSlide(1)" class="group cursor-pointer bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-[#C29236] transition shadow-sm hover:shadow-md">
           <div class="aspect-[16/10] bg-slate-100 overflow-hidden relative">
-            <img src="assets/slides/slide_1.png" alt="Slide 1: Team & Project Banner" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+            <img src="assets/slides/slide_1.png" alt="Slide 1: Cover & Team Collage" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
             <div class="absolute inset-0 bg-[#0C1E36]/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
               <span class="px-3 py-1.5 rounded-full bg-white text-[#0C1E36] text-xs font-bold shadow flex items-center gap-1.5">
-                <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i> Perbesar Slide
+                <i data-lucide="eye" class="w-3.5 h-3.5 text-[#C29236]"></i> Lihat Slide 1
               </span>
             </div>
           </div>
           <div class="p-4">
-            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Slide 1</span>
-            <h4 class="text-sm font-bold text-slate-900 mt-0.5">Cover & Kolase Tim Kelompok 4</h4>
-            <p class="text-xs text-slate-500 mt-1">Economic Survival • Legal Solutions, Made Easy</p>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200/60 inline-block mb-1">Slide 1 • Cover</span>
+            <h4 class="text-sm font-bold text-slate-900">Cover & Kolase Tim Kelompok 4</h4>
+            <p class="text-xs text-slate-500 mt-1 leading-relaxed">Economic Survival • Legal Solutions, Made Easy. Kolase foto karya asli.</p>
           </div>
         </div>
 
         <!-- Slide 2 -->
-        <div onclick="openSlideModal(2)" class="group cursor-pointer bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-[#C29236] transition shadow-sm hover:shadow-md">
+        <div onclick="selectInPageSlide(2)" class="group cursor-pointer bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-[#C29236] transition shadow-sm hover:shadow-md">
           <div class="aspect-[16/10] bg-slate-100 overflow-hidden relative">
             <img src="assets/slides/slide_2.png" alt="Slide 2: User Flow & Discovery" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
             <div class="absolute inset-0 bg-[#0C1E36]/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
               <span class="px-3 py-1.5 rounded-full bg-white text-[#0C1E36] text-xs font-bold shadow flex items-center gap-1.5">
-                <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i> Perbesar Slide
+                <i data-lucide="eye" class="w-3.5 h-3.5 text-[#C29236]"></i> Lihat Slide 2
               </span>
             </div>
           </div>
           <div class="p-4">
-            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Slide 2</span>
-            <h4 class="text-sm font-bold text-slate-900 mt-0.5">Penemuan & Pemilihan Notaris</h4>
-            <p class="text-xs text-slate-500 mt-1">Pencarian notaris berlisensi berdasarkan keahlian</p>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200 inline-block mb-1">Slide 2 • Konsep</span>
+            <h4 class="text-sm font-bold text-slate-900">Penemuan & Pemilihan Notaris</h4>
+            <p class="text-xs text-slate-500 mt-1 leading-relaxed">Pencarian notaris & PPAT berlisensi berdasarkan keahlian dan domisili.</p>
           </div>
         </div>
 
         <!-- Slide 3 -->
-        <div onclick="openSlideModal(3)" class="group cursor-pointer bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-[#C29236] transition shadow-sm hover:shadow-md">
+        <div onclick="selectInPageSlide(3)" class="group cursor-pointer bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-[#C29236] transition shadow-sm hover:shadow-md">
           <div class="aspect-[16/10] bg-slate-100 overflow-hidden relative">
-            <img src="assets/slides/slide_3.png" alt="Slide 3: Ruang Konsultasi Langsung" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+            <img src="assets/slides/slide_3.png" alt="Slide 3: Consultation Room" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
             <div class="absolute inset-0 bg-[#0C1E36]/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
               <span class="px-3 py-1.5 rounded-full bg-white text-[#0C1E36] text-xs font-bold shadow flex items-center gap-1.5">
-                <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i> Perbesar Slide
+                <i data-lucide="eye" class="w-3.5 h-3.5 text-[#C29236]"></i> Lihat Slide 3
               </span>
             </div>
           </div>
           <div class="p-4">
-            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Slide 3</span>
-            <h4 class="text-sm font-bold text-slate-900 mt-0.5">Konsultasi Tatap Muka & Chat</h4>
-            <p class="text-xs text-slate-500 mt-1">Komunikasi terenkripsi & penyampaian checklist</p>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-teal-700 bg-teal-50 px-2 py-0.5 rounded-md border border-teal-200 inline-block mb-1">Slide 3 • Konsultasi</span>
+            <h4 class="text-sm font-bold text-slate-900">Ruang Konsultasi Chat & Video</h4>
+            <p class="text-xs text-slate-500 mt-1 leading-relaxed">Komunikasi tatap muka online dan chat langsung dengan notaris terenkripsi.</p>
           </div>
         </div>
 
         <!-- Slide 4 -->
-        <div onclick="openSlideModal(4)" class="group cursor-pointer bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-[#C29236] transition shadow-sm hover:shadow-md">
+        <div onclick="selectInPageSlide(4)" class="group cursor-pointer bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-[#C29236] transition shadow-sm hover:shadow-md">
           <div class="aspect-[16/10] bg-slate-100 overflow-hidden relative">
-            <img src="assets/slides/slide_4.png" alt="Slide 4: Template & Checklist" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+            <img src="assets/slides/slide_4.png" alt="Slide 4: Templates & Guides" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
             <div class="absolute inset-0 bg-[#0C1E36]/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
               <span class="px-3 py-1.5 rounded-full bg-white text-[#0C1E36] text-xs font-bold shadow flex items-center gap-1.5">
-                <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i> Perbesar Slide
+                <i data-lucide="eye" class="w-3.5 h-3.5 text-[#C29236]"></i> Lihat Slide 4
               </span>
             </div>
           </div>
           <div class="p-4">
-            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Slide 4</span>
-            <h4 class="text-sm font-bold text-slate-900 mt-0.5">Template Dokumen & Panduan Usaha</h4>
-            <p class="text-xs text-slate-500 mt-1">Checklist pendirian PT dan template kontrak siap pakai</p>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200 inline-block mb-1">Slide 4 • Template</span>
+            <h4 class="text-sm font-bold text-slate-900">Template Dokumen & Checklist PT</h4>
+            <p class="text-xs text-slate-500 mt-1 leading-relaxed">Katalog draf kontrak bisnis dan checklist bertahap pendirian usaha.</p>
           </div>
         </div>
 
         <!-- Slide 5 -->
-        <div onclick="openSlideModal(5)" class="group cursor-pointer bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-[#C29236] transition shadow-sm hover:shadow-md">
+        <div onclick="selectInPageSlide(5)" class="group cursor-pointer bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-[#C29236] transition shadow-sm hover:shadow-md">
           <div class="aspect-[16/10] bg-slate-100 overflow-hidden relative">
-            <img src="assets/slides/slide_5.png" alt="Slide 5: Payment Gateway & Checkout" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+            <img src="assets/slides/slide_5.png" alt="Slide 5: Payment Gateway" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
             <div class="absolute inset-0 bg-[#0C1E36]/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
               <span class="px-3 py-1.5 rounded-full bg-white text-[#0C1E36] text-xs font-bold shadow flex items-center gap-1.5">
-                <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i> Perbesar Slide
+                <i data-lucide="eye" class="w-3.5 h-3.5 text-[#C29236]"></i> Lihat Slide 5
               </span>
             </div>
           </div>
           <div class="p-4">
-            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Slide 5</span>
-            <h4 class="text-sm font-bold text-slate-900 mt-0.5">Gerbang Transaksi Pembayaran</h4>
-            <p class="text-xs text-slate-500 mt-1">Multi-payment: VA, Kartu Kredit, & E-Wallet</p>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 inline-block mb-1">Slide 5 • Pembayaran</span>
+            <h4 class="text-sm font-bold text-slate-900">Gerbang Transaksi Pembayaran</h4>
+            <p class="text-xs text-slate-500 mt-1 leading-relaxed">Multi-payment gateway: Virtual Account, E-Wallet, QRIS, & Kartu Kredit.</p>
           </div>
         </div>
 
-        <!-- Slide 6 & 7 -->
-        <div onclick="openSlideModal(7)" class="group cursor-pointer bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-[#C29236] transition shadow-sm hover:shadow-md">
+        <!-- Slide 6 (Business Services B2B) -->
+        <div onclick="selectInPageSlide(6)" class="group cursor-pointer bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-[#C29236] transition shadow-sm hover:shadow-md">
           <div class="aspect-[16/10] bg-slate-100 overflow-hidden relative">
-            <img src="assets/slides/slide_7.png" alt="Slide 7: Roster Tim & Catatan Proyek" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+            <img src="assets/slides/slide_6.png" alt="Slide 6: Business Services B2B" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
             <div class="absolute inset-0 bg-[#0C1E36]/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
               <span class="px-3 py-1.5 rounded-full bg-white text-[#0C1E36] text-xs font-bold shadow flex items-center gap-1.5">
-                <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i> Perbesar Slide
+                <i data-lucide="eye" class="w-3.5 h-3.5 text-[#C29236]"></i> Lihat Slide 6
               </span>
             </div>
           </div>
           <div class="p-4">
-            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Slide 7</span>
-            <h4 class="text-sm font-bold text-slate-900 mt-0.5">Layanan B2B & Roster 8 Anggota</h4>
-            <p class="text-xs text-slate-500 mt-1">Struktur tim penyusun & penawaran korporat</p>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-purple-700 bg-purple-50 px-2 py-0.5 rounded-md border border-purple-200 inline-block mb-1">Slide 6 • Layanan B2B</span>
+            <h4 class="text-sm font-bold text-slate-900">Layanan Bisnis & Model Retainer</h4>
+            <p class="text-xs text-slate-500 mt-1 leading-relaxed">Model langganan B2B mulai Rp 1.500.000/bln untuk startup, UMKM, & investor.</p>
+          </div>
+        </div>
+
+        <!-- Slide 7 (Prototype Notes & Team Credits) -->
+        <div onclick="selectInPageSlide(7)" class="group cursor-pointer bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-[#C29236] transition shadow-sm hover:shadow-md">
+          <div class="aspect-[16/10] bg-slate-100 overflow-hidden relative">
+            <img src="assets/slides/slide_7.png" alt="Slide 7: Prototype Notes & Team Credits" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+            <div class="absolute inset-0 bg-[#0C1E36]/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <span class="px-3 py-1.5 rounded-full bg-white text-[#0C1E36] text-xs font-bold shadow flex items-center gap-1.5">
+                <i data-lucide="eye" class="w-3.5 h-3.5 text-[#C29236]"></i> Lihat Slide 7
+              </span>
+            </div>
+          </div>
+          <div class="p-4">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-rose-700 bg-rose-50 px-2 py-0.5 rounded-md border border-rose-200 inline-block mb-1">Slide 7 • Catatan Tim</span>
+            <h4 class="text-sm font-bold text-slate-900">Catatan Prototipe & Roster 8 Anggota</h4>
+            <p class="text-xs text-slate-500 mt-1 leading-relaxed">Ruang lingkup konsep, keamanan, rekomendasi lanjutan, dan kredit tim.</p>
           </div>
         </div>
 

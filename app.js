@@ -1291,10 +1291,81 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.style.overflow = '';
   };
 
-  // --- PRESENTATION SLIDE VIEWER MODAL ---
+  // --- PRESENTATION SLIDE VIEWER MODAL & IN-PAGE INSPECTOR ---
+  const slideDeckData = {
+    1: {
+      title: "Cover & Kolase Tim: Group 4 - Economic Survival",
+      desc: "Halaman judul dan kolase asli 8 mahasiswa perancang konsep LegalEase: Legal Solutions, Made Easy."
+    },
+    2: {
+      title: "Slide 2: Konsep Aplikasi, Alur Penemuan & Notaris",
+      desc: "Peta konsep alur pengguna untuk mencari dan memilih notaris/PPAT terakreditasi berdasarkan domisili dan kebutuhan."
+    },
+    3: {
+      title: "Slide 3: Ruang Konsultasi Terenkripsi (Chat & Video)",
+      desc: "Fitur konsultasi tatap muka online dan chat langsung dengan notaris untuk membahas kebutuhan legalitas usaha."
+    },
+    4: {
+      title: "Slide 4: Template Dokumen & Panduan Bertahap PT",
+      desc: "Katalog draf perjanjian hukum siap pakai serta checklist otomatis pendirian badan usaha secara terstruktur."
+    },
+    5: {
+      title: "Slide 5: Gerbang Transaksi Pembayaran Multi-Channel",
+      desc: "Alur checkout transparan dengan opsi Virtual Account, E-Wallet, QRIS Bank Indonesia, dan kartu pembayaran."
+    },
+    6: {
+      title: "Slide 6: Layanan Korporat B2B & Model Langganan",
+      desc: "Paket retainer bulanan (mulai Rp 1.500.000/bulan) untuk startup, UMKM, dan perlindungan dokumen pemegang saham."
+    },
+    7: {
+      title: "Slide 7: Catatan Prototipe, Keamanan & Roster Tim",
+      desc: "Ruang lingkup konsep 7 layar, jaminan kerahasiaan data hukum, rekomendasi langkah lanjutan, dan daftar 8 perancang."
+    }
+  };
+
+  window.selectInPageSlide = function(slideIndex) {
+    state.currentSlide = slideIndex || 1;
+    updateInPageSlide();
+    if (window.lucide) window.lucide.createIcons();
+  };
+
+  window.stepInPageSlide = function(delta) {
+    let next = state.currentSlide + delta;
+    if (next < 1) next = state.totalSlides;
+    if (next > state.totalSlides) next = 1;
+    state.currentSlide = next;
+    updateInPageSlide();
+    if (window.lucide) window.lucide.createIcons();
+  };
+
+  function updateInPageSlide() {
+    const imgEl = document.getElementById('inpage-slide-img');
+    const badgeEl = document.getElementById('inpage-slide-badge');
+    const titleEl = document.getElementById('inpage-slide-title');
+    const descEl = document.getElementById('inpage-slide-desc');
+
+    const cur = slideDeckData[state.currentSlide] || slideDeckData[1];
+    if (imgEl) imgEl.src = `assets/slides/slide_${state.currentSlide}.png`;
+    if (badgeEl) badgeEl.textContent = `Slide ${state.currentSlide} dari ${state.totalSlides}`;
+    if (titleEl) titleEl.textContent = cur.title;
+    if (descEl) descEl.textContent = cur.desc;
+
+    document.querySelectorAll('.inpage-slide-btn').forEach(btn => {
+      const idx = parseInt(btn.getAttribute('data-slide'));
+      if (idx === state.currentSlide) {
+        btn.classList.add('bg-[#0C1E36]', 'text-white', 'shadow-sm');
+        btn.classList.remove('bg-white', 'text-slate-700', 'hover:bg-slate-100');
+      } else {
+        btn.classList.remove('bg-[#0C1E36]', 'text-white', 'shadow-sm');
+        btn.classList.add('bg-white', 'text-slate-700', 'hover:bg-slate-100');
+      }
+    });
+  }
+
   window.openSlideModal = function(slideIndex) {
     state.currentSlide = slideIndex || 1;
     renderSlideModal();
+    updateInPageSlide();
     const modal = document.getElementById('slide-modal');
     if (modal) modal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
@@ -1312,6 +1383,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (next > state.totalSlides) next = 1;
     state.currentSlide = next;
     renderSlideModal();
+    updateInPageSlide();
   };
 
   function renderSlideModal() {
@@ -1319,19 +1391,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const counterEl = document.getElementById('modal-slide-counter');
     const titleEl = document.getElementById('modal-slide-title');
 
-    const slideTitles = {
-      1: "Cover: Economic Survival - Team Title Slide",
-      2: "Slide 2: App Concept & Value Proposition",
-      3: "Slide 3: User Flow & 3-Sided Ecosystem",
-      4: "Slide 4: Prototype Screens (Home, Choose Notary, Consultation)",
-      5: "Slide 5: Prototype Screens (Templates, Checklists, Payment)",
-      6: "Slide 6: Business Services (B2B Retainer Model)",
-      7: "Slide 7: Prototype Notes, Trust & Team Credits"
-    };
-
+    const cur = slideDeckData[state.currentSlide] || slideDeckData[1];
     if (imgEl) imgEl.src = `assets/slides/slide_${state.currentSlide}.png`;
     if (counterEl) counterEl.textContent = `Slide ${state.currentSlide} / ${state.totalSlides}`;
-    if (titleEl) titleEl.textContent = slideTitles[state.currentSlide] || `Slide ${state.currentSlide}`;
+    if (titleEl) titleEl.textContent = cur.title;
   }
 
   // --- TOAST NOTIFICATIONS ---
@@ -1374,7 +1437,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Initialize Simulator
+  // Initialize Simulator & In-Page Slide Inspector
   renderScreen();
   updateScreenNavButtons();
+  updateInPageSlide();
 });
