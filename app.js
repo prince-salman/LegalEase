@@ -97,14 +97,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnScreenshot = document.getElementById('btn-mode-screenshot');
 
     if (mode === 'interactive') {
-      btnInteractive?.classList.add('bg-amber-600', 'text-white', 'shadow-sm');
+      btnInteractive?.classList.add('bg-[#C29236]', 'text-[#0C1E36]', 'shadow-sm');
       btnInteractive?.classList.remove('text-slate-300', 'hover:text-white');
-      btnScreenshot?.classList.remove('bg-amber-600', 'text-white', 'shadow-sm');
+      btnScreenshot?.classList.remove('bg-[#C29236]', 'text-[#0C1E36]', 'shadow-sm');
       btnScreenshot?.classList.add('text-slate-300', 'hover:text-white');
     } else {
-      btnScreenshot?.classList.add('bg-amber-600', 'text-white', 'shadow-sm');
+      btnScreenshot?.classList.add('bg-[#C29236]', 'text-[#0C1E36]', 'shadow-sm');
       btnScreenshot?.classList.remove('text-slate-300', 'hover:text-white');
-      btnInteractive?.classList.remove('bg-amber-600', 'text-white', 'shadow-sm');
+      btnInteractive?.classList.remove('bg-[#C29236]', 'text-[#0C1E36]', 'shadow-sm');
       btnInteractive?.classList.add('text-slate-300', 'hover:text-white');
     }
     renderScreen();
@@ -114,11 +114,11 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.screen-select-btn').forEach(btn => {
       const target = parseInt(btn.getAttribute('data-screen'));
       if (target === state.currentScreen) {
-        btn.classList.add('bg-slate-900', 'text-amber-400', 'border-amber-400/40', 'shadow-md');
-        btn.classList.remove('bg-slate-800/60', 'text-slate-300', 'border-slate-700');
+        btn.classList.add('bg-[#162B48]', 'text-amber-300', 'border-[#C29236]/60', 'shadow-sm');
+        btn.classList.remove('bg-[#162B48]/50', 'text-slate-300', 'border-white/10');
       } else {
-        btn.classList.remove('bg-slate-900', 'text-amber-400', 'border-amber-400/40', 'shadow-md');
-        btn.classList.add('bg-slate-800/60', 'text-slate-300', 'border-slate-700');
+        btn.classList.remove('bg-[#162B48]', 'text-amber-300', 'border-[#C29236]/60', 'shadow-sm');
+        btn.classList.add('bg-[#162B48]/50', 'text-slate-300', 'border-white/10');
       }
     });
 
