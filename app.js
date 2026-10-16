@@ -12,9 +12,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- STATE MANAGEMENT ---
   const state = {
-    currentScreen: 1, // 1 to 7
+    currentScreen: 1, // 1 to 7, 8: Video Call
     screenViewMode: 'interactive', // 'interactive' or 'screenshot'
     activeNotaryFilter: 'all',
+    videoCallNotary: 'Notary A, S.H., M.Kn.',
+    isCallMuted: false,
+    callSeconds: 0,
+    callTimerInterval: null,
     checklist: [
       { id: 1, text: "Prepare founders' ID & tax no. (KTP & NPWP Pendiri)", completed: true },
       { id: 2, text: "Set name & business activities (Nama PT & KBLI)", completed: true },
@@ -37,12 +41,14 @@ document.addEventListener('DOMContentLoaded', () => {
         attachmentTitle: 'PT Setup Checklist', 
         attachmentSubtitle: 'Automated guide & checklist (PDF)',
         actionTarget: 5,
+        docKey: 'checklist',
         time: '10:15 AM' 
       },
       { sender: 'user', text: 'Okay, thank you! How long does the deed signing usually take?', time: '10:16 AM' }
     ],
     currentSlide: 1,
-    totalSlides: 7
+    totalSlides: 7,
+    lang: 'id' // 'id' or 'en'
   };
 
   // Screen Names & Meta
@@ -53,7 +59,8 @@ document.addEventListener('DOMContentLoaded', () => {
     4: { title: "4. Document Templates", subtitle: "Ready-to-use legal templates for startups and growing businesses." },
     5: { title: "5. Guides & Checklists", subtitle: "Step-by-step guides, checklists, and follow-up reminders keep users on track." },
     6: { title: "6. Payment Gateway", subtitle: "Secure checkout via bank transfer, e-wallet, QRIS, or card." },
-    7: { title: "7. Business Dashboard (B2B)", subtitle: "Monthly B2B subscription (from Rp 1.500.000/month) + corporate document service." }
+    7: { title: "7. Business Dashboard (B2B)", subtitle: "Monthly B2B subscription (from Rp 1.500.000/month) + corporate document service." },
+    8: { title: "Video Consultation", subtitle: "Live encrypted online meeting with licensed Notary & PPAT." }
   };
 
   const originalScreens = {
@@ -63,12 +70,22 @@ document.addEventListener('DOMContentLoaded', () => {
     4: 'assets/screens/screen_4_document_templates.png',
     5: 'assets/screens/screen_5_guides_checklists.png',
     6: 'assets/screens/screen_6_payment.png',
-    7: 'assets/screens/screen_7_business_account.png'
+    7: 'assets/screens/screen_7_business_account.png',
+    8: 'assets/screens/screen_3_consultation_room.png'
   };
 
   // --- SCREEN NAVIGATION ---
   window.goToScreen = function(screenNum) {
-    if (screenNum < 1 || screenNum > 7) return;
+    if (screenNum < 1 || screenNum > 8) return;
+    
+    // Stop video call timer if navigating away from screen 8
+    if (state.currentScreen === 8 && screenNum !== 8) {
+      if (state.callTimerInterval) {
+        clearInterval(state.callTimerInterval);
+        state.callTimerInterval = null;
+      }
+    }
+
     state.currentScreen = screenNum;
     renderScreen();
     updateScreenNavButtons();
@@ -81,14 +98,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (mode === 'interactive') {
       btnInteractive?.classList.add('bg-amber-600', 'text-white', 'shadow-sm');
-      btnInteractive?.classList.remove('text-slate-600', 'hover:bg-slate-100');
+      btnInteractive?.classList.remove('text-slate-300', 'hover:text-white');
       btnScreenshot?.classList.remove('bg-amber-600', 'text-white', 'shadow-sm');
-      btnScreenshot?.classList.add('text-slate-600', 'hover:bg-slate-100');
+      btnScreenshot?.classList.add('text-slate-300', 'hover:text-white');
     } else {
       btnScreenshot?.classList.add('bg-amber-600', 'text-white', 'shadow-sm');
-      btnScreenshot?.classList.remove('text-slate-600', 'hover:bg-slate-100');
+      btnScreenshot?.classList.remove('text-slate-300', 'hover:text-white');
       btnInteractive?.classList.remove('bg-amber-600', 'text-white', 'shadow-sm');
-      btnInteractive?.classList.add('text-slate-600', 'hover:bg-slate-100');
+      btnInteractive?.classList.add('text-slate-300', 'hover:text-white');
     }
     renderScreen();
   };
@@ -106,13 +123,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Update highlights label
-    const meta = screenMeta[state.currentScreen];
+    const meta = screenMeta[state.currentScreen] || screenMeta[1];
     const titleEl = document.getElementById('screen-meta-title');
     const subtitleEl = document.getElementById('screen-meta-subtitle');
     const badgeEl = document.getElementById('screen-meta-badge');
     if (titleEl) titleEl.textContent = meta.title;
     if (subtitleEl) subtitleEl.textContent = meta.subtitle;
-    if (badgeEl) badgeEl.textContent = `Screen ${state.currentScreen} of 7`;
+    if (badgeEl) badgeEl.textContent = state.currentScreen <= 7 ? `Screen ${state.currentScreen} of 7` : 'Live Video Session';
   }
 
   function renderScreen() {
@@ -121,12 +138,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // If Screenshot Mode: render original PDF screen image
     if (state.screenViewMode === 'screenshot') {
+      const screenKey = state.currentScreen > 7 ? 3 : state.currentScreen;
       container.innerHTML = `
         <div class="h-full w-full overflow-y-auto bg-slate-900 flex flex-col items-center justify-start p-2">
           <div class="w-full text-center py-2 text-xs font-semibold text-amber-300 uppercase tracking-wider bg-slate-800/90 rounded-lg mb-2">
             Dokumen Asli (PDF Prototype Mockup)
           </div>
-          <img src="${originalScreens[state.currentScreen]}" alt="Screen ${state.currentScreen}" class="w-full object-contain rounded-xl shadow-lg border border-slate-700" />
+          <img src="${originalScreens[screenKey]}" alt="Screen ${screenKey}" class="w-full object-contain rounded-xl shadow-lg border border-slate-700" />
         </div>
       `;
       return;
@@ -154,6 +172,9 @@ document.addEventListener('DOMContentLoaded', () => {
         break;
       case 7:
         renderB2BDashboardScreen(container);
+        break;
+      case 8:
+        renderVideoCallScreen(container);
         break;
       default:
         renderHomeScreen(container);
@@ -231,7 +252,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </button>
 
             <!-- Video Call -->
-            <button onclick="goToScreen(2)" class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-sm text-left hover:border-purple-500 transition-all group flex flex-col justify-between h-28">
+            <button onclick="startConsultation('Notary A, S.H., M.Kn.', 'video')" class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-sm text-left hover:border-purple-500 transition-all group flex flex-col justify-between h-28">
               <div class="w-9 h-9 rounded-xl bg-purple-50 text-purple-700 flex items-center justify-center group-hover:bg-purple-600 group-hover:text-white transition-colors">
                 <i data-lucide="video" class="w-5 h-5"></i>
               </div>
@@ -403,14 +424,130 @@ document.addEventListener('DOMContentLoaded', () => {
 
   window.startConsultation = function(notaryName, mode) {
     if (mode === 'video') {
-      showToast(`Memulai panggilan video dengan ${notaryName}...`, 'info');
-      setTimeout(() => {
-        alert(`Simulasi Video Call aktif dengan ${notaryName}. Kamera & mikrofon terenkripsi end-to-end.`);
-      }, 400);
+      state.videoCallNotary = notaryName || 'Notary A, S.H., M.Kn.';
+      state.callSeconds = 0;
+      if (state.callTimerInterval) clearInterval(state.callTimerInterval);
+      
+      showToast(`Menghubungkan panggilan video terenkripsi dengan ${notaryName}...`, 'info');
+      state.currentScreen = 8;
+      renderScreen();
+
+      // Start live timer
+      state.callTimerInterval = setInterval(() => {
+        state.callSeconds++;
+        const timerEl = document.getElementById('call-timer');
+        if (timerEl) {
+          const mins = String(Math.floor(state.callSeconds / 60)).padStart(2, '0');
+          const secs = String(state.callSeconds % 60).padStart(2, '0');
+          timerEl.textContent = `${mins}:${secs}`;
+        }
+      }, 1000);
+
     } else {
       showToast(`Membuka ruang chat konsultasi dengan ${notaryName}...`, 'success');
       goToScreen(3);
     }
+  };
+
+  // --- SCREEN 8: IN-PHONE VIDEO CALL INTERFACE ---
+  function renderVideoCallScreen(container) {
+    container.innerHTML = `
+      <div class="flex-1 flex flex-col video-call-screen text-white overflow-hidden relative">
+        <!-- Top Status Call Header -->
+        <div class="p-4 pt-10 flex items-center justify-between z-20 bg-gradient-to-b from-slate-950/80 to-transparent">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <div>
+              <h3 class="text-xs font-bold leading-tight">${state.videoCallNotary}</h3>
+              <span class="text-[9px] text-teal-300 flex items-center gap-1 font-mono">
+                <i data-lucide="lock" class="w-2.5 h-2.5"></i> Encrypted Consultation
+              </span>
+            </div>
+          </div>
+          
+          <!-- Call Duration Timer -->
+          <div class="px-2.5 py-1 rounded-full bg-slate-800/80 border border-slate-700 text-[10px] font-mono font-bold text-amber-300" id="call-timer">
+            00:00
+          </div>
+        </div>
+
+        <!-- Main Video Area (Simulated Notary Presence) -->
+        <div class="flex-1 flex flex-col items-center justify-center p-6 relative">
+          
+          <!-- PiP User Camera Feed -->
+          <div class="absolute top-4 right-4 pip-video z-20 flex flex-col justify-between p-1.5">
+            <span class="text-[8px] font-bold text-white/90 bg-slate-900/60 px-1 py-0.2 rounded w-fit">Anda</span>
+            <div class="w-full flex justify-center pb-1">
+              <i data-lucide="user" class="w-5 h-5 text-white/80"></i>
+            </div>
+          </div>
+
+          <!-- Notary Video Center Display -->
+          <div class="relative flex flex-col items-center">
+            <div class="w-28 h-28 rounded-full bg-gradient-to-tr from-teal-700 via-teal-600 to-slate-800 p-1 shadow-2xl shadow-teal-500/20 mb-4 relative">
+              <div class="w-full h-full rounded-full bg-slate-900 flex items-center justify-center text-3xl font-extrabold text-amber-400 border-2 border-white/20">
+                NA
+              </div>
+              <span class="absolute bottom-1 right-1 w-5 h-5 rounded-full bg-emerald-500 border-2 border-slate-900 flex items-center justify-center">
+                <i data-lucide="mic" class="w-3 h-3 text-white"></i>
+              </span>
+            </div>
+
+            <!-- Audio Waveform Visualization -->
+            <div class="flex items-center gap-1.5 h-6 mb-3">
+              <span class="w-1 bg-amber-400 rounded-full audio-bar-1"></span>
+              <span class="w-1 bg-teal-400 rounded-full audio-bar-2"></span>
+              <span class="w-1 bg-amber-300 rounded-full audio-bar-3"></span>
+              <span class="w-1 bg-teal-300 rounded-full audio-bar-4"></span>
+              <span class="w-1 bg-amber-400 rounded-full audio-bar-2"></span>
+            </div>
+
+            <h4 class="text-sm font-bold text-white text-center">Notaris Sedang Berbicara</h4>
+            <p class="text-[10px] text-slate-300 text-center max-w-[240px] mt-1 leading-relaxed">
+              "Silakan unggah dokumen KTP & NPWP pendiri ke chat, saya akan buatkan draf akta resminya."
+            </p>
+          </div>
+        </div>
+
+        <!-- Video Call Bottom Controls Bar -->
+        <div class="p-4 pb-8 bg-gradient-to-t from-slate-950 via-slate-950/90 to-transparent flex items-center justify-around z-20">
+          <!-- Toggle Mute -->
+          <button onclick="toggleCallMute()" id="btn-call-mute" class="w-11 h-11 rounded-full ${state.isCallMuted ? 'bg-red-600 text-white' : 'bg-slate-800 text-slate-200'} flex items-center justify-center hover:bg-slate-700 transition">
+            <i data-lucide="${state.isCallMuted ? 'mic-off' : 'mic'}" class="w-5 h-5"></i>
+          </button>
+
+          <!-- Switch to Chat -->
+          <button onclick="goToScreen(3)" class="w-11 h-11 rounded-full bg-slate-800 text-slate-200 flex items-center justify-center hover:bg-slate-700 transition">
+            <i data-lucide="message-square" class="w-5 h-5"></i>
+          </button>
+
+          <!-- Toggle Camera -->
+          <button onclick="showToast('Kamera dialihkan', 'info')" class="w-11 h-11 rounded-full bg-slate-800 text-slate-200 flex items-center justify-center hover:bg-slate-700 transition">
+            <i data-lucide="camera-reverse" class="w-5 h-5"></i>
+          </button>
+
+          <!-- End Call Button (Red) -->
+          <button onclick="endVideoCall()" class="w-12 h-12 rounded-full bg-red-600 text-white flex items-center justify-center shadow-lg shadow-red-600/40 hover:bg-red-700 transition">
+            <i data-lucide="phone-off" class="w-6 h-6"></i>
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  window.toggleCallMute = function() {
+    state.isCallMuted = !state.isCallMuted;
+    showToast(state.isCallMuted ? 'Mikrofon dimatikan (Muted)' : 'Mikrofon aktif', 'info');
+    renderVideoCallScreen(document.getElementById('phone-screen-content'));
+  };
+
+  window.endVideoCall = function() {
+    if (state.callTimerInterval) {
+      clearInterval(state.callTimerInterval);
+      state.callTimerInterval = null;
+    }
+    showToast('Sesi panggilan video selesai. Riwayat konsultasi tersimpan.', 'success');
+    goToScreen(3);
   };
 
   // --- SCREEN 3: CONSULTATION ROOM ---
@@ -432,7 +569,7 @@ document.addEventListener('DOMContentLoaded', () => {
               <span class="text-[9px] text-emerald-400 flex items-center gap-1">● Online</span>
             </div>
           </div>
-          <button onclick="startConsultation('Notary A', 'video')" class="w-8 h-8 rounded-full bg-amber-600 text-white flex items-center justify-center hover:bg-amber-700 transition">
+          <button onclick="startConsultation('Notary A, S.H., M.Kn.', 'video')" class="w-8 h-8 rounded-full bg-amber-600 text-white flex items-center justify-center hover:bg-amber-700 transition">
             <i data-lucide="video" class="w-4 h-4"></i>
           </button>
         </div>
@@ -468,9 +605,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         <p class="text-[9px] text-slate-500">${msg.attachmentSubtitle}</p>
                       </div>
                     </div>
-                    <button onclick="goToScreen(${msg.actionTarget})" class="w-full py-1.5 bg-amber-600 text-white text-[10px] font-bold rounded-lg hover:bg-amber-700 transition flex items-center justify-center gap-1">
-                      <i data-lucide="external-link" class="w-3 h-3"></i> Buka Checklist Panduan
-                    </button>
+                    <div class="flex gap-1.5">
+                      <button onclick="goToScreen(${msg.actionTarget})" class="flex-1 py-1.5 bg-amber-600 text-white text-[10px] font-bold rounded-lg hover:bg-amber-700 transition flex items-center justify-center gap-1">
+                        <i data-lucide="check-square" class="w-3 h-3"></i> Buka Checklist
+                      </button>
+                      <button onclick="openDocumentPreview('${msg.docKey || 'checklist'}')" class="py-1.5 px-2 bg-slate-800 text-amber-300 text-[10px] font-bold rounded-lg hover:bg-slate-700 transition flex items-center justify-center gap-1">
+                        <i data-lucide="eye" class="w-3 h-3"></i> Dokumen
+                      </button>
+                    </div>
                     <span class="text-[8px] text-slate-400 block text-right mt-1">${msg.time}</span>
                   </div>
                 </div>
@@ -622,9 +764,14 @@ document.addEventListener('DOMContentLoaded', () => {
                   <span class="text-xs font-bold text-slate-900">${t.price}</span>
                   <span class="text-[9px] text-emerald-600 font-semibold block">Format DOCX + PDF</span>
                 </div>
-                <button onclick="addToCartAndCheckout('${t.name}', ${t.priceNum})" class="px-3.5 py-1.5 bg-amber-600 text-white text-[11px] font-bold rounded-lg hover:bg-amber-700 transition shadow-sm flex items-center gap-1">
-                  <i data-lucide="shopping-cart" class="w-3 h-3"></i> Buy
-                </button>
+                <div class="flex gap-1.5">
+                  <button onclick="openDocumentPreview('${t.id}')" class="px-2.5 py-1.5 bg-slate-100 text-slate-700 text-[11px] font-semibold rounded-lg hover:bg-slate-200 transition flex items-center gap-1">
+                    <i data-lucide="eye" class="w-3 h-3"></i> Pratinjau
+                  </button>
+                  <button onclick="addToCartAndCheckout('${t.name}', ${t.priceNum})" class="px-3 py-1.5 bg-amber-600 text-white text-[11px] font-bold rounded-lg hover:bg-amber-700 transition shadow-sm flex items-center gap-1">
+                    <i data-lucide="shopping-cart" class="w-3 h-3"></i> Buy
+                  </button>
+                </div>
               </div>
             </div>
           `).join('')}
@@ -656,14 +803,19 @@ document.addEventListener('DOMContentLoaded', () => {
     container.innerHTML = `
       <div class="flex-1 flex flex-col bg-slate-50 overflow-y-auto">
         <!-- Top Bar -->
-        <div class="bg-slate-900 text-white p-4 pt-10 sticky top-0 z-10 shadow-sm flex items-center gap-3">
-          <button onclick="goToScreen(1)" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-300 hover:text-white">
-            <i data-lucide="chevron-left" class="w-4 h-4"></i>
-          </button>
-          <div>
-            <h2 class="text-sm font-bold text-white">Guides & Checklists</h2>
-            <p class="text-[10px] text-amber-400">Step-by-step PT Setup</p>
+        <div class="bg-slate-900 text-white p-4 pt-10 sticky top-0 z-10 shadow-sm flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <button onclick="goToScreen(1)" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-300 hover:text-white">
+              <i data-lucide="chevron-left" class="w-4 h-4"></i>
+            </button>
+            <div>
+              <h2 class="text-sm font-bold text-white">Guides & Checklists</h2>
+              <p class="text-[10px] text-amber-400">Step-by-step PT Setup</p>
+            </div>
           </div>
+          <button onclick="openDocumentPreview('checklist')" class="px-2.5 py-1 bg-slate-800 text-amber-300 text-[10px] font-bold rounded-lg hover:bg-slate-700 transition flex items-center gap-1">
+            <i data-lucide="file-text" class="w-3 h-3"></i> PDF
+          </button>
         </div>
 
         <!-- Progress Card -->
@@ -994,6 +1146,150 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
     `;
   }
+
+  // --- FORMAL LEGAL DOCUMENT VIEWER MODAL ---
+  const legalDocs = {
+    coop: {
+      title: "PERJANJIAN KERJASAMA KEMITRAAN BISNIS (PKS)",
+      sub: "Nomor Dokumen: 042/PKS-LE/X/2026",
+      parties: "Pihak Pertama: PT Contoh Maju | Pihak Kedua: Rekanan Mitra Usaha",
+      clauses: [
+        {
+          pasal: "Pasal 1 — Ruang Lingkup Kerjasama",
+          isi: "Para Pihak sepakat untuk menjalin kemitraan strategis dalam pengembangan teknologi hukum terintegrasi serta distribusi layanan bantuan hukum digital bagi pelaku UMKM di seluruh Indonesia."
+        },
+        {
+          pasal: "Pasal 2 — Hak dan Kewajiban",
+          isi: "Pihak Pertama berkewajiban menyediakan infrastruktur platform LegalEase, sedangkan Pihak Kedua menyediakan tenaga keahlian hukum dan verifikasi legalitas dokumen secara berkala dan tepat waktu."
+        },
+        {
+          pasal: "Pasal 3 — Kerahasiaan Informasi (Non-Disclosure)",
+          isi: "Segala data, rahasia dagang, pembukuan, dan materi hukum yang dipertukarkan dalam pelaksanaan perjanjian ini wajib dirahasiakan dan tidak boleh disebarluaskan kepada pihak ketiga tanpa persetujuan tertulis."
+        },
+        {
+          pasal: "Pasal 4 — Penyelesaian Sengketa",
+          isi: "Apabila timbul perselisihan di kemudian hari, Para Pihak sepakat menyelesaikan secara musyawarah untuk mufakat. Apabila tidak tercapai mufakat, perselisihan akan diselesaikan melalui Badan Arbitrase Nasional Indonesia (BANI)."
+        }
+      ]
+    },
+    setup: {
+      title: "DRAF AKTA PENDIRIAN PERSEROAN TERBATAS (PT)",
+      sub: "Kemenkumham RI — Standar Notaris & PPAT Berlisensi",
+      parties: "Para Penghadap: Para Pendiri Perseroan Terbatas",
+      clauses: [
+        {
+          pasal: "Pasal 1 — Nama dan Tempat Kedudukan",
+          isi: "Perseroan ini bernama PT Solusi Legal Mandiri, berkedudukan di wilayah hukum Republik Indonesia dengan kantor pusat yang ditetapkan oleh Direksi."
+        },
+        {
+          pasal: "Pasal 2 — Jangka Waktu Berdiri",
+          isi: "Perseroan didirikan untuk jangka waktu tidak terbatas terhitung sejak tanggal diterbitkannya Keputusan Menteri Hukum dan Hak Asasi Manusia."
+        },
+        {
+          pasal: "Pasal 3 — Maksud, Tujuan dan Kegiatan Usaha",
+          isi: "Maksud dan tujuan perseroan ini adalah menjalankan aktivitas konsultasi manajemen, portal web legal, perizinan berusaha, dan aktivitas pendukung bisnis sesuai Klasifikasi Baku Lapangan Usaha Indonesia (KBLI)."
+        },
+        {
+          pasal: "Pasal 4 — Modal Perseroan",
+          isi: "Modal dasar perseroan ditetapkan sekurang-kurangnya sebesar Rp 50.000.000 (lima puluh juta rupiah), di mana 25% (dua puluh lima persen) daripadanya telah disetor penuh oleh para pemegang saham."
+        }
+      ]
+    },
+    investor: {
+      title: "INVESTOR & SHAREHOLDER AGREEMENT",
+      sub: "Draft Investasi Saham Seri Awal (Seed Stage)",
+      parties: "Antara: Pendiri (Founders) dan Calon Investor / Pemodal Ventura",
+      clauses: [
+        {
+          pasal: "Pasal 1 — Nilai Investasi dan Kepemilikan Saham",
+          isi: "Investor setuju menempatkan sejumlah modal investasi untuk ditukarkan dengan sejumlah persentase saham preferen di dalam perseroan."
+        },
+        {
+          pasal: "Pasal 2 — Hak Suara dan Kursi Dewan Komisaris",
+          isi: "Investor berhak menunjuk sekurang-kurangnya 1 (satu) orang perwakilan sebagai Komisaris Perseroan untuk mengawasi tata kelola keuangan."
+        },
+        {
+          pasal: "Pasal 3 — Hak Penolakan Pertama (Right of First Refusal)",
+          isi: "Setiap pemegang saham yang hendak mengalihkan atau menjual sahamnya wajib menawarkan terlebih dahulu kepada pemegang saham lainnya sebelum ditawarkan kepada pihak luar."
+        }
+      ]
+    },
+    employment: {
+      title: "PERJANJIAN KERJA WAKTU TERTENTU (PKWT)",
+      sub: "Sesuai UU Ketenagakerjaan & PP No. 35 Tahun 2021",
+      parties: "Antara Perusahaan (Pemberi Kerja) dan Pekerja",
+      clauses: [
+        {
+          pasal: "Pasal 1 — Posisi dan Uraian Tugas",
+          isi: "Perusahaan mempekerjakan Karyawan sebagai Legal Specialist dengan tanggung jawab melakukan penyusunan dan penelaahan kontrak kerja sama."
+        },
+        {
+          pasal: "Pasal 2 — Upah dan Fasilitas",
+          isi: "Karyawan berhak menerima gaji pokok bulanan, tunjangan operasional, serta perlindungan jaminan sosial BPJS Ketenagakerjaan dan Kesehatan."
+        },
+        {
+          pasal: "Pasal 3 — Waktu Kerja dan Istirahat",
+          isi: "Waktu kerja diatur selama 8 jam sehari atau 40 jam seminggu sesuai ketentuan perundang-undangan ketenagakerjaan yang berlaku."
+        }
+      ]
+    },
+    checklist: {
+      title: "CHECKLIST VERIFIKASI RESMI PENDIRIAN PT",
+      sub: "Panduan Terpadu Verifikasi Notaris & PPAT Rekanan",
+      parties: "Dikeluarkan oleh: Kantor Notaris & PPAT Rekanan LegalEase",
+      clauses: [
+        {
+          pasal: "1. Data Identitas & Pajak",
+          isi: "KTP Elektronik dan Kartu NPWP yang valid dari minimal 2 (dua) orang Warga Negara Indonesia (WNI) selaku pendiri dan pemegang saham."
+        },
+        {
+          pasal: "2. Penetapan Nama Perusahaan",
+          isi: "Pilihan nama PT terdiri dari minimal 3 (tiga) suku kata berbahasa Indonesia yang belum digunakan oleh entitas lain di database Ditjen AHU Kemenkumham."
+        },
+        {
+          pasal: "3. Domisili dan Alamat Kantor",
+          isi: "Bukti kepemilikan atau sewa tempat usaha (gedung kantor / virtual office) yang berada dalam zonasi perkantoran/komersial."
+        },
+        {
+          pasal: "4. Perizinan OSS RBA & NIB",
+          isi: "Penerbitan Nomor Induk Berusaha (NIB) dan izin operasional berbasis risiko (Risk-Based Approach) melalui sistem Online Single Submission (OSS)."
+        }
+      ]
+    }
+  };
+
+  window.openDocumentPreview = function(docKey) {
+    const doc = legalDocs[docKey] || legalDocs['coop'];
+    const modal = document.getElementById('doc-preview-modal');
+    const titleEl = document.getElementById('doc-preview-title');
+    const subEl = document.getElementById('doc-preview-sub');
+    const partiesEl = document.getElementById('doc-preview-parties');
+    const bodyEl = document.getElementById('doc-preview-body');
+
+    if (titleEl) titleEl.textContent = doc.title;
+    if (subEl) subEl.textContent = doc.sub;
+    if (partiesEl) partiesEl.textContent = doc.parties;
+
+    if (bodyEl) {
+      bodyEl.innerHTML = doc.clauses.map(c => `
+        <div class="mb-4">
+          <h5 class="font-bold text-xs text-slate-900 tracking-wide">${c.pasal}</h5>
+          <p class="text-xs text-slate-700 leading-relaxed mt-1 text-justify">${c.isi}</p>
+        </div>
+      `).join('');
+    }
+
+    if (modal) {
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+  };
+
+  window.closeDocumentPreview = function() {
+    const modal = document.getElementById('doc-preview-modal');
+    if (modal) modal.classList.add('hidden');
+    document.body.style.overflow = '';
+  };
 
   // --- PRESENTATION SLIDE VIEWER MODAL ---
   window.openSlideModal = function(slideIndex) {
