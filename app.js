@@ -142,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
       container.innerHTML = `
         <div class="h-full w-full overflow-y-auto bg-slate-900 flex flex-col items-center justify-start p-2">
           <div class="w-full text-center py-2 text-xs font-semibold text-amber-300 uppercase tracking-wider bg-slate-800/90 rounded-lg mb-2">
-            Dokumen Asli (PDF Prototype Mockup)
+            Original Presentation Mockup (PDF Slide Deck)
           </div>
           <img src="${originalScreens[screenKey]}" alt="Screen ${screenKey}" class="w-full object-contain rounded-xl shadow-lg border border-slate-700" />
         </div>
@@ -272,7 +272,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <p class="text-[10px] text-slate-600 mt-1">Popular guides: PT Setup, Partnership Agreement</p>
               </div>
               <button onclick="goToScreen(5)" class="px-2.5 py-1 bg-amber-600 text-white rounded-lg text-[10px] font-bold hover:bg-amber-700 transition">
-                Lihat
+                Explore
               </button>
             </div>
           </div>
@@ -280,8 +280,8 @@ document.addEventListener('DOMContentLoaded', () => {
           <!-- Fast Notary Quick List -->
           <div class="mb-2">
             <div class="flex items-center justify-between mb-2">
-              <h3 class="text-xs font-bold text-slate-800">Notaris Online Terdekat</h3>
-              <button onclick="goToScreen(2)" class="text-[10px] text-amber-600 font-semibold hover:underline">Lihat Semua</button>
+              <h3 class="text-xs font-bold text-slate-800">Nearby Online Notaries</h3>
+              <button onclick="goToScreen(2)" class="text-[10px] text-amber-600 font-semibold hover:underline">View All</button>
             </div>
             
             <div onclick="goToScreen(3)" class="bg-white p-3 rounded-xl border border-slate-200/80 shadow-sm flex items-center justify-between cursor-pointer hover:border-teal-500 transition">
@@ -297,7 +297,7 @@ document.addEventListener('DOMContentLoaded', () => {
               </div>
               <div class="text-right">
                 <span class="text-xs font-bold text-teal-700">Rp 150k</span>
-                <span class="text-[9px] text-slate-400 block">/sesi</span>
+                <span class="text-[9px] text-slate-400 block">/session</span>
               </div>
             </div>
           </div>
@@ -428,7 +428,7 @@ document.addEventListener('DOMContentLoaded', () => {
       state.callSeconds = 0;
       if (state.callTimerInterval) clearInterval(state.callTimerInterval);
       
-      showToast(`Menghubungkan panggilan video terenkripsi dengan ${notaryName}...`, 'info');
+      showToast(`Connecting encrypted video consultation with ${notaryName}...`, 'info');
       state.currentScreen = 8;
       renderScreen();
 
@@ -444,7 +444,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }, 1000);
 
     } else {
-      showToast(`Membuka ruang chat konsultasi dengan ${notaryName}...`, 'success');
+      showToast(`Opening consultation chat room with ${notaryName}...`, 'success');
       goToScreen(3);
     }
   };
@@ -476,7 +476,7 @@ document.addEventListener('DOMContentLoaded', () => {
           
           <!-- PiP User Camera Feed -->
           <div class="absolute top-4 right-4 pip-video z-20 flex flex-col justify-between p-1.5">
-            <span class="text-[8px] font-bold text-white/90 bg-slate-900/60 px-1 py-0.2 rounded w-fit">Anda</span>
+            <span class="text-[8px] font-bold text-white/90 bg-slate-900/60 px-1 py-0.2 rounded w-fit">You</span>
             <div class="w-full flex justify-center pb-1">
               <i data-lucide="user" class="w-5 h-5 text-white/80"></i>
             </div>
@@ -502,9 +502,9 @@ document.addEventListener('DOMContentLoaded', () => {
               <span class="w-1 bg-amber-400 rounded-full audio-bar-2"></span>
             </div>
 
-            <h4 class="text-sm font-bold text-white text-center">Notaris Sedang Berbicara</h4>
+            <h4 class="text-sm font-bold text-white text-center">Notary Speaking</h4>
             <p class="text-[10px] text-slate-300 text-center max-w-[240px] mt-1 leading-relaxed">
-              "Silakan unggah dokumen KTP & NPWP pendiri ke chat, saya akan buatkan draf akta resminya."
+              "Please upload the founders' ID & tax documents to the chat, and I will prepare the official deed draft for you."
             </p>
           </div>
         </div>
@@ -522,7 +522,7 @@ document.addEventListener('DOMContentLoaded', () => {
           </button>
 
           <!-- Toggle Camera -->
-          <button onclick="showToast('Kamera dialihkan', 'info')" class="w-11 h-11 rounded-full bg-slate-800 text-slate-200 flex items-center justify-center hover:bg-slate-700 transition">
+          <button onclick="showToast('Camera flipped', 'info')" class="w-11 h-11 rounded-full bg-slate-800 text-slate-200 flex items-center justify-center hover:bg-slate-700 transition">
             <i data-lucide="camera-reverse" class="w-5 h-5"></i>
           </button>
 
@@ -537,7 +537,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   window.toggleCallMute = function() {
     state.isCallMuted = !state.isCallMuted;
-    showToast(state.isCallMuted ? 'Mikrofon dimatikan (Muted)' : 'Mikrofon aktif', 'info');
+    showToast(state.isCallMuted ? 'Microphone muted' : 'Microphone unmuted', 'info');
     renderVideoCallScreen(document.getElementById('phone-screen-content'));
   };
 
@@ -546,7 +546,7 @@ document.addEventListener('DOMContentLoaded', () => {
       clearInterval(state.callTimerInterval);
       state.callTimerInterval = null;
     }
-    showToast('Sesi panggilan video selesai. Riwayat konsultasi tersimpan.', 'success');
+    showToast('Video consultation ended. Session history saved.', 'success');
     goToScreen(3);
   };
 
@@ -577,7 +577,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <!-- Encrypted Security Notice -->
         <div class="bg-teal-50 border-b border-teal-100 py-1.5 px-3 flex items-center justify-center gap-1.5 text-[10px] text-teal-800 font-medium">
           <i data-lucide="lock" class="w-3 h-3 text-teal-600"></i>
-          Encrypted & confidential chat (Kerahasiaan Hukum Terjamin)
+          Encrypted & confidential chat (Protected by Notarial Secrecy)
         </div>
 
         <!-- Chat Messages Container -->
@@ -607,10 +607,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     <div class="flex gap-1.5">
                       <button onclick="goToScreen(${msg.actionTarget})" class="flex-1 py-1.5 bg-amber-600 text-white text-[10px] font-bold rounded-lg hover:bg-amber-700 transition flex items-center justify-center gap-1">
-                        <i data-lucide="check-square" class="w-3 h-3"></i> Buka Checklist
+                        <i data-lucide="check-square" class="w-3 h-3"></i> Open Checklist
                       </button>
                       <button onclick="openDocumentPreview('${msg.docKey || 'checklist'}')" class="py-1.5 px-2 bg-slate-800 text-amber-300 text-[10px] font-bold rounded-lg hover:bg-slate-700 transition flex items-center justify-center gap-1">
-                        <i data-lucide="eye" class="w-3 h-3"></i> Dokumen
+                        <i data-lucide="eye" class="w-3 h-3"></i> Document
                       </button>
                     </div>
                     <span class="text-[8px] text-slate-400 block text-right mt-1">${msg.time}</span>
@@ -666,14 +666,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Simulated Smart Response from Notary
     setTimeout(() => {
-      let replyText = "Baik, saya catat kebutuhan Anda. Dokumen legalitas awal akan kami pandu langkah demi langkah.";
+      let replyText = "Understood, I have noted your requirements. We will guide you through the initial legal paperwork step by step.";
       const lower = userText.toLowerCase();
-      if (lower.includes('biaya') || lower.includes('harga') || lower.includes('tarif')) {
-        replyText = "Tarif konsultasi kami adalah Rp 150.000/sesi. Untuk paket akta pendirian PT lengkap SK Kemenkumham, Anda dapat memilih paket di menu Dokumen seharga Rp 299.000.";
-      } else if (lower.includes('berapa lama') || lower.includes('waktu') || lower.includes('hari')) {
-        replyText = "Pembuatan akta pendirian dan SK Kemenkumham rata-rata selesai dalam 3-5 hari kerja setelah dokumen checklist lengkap ditandatangani.";
-      } else if (lower.includes('syarat') || lower.includes('pt') || lower.includes('dokumen')) {
-        replyText = "Syarat utama pendirian PT: KTP & NPWP minimal 2 pendiri, nama PT (3 kata), bidang KBLI, dan alamat domisili usaha. Silakan periksa Checklist yang telah saya kirimkan di atas.";
+      if (lower.includes('fee') || lower.includes('cost') || lower.includes('price') || lower.includes('rate') || lower.includes('biaya') || lower.includes('harga') || lower.includes('tarif')) {
+        replyText = "Our consultation rate is Rp 150,000 per session. For the complete PT establishment deed package with official Ministry approval (SK Kemenkumham), you can select the package under Documents for Rp 299,000.";
+      } else if (lower.includes('how long') || lower.includes('time') || lower.includes('duration') || lower.includes('days') || lower.includes('lama') || lower.includes('waktu') || lower.includes('hari')) {
+        replyText = "Drafting the establishment deed and obtaining Ministry approval typically takes 3-5 business days once all checklist items are signed.";
+      } else if (lower.includes('requirement') || lower.includes('pt') || lower.includes('document') || lower.includes('need') || lower.includes('syarat') || lower.includes('dokumen')) {
+        replyText = "Core requirements for PT setup: ID & Tax numbers for at least 2 founders, 3-word company name, KBLI business classification codes, and office domicile address. Please check the Checklist sent above.";
       }
 
       state.chatMessages.push({ sender: 'notary', text: replyText, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) });
@@ -766,7 +766,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
                 <div class="flex gap-1.5">
                   <button onclick="openDocumentPreview('${t.id}')" class="px-2.5 py-1.5 bg-slate-100 text-slate-700 text-[11px] font-semibold rounded-lg hover:bg-slate-200 transition flex items-center gap-1">
-                    <i data-lucide="eye" class="w-3 h-3"></i> Pratinjau
+                    <i data-lucide="eye" class="w-3 h-3"></i> Preview
                   </button>
                   <button onclick="addToCartAndCheckout('${t.name}', ${t.priceNum})" class="px-3 py-1.5 bg-amber-600 text-white text-[11px] font-bold rounded-lg hover:bg-amber-700 transition shadow-sm flex items-center gap-1">
                     <i data-lucide="shopping-cart" class="w-3 h-3"></i> Buy
@@ -788,7 +788,7 @@ document.addEventListener('DOMContentLoaded', () => {
       { id: 'item-' + Date.now(), title: title, price: price, qty: 1 },
       { id: 'video-consult', title: 'Video consultation - Notary A', price: 150000, qty: 1 }
     ];
-    showToast(`Template "${title}" ditambahkan ke keranjang!`, 'success');
+    showToast(`Template "${title}" added to cart!`, 'success');
     setTimeout(() => {
       goToScreen(6); // Go to payment
     }, 500);
@@ -830,12 +830,12 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden mb-2">
               <div class="h-full bg-teal-600 transition-all duration-500 rounded-full" style="width: ${progressPercent}%;"></div>
             </div>
-            <p class="text-[10px] text-slate-500">${progressPercent}% selesai. Klik centang untuk memperbarui kemajuan.</p>
+            <p class="text-[10px] text-slate-500">${progressPercent}% completed. Tap checklist items to update progress.</p>
           </div>
 
           <!-- Interactive Steps -->
           <div class="bg-white rounded-2xl p-3.5 border border-slate-200/90 shadow-sm mb-3 space-y-2.5">
-            <h4 class="text-xs font-bold text-slate-800 mb-1">Tahapan Pendirian Usaha:</h4>
+            <h4 class="text-xs font-bold text-slate-800 mb-1">Incorporation Roadmap:</h4>
             ${state.checklist.map((step, idx) => `
               <div onclick="toggleChecklistStep(${step.id})" class="flex items-start gap-2.5 p-2 rounded-xl transition cursor-pointer hover:bg-slate-50 ${step.completed ? 'bg-emerald-50/50' : ''}">
                 <div class="w-5 h-5 rounded-md border flex items-center justify-center mt-0.5 transition ${step.completed ? 'bg-teal-600 border-teal-600 text-white' : 'border-slate-300 bg-white text-transparent'}">
@@ -859,7 +859,7 @@ document.addEventListener('DOMContentLoaded', () => {
               <div class="flex-1">
                 <span class="text-[9px] font-bold uppercase tracking-wider text-amber-800">Follow-up reminder</span>
                 <h4 class="text-xs font-bold text-slate-900 mt-0.5">Deed signing schedule from notary</h4>
-                <p class="text-[10px] text-slate-600 mt-1">Jadwal tanda tangan akta fisik bersama Notaris A dijadwalkan setelah kelengkapan data diverifikasi.</p>
+                <p class="text-[10px] text-slate-600 mt-1">Physical deed signing appointment with Notary A will be scheduled after document verification is complete.</p>
               </div>
             </div>
           </div>
@@ -877,7 +877,7 @@ document.addEventListener('DOMContentLoaded', () => {
       item.completed = !item.completed;
       renderChecklistScreen(document.getElementById('phone-screen-content'));
       if (item.completed) {
-        showToast(`Tahap "${item.text.split('(')[0].trim()}" selesai!`, 'success');
+        showToast(`Step "${item.text.split('(')[0].trim()}" completed!`, 'success');
       }
     }
   };
@@ -992,9 +992,9 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   window.handleProcessPayment = function() {
-    showToast('Memproses transaksi pembayaran...', 'info');
+    showToast('Processing payment transaction...', 'info');
     setTimeout(() => {
-      alert('🎉 Pembayaran Berhasil! Transaksi Anda telah diverifikasi oleh Payment Gateway. Notaris rekanan telah menerima jadwal sesi Anda.');
+      alert('🎉 Payment Successful! Your transaction has been verified by the Payment Gateway. The assigned notary has received your session booking.');
       goToScreen(5); // Go back to checklist or consult
     }, 700);
   };
@@ -1048,8 +1048,8 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
 
             <div class="mt-3 pt-2 border-t border-amber-200/60 flex justify-between items-center text-[10px]">
-              <span class="text-slate-500">Mulai dari Rp 1.500.000 / bln</span>
-              <span class="text-amber-800 font-semibold">Perpanjang: 28 Okt</span>
+              <span class="text-slate-500">From Rp 1,500,000 / mo</span>
+              <span class="text-amber-800 font-semibold">Renews: Oct 28</span>
             </div>
           </div>
 
@@ -1066,7 +1066,7 @@ document.addEventListener('DOMContentLoaded', () => {
                   </div>
                   <div>
                     <h4 class="text-xs font-bold text-slate-900">Articles of association change</h4>
-                    <span class="text-[9px] text-slate-400">Perubahan AD/ART & Modal</span>
+                    <span class="text-[9px] text-slate-400">Articles of Incorporation & Capital Amendment</span>
                   </div>
                 </div>
                 <span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[9px] font-bold">
@@ -1098,7 +1098,7 @@ document.addEventListener('DOMContentLoaded', () => {
                   </div>
                   <div>
                     <h4 class="text-xs font-bold text-slate-900">Shareholder resolution</h4>
-                    <span class="text-[9px] text-slate-400">Keputusan Sirkuler RUPS</span>
+                    <span class="text-[9px] text-slate-400">EGMS Circular Resolution</span>
                   </div>
                 </div>
                 <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[9px] font-bold">
@@ -1107,7 +1107,7 @@ document.addEventListener('DOMContentLoaded', () => {
               </div>
             </div>
 
-            <button onclick="showToast('Form permohonan dokumen korporat baru dibuka.', 'info')" class="w-full mt-3 py-2 border border-dashed border-slate-300 rounded-xl text-xs text-slate-600 font-semibold hover:border-amber-500 hover:text-amber-700 transition flex items-center justify-center gap-1">
+            <button onclick="showToast('Corporate document request form opened.', 'info')" class="w-full mt-3 py-2 border border-dashed border-slate-300 rounded-xl text-xs text-slate-600 font-semibold hover:border-amber-500 hover:text-amber-700 transition flex items-center justify-center gap-1">
               <i data-lucide="plus" class="w-3.5 h-3.5"></i> Request Corporate Document
             </button>
           </div>
@@ -1294,32 +1294,32 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- PRESENTATION SLIDE VIEWER MODAL & IN-PAGE INSPECTOR ---
   const slideDeckData = {
     1: {
-      title: "Cover & Kolase Tim: Group 4 - Economic Survival",
-      desc: "Halaman judul dan kolase asli 8 mahasiswa perancang konsep LegalEase: Legal Solutions, Made Easy."
+      title: "Cover & Team Collage: Group 4 - Economic Survival",
+      desc: "Original title slide and handmade team collage of the 8 student creators of LegalEase: Legal Solutions, Made Easy."
     },
     2: {
-      title: "Slide 2: Konsep Aplikasi, Alur Penemuan & Notaris",
-      desc: "Peta konsep alur pengguna untuk mencari dan memilih notaris/PPAT terakreditasi berdasarkan domisili dan kebutuhan."
+      title: "Slide 2: App Concept & Notary Selection Flow",
+      desc: "Concept map of user flow, value proposition, and finding accredited notaries based on location and needs."
     },
     3: {
-      title: "Slide 3: Ruang Konsultasi Terenkripsi (Chat & Video)",
-      desc: "Fitur konsultasi tatap muka online dan chat langsung dengan notaris untuk membahas kebutuhan legalitas usaha."
+      title: "Slide 3: Consultation Room (Encrypted Chat & Video)",
+      desc: "Live online consultation and confidential direct chat with notaries to address legal and business compliance."
     },
     4: {
-      title: "Slide 4: Template Dokumen & Panduan Bertahap PT",
-      desc: "Katalog draf perjanjian hukum siap pakai serta checklist otomatis pendirian badan usaha secara terstruktur."
+      title: "Slide 4: Document Templates & Company Setup Checklist",
+      desc: "Ready-to-use legal contract repository and structured step-by-step company incorporation roadmap."
     },
     5: {
-      title: "Slide 5: Gerbang Transaksi Pembayaran Multi-Channel",
-      desc: "Alur checkout transparan dengan opsi Virtual Account, E-Wallet, QRIS Bank Indonesia, dan kartu pembayaran."
+      title: "Slide 5: Integrated Payment Gateway & Checkout Flow",
+      desc: "Transparent checkout with Virtual Account, E-Wallet, QRIS, and credit card payment options."
     },
     6: {
-      title: "Slide 6: Layanan Korporat B2B & Model Langganan",
-      desc: "Paket retainer bulanan (mulai Rp 1.500.000/bulan) untuk startup, UMKM, dan perlindungan dokumen pemegang saham."
+      title: "Slide 6: Business Services (B2B Retainer Model)",
+      desc: "Monthly retainer packages (from IDR 1,500,000/month) for startups, SMEs, and investor governance."
     },
     7: {
-      title: "Slide 7: Catatan Prototipe, Keamanan & Roster Tim",
-      desc: "Ruang lingkup konsep 7 layar, jaminan kerahasiaan data hukum, rekomendasi langkah lanjutan, dan daftar 8 perancang."
+      title: "Slide 7: Prototype Notes, Trust, Security & Team Roster",
+      desc: "7-screen prototype scope, legal confidentiality guarantees, suggested next steps, and project credits."
     }
   };
 
@@ -1346,7 +1346,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const cur = slideDeckData[state.currentSlide] || slideDeckData[1];
     if (imgEl) imgEl.src = `assets/slides/slide_${state.currentSlide}.png`;
-    if (badgeEl) badgeEl.textContent = `Slide ${state.currentSlide} dari ${state.totalSlides}`;
+    if (badgeEl) badgeEl.textContent = `Slide ${state.currentSlide} of ${state.totalSlides}`;
     if (titleEl) titleEl.textContent = cur.title;
     if (descEl) descEl.textContent = cur.desc;
 
