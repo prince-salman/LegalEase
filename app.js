@@ -162,6 +162,8 @@
 
   const defaultState = {
     currentUser: getSavedSession(), // null if not logged in
+    currentView: 'public', // 'public', 'client_dashboard', 'admin_dashboard'
+    activeClientTab: 'documents', // 'documents', 'chat', 'invoices' // null if not logged in
     adminClientChats: {}, // multi-device client chats received by admin
     activeAdminChatEmail: null,
     checkoutState: {
@@ -540,12 +542,20 @@
 
     // 2. ADMINISTRATOR / NOTARY ACCOUNT
     if (user.role === 'admin') {
+      const isDashboard = (state.currentView === 'admin_dashboard');
       if (desktopContainer) {
         desktopContainer.innerHTML = `
-          <button type="button" onclick="openAdminConsole()" class="px-3.5 py-1.5 rounded-full bg-amber-400 hover:bg-amber-500 text-slate-950 text-xs font-bold transition flex items-center gap-1.5 shadow-xs" title="Buka Konsol Realtime Notaris">
-            <i data-lucide="shield" class="w-3.5 h-3.5"></i>
-            <span>Konsol Notaris</span>
-          </button>
+          ${isDashboard ? `
+            <button type="button" onclick="switchView('public')" class="px-3.5 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition flex items-center gap-1.5 shadow-2xs" title="Lihat Beranda Publik">
+              <i data-lucide="globe" class="w-3.5 h-3.5 text-slate-600"></i>
+              <span>Beranda Publik</span>
+            </button>
+          ` : `
+            <button type="button" onclick="switchView('admin_dashboard')" class="px-3.5 py-1.5 rounded-full bg-amber-400 hover:bg-amber-500 text-slate-950 text-xs font-bold transition flex items-center gap-1.5 shadow-xs" title="Buka Konsol Realtime Notaris">
+              <i data-lucide="shield" class="w-3.5 h-3.5"></i>
+              <span>Konsol Notaris</span>
+            </button>
+          `}
           <button type="button" onclick="openAuthModal('profile')" class="w-8 h-8 rounded-full bg-[#0C1E36] text-amber-300 font-extrabold text-xs flex items-center justify-center border border-amber-400 shadow-2xs" title="Profil Admin">
             AD
           </button>
@@ -561,7 +571,11 @@
               <div class="text-[10px] text-amber-800 font-mono">admin@legalease.co.id</div>
             </div>
             <div class="flex items-center gap-1.5">
-              <button onclick="openAdminConsole(); toggleMobileMenu();" class="px-2.5 py-1 rounded-lg bg-[#0C1E36] text-amber-300 text-[10px] font-bold">Konsol</button>
+              ${isDashboard ? `
+                <button onclick="switchView('public'); toggleMobileMenu();" class="px-2.5 py-1 rounded-lg bg-white border border-slate-300 text-slate-700 text-[10px] font-bold">Beranda</button>
+              ` : `
+                <button onclick="switchView('admin_dashboard'); toggleMobileMenu();" class="px-2.5 py-1 rounded-lg bg-[#0C1E36] text-amber-300 text-[10px] font-bold">Konsol</button>
+              `}
               <button onclick="handleUserSignOut()" class="text-xs font-bold text-rose-600">Keluar</button>
             </div>
           </div>
@@ -569,7 +583,7 @@
       }
       if (mobileAvatarBtn) {
         mobileAvatarBtn.innerHTML = `
-          <button onclick="openAdminConsole()" class="p-1.5 rounded-full bg-amber-400 text-slate-950 font-bold text-xs" title="Konsol Notaris">
+          <button onclick="switchView('admin_dashboard')" class="p-1.5 rounded-full bg-amber-400 text-slate-950 font-bold text-xs" title="Konsol Notaris">
             AD
           </button>
         `;
@@ -583,15 +597,28 @@
     if (user.plan === 'full') badgeClass = 'text-[9px] text-amber-600 font-bold';
     else if (user.plan === 'chat') badgeClass = 'text-[9px] text-teal-600 font-bold';
 
+    const isClientDashboard = (state.currentView === 'client_dashboard');
+
     if (desktopContainer) {
       desktopContainer.innerHTML = `
+        ${isClientDashboard ? `
+          <button type="button" onclick="switchView('public')" class="px-3.5 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition flex items-center gap-1.5 shadow-2xs" title="Lihat Beranda Publik">
+            <i data-lucide="globe" class="w-3.5 h-3.5 text-slate-600"></i>
+            <span>Beranda Publik</span>
+          </button>
+        ` : `
+          <button type="button" onclick="switchView('client_dashboard')" class="px-3.5 py-1.5 rounded-full bg-[#0D7A68] hover:bg-teal-800 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-xs" title="Buka Dashboard Korporasi Klien">
+            <i data-lucide="layout-dashboard" class="w-3.5 h-3.5 text-amber-300"></i>
+            <span>Dashboard Klien</span>
+          </button>
+        `}
         <button id="nav-auth-btn" onclick="openAuthModal('profile')" class="px-3 py-1.5 rounded-full bg-white hover:bg-slate-50 text-[#0C1E36] border border-slate-300 text-xs font-bold transition flex items-center gap-2 shadow-2xs">
           <div class="w-6 h-6 rounded-full bg-[#0C1E36] text-amber-300 text-[10px] font-extrabold flex items-center justify-center">
             ${user.initials || user.fullName.substring(0, 2).toUpperCase()}
           </div>
           <div class="text-left leading-tight hidden md:block max-w-[130px]">
-            <div class="font-bold text-slate-900 text-[11px] truncate">${user.fullName}</div>
-            <div class="${badgeClass} truncate">${user.planName || 'Paket Biasa (Rp 0)'}</div>
+            <div class="font-bold text-slate-900 text-[11px] truncate">${escapeHtml(user.fullName)}</div>
+            <div class="${badgeClass} truncate">${escapeHtml(user.planName || 'Paket Biasa (Rp 0)')}</div>
           </div>
           <i data-lucide="chevron-down" class="w-3 h-3 text-slate-400"></i>
         </button>
@@ -602,10 +629,16 @@
       mobileContainer.innerHTML = `
         <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between">
           <div class="truncate mr-2">
-            <div class="font-bold text-xs text-slate-900 truncate">${user.fullName}</div>
-            <div class="text-[10px] text-slate-500 font-semibold truncate">${user.companyName || user.email}</div>
+            <div class="font-bold text-xs text-slate-900 truncate">${escapeHtml(user.fullName)}</div>
+            <div class="text-[10px] text-slate-500 font-semibold truncate">${escapeHtml(user.companyName || user.email)}</div>
           </div>
           <div class="flex items-center gap-2 shrink-0">
+            ${isClientDashboard ? `
+              <button onclick="switchView('public'); toggleMobileMenu();" class="text-xs font-bold text-slate-700">Beranda</button>
+            ` : `
+              <button onclick="switchView('client_dashboard'); toggleMobileMenu();" class="text-xs font-bold text-[#0D7A68]">Dashboard</button>
+            `}
+            <span class="text-slate-300">|</span>
             <button onclick="openAuthModal('profile')" class="text-xs font-bold text-[#0D7A68]">Profil</button>
             <span class="text-slate-300">|</span>
             <button onclick="handleUserSignOut()" class="text-xs font-bold text-rose-600">Keluar</button>
@@ -616,7 +649,7 @@
 
     if (mobileAvatarBtn) {
       mobileAvatarBtn.innerHTML = `
-        <button onclick="openAuthModal('profile')" class="p-1.5 rounded-full border border-slate-300 bg-white text-slate-700" title="Akun Klien">
+        <button onclick="switchView('client_dashboard')" class="p-1.5 rounded-full border border-slate-300 bg-white text-slate-700" title="Dashboard Klien">
           <div class="w-6 h-6 rounded-full bg-[#0C1E36] text-amber-300 text-[10px] font-extrabold flex items-center justify-center">
             ${user.initials || user.fullName.substring(0, 2).toUpperCase()}
           </div>
@@ -1752,6 +1785,7 @@
         saveState();
         syncNavbarUser();
         closeAuthModal();
+        switchView('admin_dashboard');
         showToast('Autentikasi terverifikasi. Masuk sebagai Notaris Administrator.', 'success');
         return;
       } else {
@@ -1794,6 +1828,7 @@
         saveState();
         syncNavbarUser();
         closeAuthModal();
+        switchView('client_dashboard');
         showToast(`Selamat datang kembali, ${escapeHtml(found.fullName)}!`, 'success');
         return;
       } else {
@@ -1877,6 +1912,7 @@
     saveState();
     syncNavbarUser();
     closeAuthModal();
+    switchView('client_dashboard');
 
     // Broadcast new registration to Realtime channel for cross-device awareness
     if (realtimeChannel) {
@@ -1911,7 +1947,7 @@
     state.currentUser = null;
     saveSession(null);
     saveState();
-    syncNavbarUser();
+    switchView('public');
     closeAuthModal();
     showToast('Anda telah keluar dari akun LegalEase.', 'info');
   };
@@ -2124,7 +2160,8 @@
   // --- RENDER LIVE CHAT MESSAGES ---
   function renderChatMessages() {
     const container = document.getElementById('chat-messages-stream');
-    if (!container) return;
+    const portalContainer = document.getElementById('client-portal-chat-stream');
+    if (!container && !portalContainer) return;
 
     const notaryId = state.activeChatNotaryId || 'notary-1';
     const notary = NOTARIES.find(n => n.id === notaryId) || NOTARIES[0];
@@ -2185,7 +2222,11 @@
     }).join('');
 
     if (window.lucide) window.lucide.createIcons();
-    container.scrollTop = container.scrollHeight;
+    if (container) container.scrollTop = container.scrollHeight;
+    if (portalContainer && container) {
+      portalContainer.innerHTML = container.innerHTML;
+      portalContainer.scrollTop = portalContainer.scrollHeight;
+    }
   }
 
   // --- LIVE CHAT CONTROLLER FUNCTIONS ---
@@ -2543,6 +2584,633 @@
     }
   }
 
+
+  // =========================================================================
+  // MULTI-ROLE VIEW ROUTING & DISTINCT DASHBOARDS SYSTEM
+  // =========================================================================
+
+  window.switchView = function (viewName) {
+    state.currentView = viewName;
+    const publicView = document.getElementById('public-landing-view');
+    const clientView = document.getElementById('client-portal-view');
+    const adminView = document.getElementById('admin-portal-view');
+
+    if (viewName === 'client_dashboard') {
+      if (!state.currentUser) {
+        openAuthModal('login');
+        return;
+      }
+      if (publicView) publicView.classList.add('hidden');
+      if (adminView) adminView.classList.add('hidden');
+      if (clientView) {
+        clientView.classList.remove('hidden');
+        renderClientPortal();
+      }
+    } else if (viewName === 'admin_dashboard') {
+      if (!state.currentUser || state.currentUser.role !== 'admin') {
+        showToast('Akses ditolak: Konsol ini khusus Notaris Administrator.', 'error');
+        return;
+      }
+      if (publicView) publicView.classList.add('hidden');
+      if (clientView) clientView.classList.add('hidden');
+      if (adminView) {
+        adminView.classList.remove('hidden');
+        renderAdminPortal();
+      }
+    } else {
+      // viewName === 'public'
+      if (clientView) clientView.classList.add('hidden');
+      if (adminView) adminView.classList.add('hidden');
+      if (publicView) publicView.classList.remove('hidden');
+    }
+
+    syncNavbarUser();
+    saveState();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (window.lucide) window.lucide.createIcons();
+  };
+
+  // --- DEDICATED CLIENT PORTAL WORKSPACE (ROLE: CLIENT / USER) ---
+  window.switchClientTab = function (tabName) {
+    state.activeClientTab = tabName;
+    renderClientPortal();
+  };
+
+  window.selectClientDocTemplate = function (docKey) {
+    if (!CONTRACT_TEMPLATES[docKey]) return;
+    state.activeDocKey = docKey;
+    renderClientPortal();
+  };
+
+  window.handleClientDocFormInput = function (field, value) {
+    state.docFormData[field] = value;
+    saveState();
+    renderClientPortal();
+  };
+
+  window.handleClientPortalSendChat = function (e) {
+    if (e && e.preventDefault) e.preventDefault();
+    const input = document.getElementById('client-portal-chat-input');
+    if (!input) return;
+    const val = input.value;
+    input.value = '';
+    window.sendChatMessage(val);
+  };
+
+  function renderClientWorkspaceTabBody(user, activeDoc, clauses, notary, msgs, transactions) {
+    if (state.activeClientTab === 'chat') {
+      return `
+        <div class="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm flex flex-col h-[650px]">
+          <!-- Notary Header Bar -->
+          <div class="p-4 px-6 bg-[#0C1E36] text-white flex items-center justify-between shrink-0">
+            <div class="flex items-center gap-3">
+              <div class="relative">
+                <img src="${notary.avatar}" alt="${notary.name}" class="w-11 h-11 rounded-full object-cover border-2 border-emerald-400">
+                <span class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-400 rounded-full border-2 border-[#0C1E36]"></span>
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h3 class="font-bold text-sm text-white">${escapeHtml(notary.name)}</h3>
+                  <span class="text-[9px] text-emerald-300 bg-emerald-950/70 border border-emerald-500/30 px-2 py-0.5 rounded-full font-mono font-semibold">SK RESMI KEMENKUMHAM</span>
+                </div>
+                <p class="text-[11px] text-slate-300 mt-0.5">${escapeHtml(notary.title)} • Online Siaga</p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <span class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold bg-white/10 text-emerald-300 font-mono">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Terhubung Cloud Realtime
+              </span>
+              <button onclick="openBookingModal('${notary.id}', '${notary.name}')" class="px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-950 font-bold text-xs transition flex items-center gap-1.5 shadow-2xs">
+                <i data-lucide="calendar" class="w-3.5 h-3.5"></i> Jadwalkan Temu
+              </button>
+            </div>
+          </div>
+
+          <!-- Trust Security Bar -->
+          <div class="px-6 py-2 bg-[#FAF8F5] border-b border-slate-200 flex items-center justify-between text-[11px] text-slate-600 shrink-0">
+            <div class="flex items-center gap-2">
+              <i data-lucide="lock" class="w-3.5 h-3.5 text-emerald-600"></i>
+              <span>Konsultasi Terenkripsi 256-bit • Rahasia Jabatan Notaris Sesuai UU No. 2 Tahun 2014</span>
+            </div>
+            <div class="font-bold text-[#0C1E36] font-mono text-xs">
+              Klien: ${escapeHtml(user.companyName)}
+            </div>
+          </div>
+
+          <!-- Stream -->
+          <div id="client-portal-chat-stream" class="flex-1 overflow-y-auto p-6 space-y-4 bg-[#FAF9F5] text-xs">
+            <!-- Messages rendered by renderChatMessages() -->
+          </div>
+
+          <!-- Quick Query Pills -->
+          <div class="px-6 py-2.5 bg-white border-t border-slate-100 flex items-center gap-2 overflow-x-auto no-scrollbar shrink-0">
+            <button type="button" onclick="sendQuickPrompt('Bagaimana syarat dan modal pendirian PT sesuai UU Cipta Kerja?')" class="px-3 py-1.5 rounded-full bg-slate-100 hover:bg-teal-50 text-[11px] font-semibold text-slate-700 hover:text-[#0D7A68] hover:border-[#0D7A68]/30 border border-slate-200 whitespace-nowrap transition">
+              💼 Syarat & Modal PT
+            </button>
+            <button type="button" onclick="sendQuickPrompt('Bagaimana aturan uang kompensasi PKWT sesuai PP 35/2021?')" class="px-3 py-1.5 rounded-full bg-slate-100 hover:bg-teal-50 text-[11px] font-semibold text-slate-700 hover:text-[#0D7A68] hover:border-[#0D7A68]/30 border border-slate-200 whitespace-nowrap transition">
+              📜 Kompensasi PKWT
+            </button>
+            <button type="button" onclick="sendQuickPrompt('Bagaimana prosedur pendaftaran merek dagang HAKI di DJKI?')" class="px-3 py-1.5 rounded-full bg-slate-100 hover:bg-teal-50 text-[11px] font-semibold text-slate-700 hover:text-[#0D7A68] hover:border-[#0D7A68]/30 border border-slate-200 whitespace-nowrap transition">
+              ™️ Pendaftaran HAKI
+            </button>
+            <button type="button" onclick="sendQuickPrompt('Apakah klausul kerahasiaan NDA mengikat dan ada denda wanprestasi?')" class="px-3 py-1.5 rounded-full bg-slate-100 hover:bg-teal-50 text-[11px] font-semibold text-slate-700 hover:text-[#0D7A68] hover:border-[#0D7A68]/30 border border-slate-200 whitespace-nowrap transition">
+              🔒 Klausul NDA
+            </button>
+            <button type="button" onclick="sendQuickPrompt('Berapa rincian tarif akta notaris dan PNBP Kemenkumham?')" class="px-3 py-1.5 rounded-full bg-slate-100 hover:bg-teal-50 text-[11px] font-semibold text-slate-700 hover:text-[#0D7A68] hover:border-[#0D7A68]/30 border border-slate-200 whitespace-nowrap transition">
+              ⚖️ Tarif Akta & PNBP
+            </button>
+          </div>
+
+          <!-- Input Form -->
+          <div class="p-4 px-6 bg-white border-t border-slate-200 shrink-0">
+            <form onsubmit="handleClientPortalSendChat(event)" class="flex items-center gap-3">
+              <button type="button" onclick="attachLegalSampleDoc('Draft_Akta_Pendirian_PT.pdf', '248 KB')" class="p-2.5 rounded-xl border border-slate-300 hover:border-[#0D7A68] bg-slate-50 text-slate-600 hover:text-[#0D7A68] transition shrink-0" title="Lampirkan Dokumen Kontrak">
+                <i data-lucide="paperclip" class="w-4 h-4"></i>
+              </button>
+              <input type="text" id="client-portal-chat-input" autocomplete="off" placeholder="Tanyakan permasalahan hukum perusahaan Anda atau kirim draf akta..." class="flex-1 px-4 py-3 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 text-xs focus:outline-none focus:border-[#0D7A68] focus:bg-white transition font-medium">
+              <button type="submit" class="px-5 py-3 rounded-xl bg-[#0D7A68] hover:bg-teal-800 text-white font-bold text-xs transition flex items-center justify-center gap-1.5 shadow-xs shrink-0">
+                <i data-lucide="send" class="w-4 h-4"></i> Kirim Konsultasi
+              </button>
+            </form>
+          </div>
+        </div>
+      `;
+    }
+
+    if (state.activeClientTab === 'invoices') {
+      return `
+        <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm">
+          <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
+            <div>
+              <h3 class="text-lg font-bold text-[#0C1E36]">Riwayat Tagihan & Faktur Pajak Resmi</h3>
+              <p class="text-xs text-slate-500 mt-0.5">Bukti transaksi pelunasan paket hukum dan penagihan berizin Kemenkeu RI</p>
+            </div>
+            <span class="px-3 py-1 rounded-full bg-slate-100 text-slate-700 font-bold text-xs font-mono">
+              ${transactions.length} Faktur
+            </span>
+          </div>
+
+          ${transactions.length === 0 ? `
+            <div class="p-10 text-center bg-slate-50 rounded-2xl border border-slate-200 max-w-xl mx-auto">
+              <i data-lucide="receipt" class="w-12 h-12 text-slate-300 mx-auto mb-3"></i>
+              <h4 class="font-bold text-slate-800 text-sm mb-1">Belum Ada Tagihan Berbayar</h4>
+              <p class="text-xs text-slate-500 mb-6">Akun perusahaan Anda saat ini aktif pada Paket Biasa (Rp 0). Tingkatkan paket untuk menikmati konsultasi tak terbatas dan pembuatan akta resmi notaris.</p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
+                <div class="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs">
+                  <div class="font-bold text-xs text-[#0C1E36]">Full Legal Suite</div>
+                  <div class="text-emerald-700 font-bold text-sm my-1">Rp 300.000 <span class="text-[10px] text-slate-400 font-normal">/bulan</span></div>
+                  <p class="text-[10px] text-slate-500 mb-3">Akses akta PT lengkap, 6 template kontrak, konsultasi prioritas.</p>
+                  <button onclick="openCheckoutModal('full')" class="w-full py-2 rounded-lg bg-[#0D7A68] hover:bg-teal-800 text-white font-bold text-xs transition">Pilih Paket</button>
+                </div>
+                <div class="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs">
+                  <div class="font-bold text-xs text-[#0C1E36]">Konsultasi Chat</div>
+                  <div class="text-emerald-700 font-bold text-sm my-1">Rp 150.000 <span class="text-[10px] text-slate-400 font-normal">/30 hari</span></div>
+                  <p class="text-[10px] text-slate-500 mb-3">Tanya jawab langsung notaris tanpa batas via chat terenkripsi.</p>
+                  <button onclick="openCheckoutModal('chat')" class="w-full py-2 rounded-lg bg-[#0C1E36] hover:bg-slate-800 text-amber-300 font-bold text-xs transition">Pilih Paket</button>
+                </div>
+              </div>
+            </div>
+          ` : `
+            <div class="overflow-x-auto rounded-2xl border border-slate-200">
+              <table class="w-full text-xs text-left">
+                <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase text-[10px] font-bold">
+                  <tr>
+                    <th class="p-4">No. Faktur</th>
+                    <th class="p-4">Paket Layanan</th>
+                    <th class="p-4">Metode Bayar</th>
+                    <th class="p-4">Jumlah (IDR)</th>
+                    <th class="p-4">Status</th>
+                    <th class="p-4">Tanggal</th>
+                    <th class="p-4 text-right">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-slate-700">
+                  ${transactions.map(t => `
+                    <tr class="hover:bg-slate-50 transition">
+                      <td class="p-4 font-mono font-bold text-slate-900">${escapeHtml(t.id)}</td>
+                      <td class="p-4 font-semibold text-[#0C1E36]">${escapeHtml(t.planName)}</td>
+                      <td class="p-4 uppercase font-mono text-[11px]">${escapeHtml(t.method)}</td>
+                      <td class="p-4 font-bold text-[#0D7A68]">IDR ${Number(t.amount || 0).toLocaleString('id-ID')}</td>
+                      <td class="p-4">
+                        <span class="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px]">
+                          ${escapeHtml(t.status || 'LUNAS')}
+                        </span>
+                      </td>
+                      <td class="p-4 text-slate-400">${escapeHtml(t.date)}</td>
+                      <td class="p-4 text-right">
+                        <button onclick="printOfficialInvoice('${t.id}')" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs transition inline-flex items-center gap-1">
+                          <i data-lucide="printer" class="w-3.5 h-3.5"></i> Cetak Bukti
+                        </button>
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          `}
+        </div>
+      `;
+    }
+
+    // Default: 'documents' tab
+    return `
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Left: Template Switcher & Field Customizer -->
+        <div class="lg:col-span-4 space-y-4">
+          <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-4">
+            <h4 class="font-bold text-xs uppercase tracking-wider text-slate-500 font-mono">Pilih Instrumen Dokumen</h4>
+            <div class="space-y-1.5">
+              ${Object.values(CONTRACT_TEMPLATES).map(tmpl => `
+                <button onclick="selectClientDocTemplate('${tmpl.key}')" class="w-full p-3 rounded-2xl text-left transition flex items-center justify-between border ${tmpl.key === activeDoc.key ? 'bg-[#0C1E36] text-white border-[#0C1E36] shadow-sm' : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'}">
+                  <div>
+                    <div class="font-bold text-xs ${tmpl.key === activeDoc.key ? 'text-amber-300' : 'text-slate-900'}">${escapeHtml(tmpl.title)}</div>
+                    <div class="text-[10px] ${tmpl.key === activeDoc.key ? 'text-slate-300' : 'text-slate-500'} mt-0.5">${escapeHtml(tmpl.subtitle)}</div>
+                  </div>
+                  <i data-lucide="chevron-right" class="w-4 h-4 shrink-0 ${tmpl.key === activeDoc.key ? 'text-amber-300' : 'text-slate-400'}"></i>
+                </button>
+              `).join('')}
+            </div>
+          </div>
+
+          <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-3 text-xs">
+            <h4 class="font-bold text-xs uppercase tracking-wider text-slate-500 font-mono">Kustomisasi Pihak & Klausul</h4>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Pihak Pertama (Perseroan Klien)</label>
+              <input type="text" oninput="handleClientDocFormInput('party1Name', this.value)" value="${escapeHtml(state.docFormData.party1Name || user.companyName)}" class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 text-xs font-semibold focus:outline-none focus:border-[#0C1E36]">
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Pihak Kedua (Mitra / Rekan)</label>
+              <input type="text" oninput="handleClientDocFormInput('party2Name', this.value)" value="${escapeHtml(state.docFormData.party2Name || 'PT Rekan Teknologi Mandiri')}" class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 text-xs font-semibold focus:outline-none focus:border-[#0C1E36]">
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block font-bold text-slate-700 mb-1">Kota Penandatanganan</label>
+                <input type="text" oninput="handleClientDocFormInput('contractCity', this.value)" value="${escapeHtml(state.docFormData.contractCity || user.city || 'Jakarta Selatan')}" class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 text-xs font-semibold focus:outline-none focus:border-[#0C1E36]">
+              </div>
+              <div>
+                <label class="block font-bold text-slate-700 mb-1">Nilai Komitmen</label>
+                <input type="text" oninput="handleClientDocFormInput('contractValue', this.value)" value="${escapeHtml(state.docFormData.contractValue || 'Rp 250.000.000')}" class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 text-xs font-semibold focus:outline-none focus:border-[#0C1E36]">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Official Legal Document Preview & Download Actions -->
+        <div class="lg:col-span-8 space-y-4">
+          <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm flex flex-col justify-between">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-slate-100 gap-4">
+              <div>
+                <span class="text-[10px] font-mono uppercase font-bold px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">
+                  DRAF RESMI TERSTANDARISASI
+                </span>
+                <h3 class="text-lg font-bold text-[#0C1E36] mt-1">${escapeHtml(activeDoc.title)}</h3>
+                <p class="text-xs text-slate-500">Nomor: ${escapeHtml(activeDoc.docNo)} • ${escapeHtml(activeDoc.subtitle)}</p>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <button onclick="downloadCurrentDocAsWord()" class="px-4 py-2.5 rounded-xl bg-[#0D7A68] hover:bg-teal-800 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-xs">
+                  <i data-lucide="download" class="w-4 h-4"></i> Unduh Word (.doc)
+                </button>
+                <button onclick="openDocumentPreview('${activeDoc.key}')" class="px-4 py-2.5 rounded-xl bg-[#0C1E36] hover:bg-slate-800 text-amber-300 font-bold text-xs transition flex items-center gap-1.5 shadow-xs">
+                  <i data-lucide="eye" class="w-4 h-4"></i> Cetak / PDF
+                </button>
+              </div>
+            </div>
+
+            <!-- Parchment Paper Document Frame -->
+            <div class="my-6 p-6 sm:p-8 rounded-2xl bg-[#FDFCFA] border border-amber-900/10 shadow-inner font-serif text-slate-800 text-xs leading-relaxed space-y-4 max-h-[480px] overflow-y-auto">
+              <div class="text-center pb-4 border-b border-slate-300">
+                <h4 class="font-bold text-sm uppercase text-[#0C1E36] tracking-wider">${escapeHtml(activeDoc.title)}</h4>
+                <p class="text-[11px] italic text-slate-600 mt-1">Nomor Registrasi: ${escapeHtml(activeDoc.docNo)}</p>
+                <p class="text-[11px] text-slate-500 mt-2">
+                  Pada hari ini bertempat di <strong>${escapeHtml(state.docFormData.contractCity || user.city || 'Jakarta Selatan')}</strong>, telah disepakati dan ditandatangani perjanjian oleh dan antara <strong>${escapeHtml(state.docFormData.party1Name || user.companyName)}</strong> dan <strong>${escapeHtml(state.docFormData.party2Name || 'PT Rekan Teknologi Mandiri')}</strong>.
+                </p>
+              </div>
+
+              ${clauses.map(clause => `
+                <div class="space-y-1">
+                  <h5 class="font-bold text-xs uppercase text-[#0C1E36] font-sans tracking-wide">${escapeHtml(clause.title)}</h5>
+                  <p class="text-justify text-slate-700">${clause.content}</p>
+                </div>
+              `).join('')}
+
+              <div class="pt-6 border-t border-slate-300 grid grid-cols-2 text-center text-[11px] gap-6">
+                <div>
+                  <div class="font-bold text-slate-800">PIHAK PERTAMA</div>
+                  <div class="h-16 flex items-end justify-center font-bold text-[#0C1E36] underline">${escapeHtml(state.docFormData.party1Name || user.companyName)}</div>
+                </div>
+                <div>
+                  <div class="font-bold text-slate-800">PIHAK KEDUA</div>
+                  <div class="h-16 flex items-end justify-center font-bold text-[#0C1E36] underline">${escapeHtml(state.docFormData.party2Name || 'PT Rekan Teknologi Mandiri')}</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-amber-50 border border-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+              <div class="flex items-center gap-2.5">
+                <i data-lucide="shield-alert" class="w-5 h-5 text-amber-700 shrink-0"></i>
+                <span class="text-amber-950">Ingin klausul spesifik yang disesuaikan dengan AD/ART perseroan Anda?</span>
+              </div>
+              <button onclick="switchClientTab('chat')" class="px-4 py-2 rounded-xl bg-[#0C1E36] text-amber-300 font-bold text-xs transition flex items-center justify-center gap-1.5 shrink-0">
+                <i data-lucide="messages-square" class="w-3.5 h-3.5"></i> Konsultasikan ke Notaris
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  window.renderClientPortal = function () {
+    const portal = document.getElementById('client-portal-view');
+    if (!portal) return;
+
+    const user = state.currentUser;
+    if (!user) {
+      portal.innerHTML = `
+        <div class="max-w-md mx-auto p-8 text-center bg-white rounded-3xl border border-slate-200">
+          <p class="text-sm font-bold text-slate-700 mb-3">Silakan masuk untuk mengakses Dashboard Klien.</p>
+          <button onclick="openAuthModal('login')" class="px-5 py-2.5 rounded-xl bg-[#0C1E36] text-amber-300 font-bold text-xs">Masuk Sekarang</button>
+        </div>
+      `;
+      return;
+    }
+
+    if (!state.activeClientTab) state.activeClientTab = 'documents';
+    const activeDoc = CONTRACT_TEMPLATES[state.activeDocKey] || CONTRACT_TEMPLATES.pks;
+
+    const interpolatedClauses = activeDoc.clauses.map(clause => {
+      let content = clause.content
+        .replace(/\{\{party1Name\}\}/g, escapeHtml(state.docFormData.party1Name || user.companyName))
+        .replace(/\{\{party2Name\}\}/g, escapeHtml(state.docFormData.party2Name || 'PT Rekan Teknologi Mandiri'))
+        .replace(/\{\{contractCity\}\}/g, escapeHtml(state.docFormData.contractCity || user.city || 'Jakarta Selatan'))
+        .replace(/\{\{contractDate\}\}/g, escapeHtml(state.docFormData.contractDate || new Date().toISOString().split('T')[0]))
+        .replace(/\{\{contractValue\}\}/g, escapeHtml(state.docFormData.contractValue || 'Rp 250.000.000'));
+      return { title: clause.title, content: content };
+    });
+
+    const notaryId = state.activeChatNotaryId || 'notary-1';
+    const notary = NOTARIES.find(n => n.id === notaryId) || NOTARIES[0];
+    if (!state.chatHistory) state.chatHistory = {};
+    if (!state.chatHistory[notaryId] || state.chatHistory[notaryId].length === 0) {
+      state.chatHistory[notaryId] = generateInitialGreeting(notaryId, user);
+    }
+    const msgs = state.chatHistory[notaryId];
+    const transactions = user.transactions || [];
+
+    portal.innerHTML = `
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+        <!-- 1. Corporate Identity Banner -->
+        <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200">
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            <div>
+              <div class="flex flex-wrap items-center gap-2 mb-2">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 font-mono">
+                  <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                  TERVERIFIKASI AHU KEMENKUMHAM RI
+                </span>
+                <span class="text-xs text-slate-400 font-mono">NIB OSS-RBA: 1289000192834</span>
+              </div>
+              <h1 class="text-2xl sm:text-3xl font-serif-editorial font-bold text-[#0C1E36]">
+                ${escapeHtml(user.companyName)}
+              </h1>
+              <p class="text-xs text-slate-500 mt-1.5 flex flex-wrap items-center gap-3">
+                <span><strong class="text-slate-700">Direktur Utama:</strong> ${escapeHtml(user.fullName)}</span>
+                <span>•</span>
+                <span><strong class="text-slate-700">Kedudukan:</strong> ${escapeHtml(user.city || 'Jakarta Selatan')}</span>
+                <span>•</span>
+                <span><strong class="text-slate-700">Email:</strong> ${escapeHtml(user.email)}</span>
+                <span>•</span>
+                <span><strong class="text-slate-700">WhatsApp:</strong> ${escapeHtml(user.phone || '-')}</span>
+              </p>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-3">
+              <div class="px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-right min-w-[170px]">
+                <div class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Paket Layanan</div>
+                <div class="font-bold text-xs text-[#0C1E36]">${escapeHtml(user.planName || 'Paket Biasa (Rp 0)')}</div>
+                <div class="text-[10px] ${user.plan === 'biasa' ? 'text-amber-600' : 'text-emerald-600'} font-semibold">
+                  ${escapeHtml(user.planDuration || '0 Hari Aktif')}
+                </div>
+              </div>
+
+              ${user.plan === 'biasa' ? `
+                <button onclick="openCheckoutModal('full')" class="px-4 py-3 rounded-2xl bg-[#0D7A68] hover:bg-teal-800 text-white font-bold text-xs shadow-xs transition flex items-center gap-2">
+                  <i data-lucide="zap" class="w-4 h-4 text-amber-300"></i>
+                  <span>Upgrade Paket</span>
+                </button>
+              ` : ''}
+
+              <button onclick="switchView('public')" class="px-4 py-3 rounded-2xl bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 font-bold text-xs transition flex items-center gap-2 shadow-2xs" title="Lihat Beranda Publik">
+                <i data-lucide="globe" class="w-4 h-4 text-slate-500"></i>
+                <span>Beranda Publik</span>
+              </button>
+
+              <button onclick="handleUserSignOut()" class="px-4 py-3 rounded-2xl bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-600 font-bold text-xs transition flex items-center gap-2" title="Keluar">
+                <i data-lucide="log-out" class="w-4 h-4"></i>
+                <span>Keluar</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 4 KPI Cards -->
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-6 pt-6 border-t border-slate-100">
+            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+              <div class="text-[10px] font-bold uppercase text-slate-400 font-mono">Status AHU Online</div>
+              <div class="text-sm font-bold text-[#0C1E36] mt-0.5">Badan Hukum Aktif</div>
+              <div class="text-[10px] text-emerald-600 font-semibold mt-0.5">SK Menkumham Tersedia</div>
+            </div>
+            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+              <div class="text-[10px] font-bold uppercase text-slate-400 font-mono">Draf Dokumen Korporasi</div>
+              <div class="text-sm font-bold text-[#0C1E36] mt-0.5">6 Template Standar</div>
+              <div class="text-[10px] text-slate-500 mt-0.5">PKS, Akta PT, PKWT, NDA</div>
+            </div>
+            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+              <div class="text-[10px] font-bold uppercase text-slate-400 font-mono">Notaris Pendamping</div>
+              <div class="text-sm font-bold text-[#0C1E36] mt-0.5">${escapeHtml(notary.name.split(',')[0])}</div>
+              <div class="text-[10px] text-emerald-600 font-semibold mt-0.5 flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Online Siaga
+              </div>
+            </div>
+            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+              <div class="text-[10px] font-bold uppercase text-slate-400 font-mono">Faktur & Tagihan</div>
+              <div class="text-sm font-bold text-[#0C1E36] mt-0.5">
+                ${user.plan === 'biasa' ? 'Paket Biasa (Rp 0)' : 'Lunas Terverifikasi'}
+              </div>
+              <div class="text-[10px] text-slate-500 mt-0.5">
+                ${transactions.length} Faktur Resmi Tersedia
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Workspace Navigation Tabs -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-1.5 flex flex-wrap items-center gap-1.5 shadow-xs">
+          <button onclick="switchClientTab('documents')" id="btn-client-tab-documents" class="flex-1 py-3 px-4 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${state.activeClientTab === 'documents' ? 'bg-[#0C1E36] text-amber-300 shadow-xs' : 'text-slate-600 hover:text-slate-900'}">
+            <i data-lucide="file-text" class="w-4 h-4"></i>
+            <span>Berkas & Kontrak Perseroan</span>
+          </button>
+          <button onclick="switchClientTab('chat')" id="btn-client-tab-chat" class="flex-1 py-3 px-4 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${state.activeClientTab === 'chat' ? 'bg-[#0C1E36] text-amber-300 shadow-xs' : 'text-slate-600 hover:text-slate-900'}">
+            <i data-lucide="messages-square" class="w-4 h-4"></i>
+            <span>Konsultasi Notaris (Chat Live)</span>
+          </button>
+          <button onclick="switchClientTab('invoices')" id="btn-client-tab-invoices" class="flex-1 py-3 px-4 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${state.activeClientTab === 'invoices' ? 'bg-[#0C1E36] text-amber-300 shadow-xs' : 'text-slate-600 hover:text-slate-900'}">
+            <i data-lucide="receipt" class="w-4 h-4"></i>
+            <span>Riwayat Tagihan & Faktur Pajak</span>
+          </button>
+        </div>
+
+        <!-- 3. Workspace Tab Content -->
+        <div id="client-workspace-tab-content">
+          ${renderClientWorkspaceTabBody(user, activeDoc, interpolatedClauses, notary, msgs, transactions)}
+        </div>
+      </div>
+    `;
+
+    renderChatMessages();
+    if (window.lucide) window.lucide.createIcons();
+
+    if (state.activeClientTab === 'chat') {
+      const stream = document.getElementById('client-portal-chat-stream');
+      if (stream) stream.scrollTop = stream.scrollHeight;
+    }
+  };
+
+  // --- DEDICATED NOTARY COMMAND CENTER (ROLE: NOTARY / ADMIN) ---
+  window.switchAdminPortalTab = function (tabName) {
+    if (!state.currentUser || state.currentUser.role !== 'admin') {
+      showToast('Akses ditolak.', 'error');
+      return;
+    }
+    activeAdminTab = tabName;
+    renderAdminPortal();
+    renderAdminContent();
+  };
+
+  window.renderAdminPortal = function () {
+    const portal = document.getElementById('admin-portal-view');
+    if (!portal) return;
+
+    if (!state.currentUser || state.currentUser.role !== 'admin') {
+      portal.innerHTML = `
+        <div class="max-w-md mx-auto p-8 text-center bg-slate-900 rounded-3xl border border-slate-800 text-white">
+          <p class="text-sm font-bold mb-3">Akses ditolak: Konsol ini khusus Notaris Administrator.</p>
+          <button onclick="openAuthModal('login')" class="px-5 py-2.5 rounded-xl bg-amber-400 text-slate-950 font-bold text-xs">Masuk Administrator</button>
+        </div>
+      `;
+      return;
+    }
+
+    const users = getRegisteredUsers();
+    const clients = Object.values(state.adminClientChats || {});
+    let totalRevenue = 0;
+    users.forEach(u => {
+      if (u.transactions) {
+        u.transactions.forEach(t => {
+          totalRevenue += Number(t.amount || 0);
+        });
+      }
+    });
+    if (totalRevenue === 0) totalRevenue = 850000;
+
+    portal.innerHTML = `
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+        <!-- 1. Executive Notary Banner -->
+        <div class="bg-gradient-to-r from-[#0C1E36] to-[#122b4d] rounded-3xl p-6 sm:p-8 border border-slate-800 shadow-2xl">
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            <div class="flex items-center gap-4">
+              <div class="w-14 h-14 rounded-2xl bg-amber-400 text-slate-950 flex items-center justify-center font-black text-xl shadow-lg border-2 border-amber-300 shrink-0">
+                <i data-lucide="shield" class="w-8 h-8"></i>
+              </div>
+              <div>
+                <div class="flex flex-wrap items-center gap-2 mb-1">
+                  <span class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-[10px] font-bold bg-amber-400/20 text-amber-300 border border-amber-400/30 font-mono">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    DEWAN NOTARIS UTAMA & PPAT RI
+                  </span>
+                  <span class="text-[10px] text-slate-400 font-mono">SK: AHU-0019283.AH.02.01.Tahun 2015</span>
+                </div>
+                <h1 class="text-xl sm:text-2xl font-serif-editorial font-bold text-white">
+                  Prof. Dr. Hendra Gunawan, S.H., M.Kn.
+                </h1>
+                <p class="text-xs text-slate-300 mt-0.5">
+                  Ketua Majelis Kehormatan Notaris & Administrator Eksekutif LegalEase Cloud
+                </p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2.5">
+              <button onclick="switchView('public')" class="px-4 py-2.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs transition flex items-center gap-2 border border-white/10" title="Buka Beranda Publik">
+                <i data-lucide="globe" class="w-4 h-4 text-slate-300"></i>
+                <span>Beranda Publik</span>
+              </button>
+              <button onclick="handleUserSignOut()" class="px-4 py-2.5 rounded-2xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 font-bold text-xs transition flex items-center gap-2" title="Keluar">
+                <i data-lucide="log-out" class="w-4 h-4"></i>
+                <span>Keluar</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 4 Executive KPI Cards -->
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-6 pt-6 border-t border-white/10">
+            <div class="p-4 rounded-2xl bg-black/30 border border-white/5">
+              <div class="text-[10px] font-bold uppercase text-amber-300/80 font-mono">Total Klien Terdaftar</div>
+              <div class="text-2xl font-bold text-white mt-1">${users.length} Perusahaan</div>
+              <div class="text-[10px] text-emerald-400 mt-1 flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Akun Terverifikasi
+              </div>
+            </div>
+            <div class="p-4 rounded-2xl bg-black/30 border border-white/5">
+              <div class="text-[10px] font-bold uppercase text-amber-300/80 font-mono">Total Kas Masuk</div>
+              <div class="text-2xl font-bold text-amber-300 mt-1">Rp ${totalRevenue.toLocaleString('id-ID')}</div>
+              <div class="text-[10px] text-slate-400 mt-1">Settled via QRIS & VA</div>
+            </div>
+            <div class="p-4 rounded-2xl bg-black/30 border border-white/5">
+              <div class="text-[10px] font-bold uppercase text-amber-300/80 font-mono">Sesi Chat Multi-Perangkat</div>
+              <div class="text-2xl font-bold text-white mt-1">${clients.length} Sesi Live</div>
+              <div class="text-[10px] text-teal-400 mt-1">Supabase Realtime Sync</div>
+            </div>
+            <div class="p-4 rounded-2xl bg-black/30 border border-white/5">
+              <div class="text-[10px] font-bold uppercase text-amber-300/80 font-mono">Integrasi SABH AHU</div>
+              <div class="text-2xl font-bold text-emerald-400 mt-1">99.98%</div>
+              <div class="text-[10px] text-slate-400 mt-1">Ditjen AHU Kemenkumham</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Admin Workspace Tabs -->
+        <div class="bg-[#0C1E36] rounded-2xl border border-slate-800 p-1.5 flex flex-wrap items-center gap-1.5 shadow-xs">
+          <button onclick="switchAdminPortalTab('chats')" id="btn-admin-portal-tab-chats" class="flex-1 py-3 px-4 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${activeAdminTab === 'chats' ? 'bg-amber-400 text-slate-950 font-extrabold shadow-xs' : 'text-slate-300 hover:text-white'}">
+            <i data-lucide="messages-square" class="w-4 h-4"></i>
+            <span>Studio Konsultasi Klien Real-Time</span>
+            <span class="px-1.5 py-0.2 rounded-full bg-rose-500 text-white text-[10px] font-mono">${clients.length}</span>
+          </button>
+          <button onclick="switchAdminPortalTab('users')" id="btn-admin-portal-tab-users" class="flex-1 py-3 px-4 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${activeAdminTab === 'users' ? 'bg-amber-400 text-slate-950 font-extrabold shadow-xs' : 'text-slate-300 hover:text-white'}">
+            <i data-lucide="users" class="w-4 h-4"></i>
+            <span>Database Klien Terdaftar (${users.length})</span>
+          </button>
+          <button onclick="switchAdminPortalTab('transactions')" id="btn-admin-portal-tab-transactions" class="flex-1 py-3 px-4 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${activeAdminTab === 'transactions' ? 'bg-amber-400 text-slate-950 font-extrabold shadow-xs' : 'text-slate-300 hover:text-white'}">
+            <i data-lucide="receipt" class="w-4 h-4"></i>
+            <span>Buku Kas Transaksi Finansial</span>
+          </button>
+          <button onclick="switchAdminPortalTab('deeds')" id="btn-admin-portal-tab-deeds" class="flex-1 py-3 px-4 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${activeAdminTab === 'deeds' ? 'bg-amber-400 text-slate-950 font-extrabold shadow-xs' : 'text-slate-300 hover:text-white'}">
+            <i data-lucide="stamp" class="w-4 h-4"></i>
+            <span>Antrean Verifikasi Akta AHU</span>
+          </button>
+        </div>
+
+        <!-- 3. Admin Tab Content Area -->
+        <div id="admin-portal-tab-content" class="bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-2xl text-slate-800 min-h-[580px] flex flex-col">
+          <!-- Rendered dynamically by renderAdminContent() -->
+        </div>
+      </div>
+    `;
+
+    renderAdminContent();
+    if (window.lucide) window.lucide.createIcons();
+  };
+
   // --- ADMIN CONSOLE CONTROLLER ---
   let activeAdminTab = 'chats';
 
@@ -2583,14 +3251,17 @@
 
   function renderAdminContent() {
     const container = document.getElementById('admin-tab-content');
-    if (!container) return;
+    const portalContainer = document.getElementById('admin-portal-tab-content');
+    if (!container && !portalContainer) return;
+
+    let contentHtml = '';
 
     if (activeAdminTab === 'chats') {
       const clients = Object.values(state.adminClientChats);
       const activeEmail = state.activeAdminChatEmail || (clients.length > 0 ? clients[0].clientEmail : null);
       const activeChat = clients.find(c => c.clientEmail === activeEmail) || null;
 
-      container.innerHTML = `
+      contentHtml = `
         <div class="flex-1 flex overflow-hidden">
           <!-- Left Client Threads List -->
           <div class="w-72 sm:w-80 border-r border-slate-200 bg-slate-50 flex flex-col shrink-0">
@@ -2607,11 +3278,11 @@
               ` : clients.map(c => `
                 <div onclick="selectAdminClientChat('${c.clientEmail}')" class="p-3.5 hover:bg-slate-100 cursor-pointer transition ${c.clientEmail === activeEmail ? 'bg-white border-l-4 border-[#0D7A68] shadow-2xs' : ''}">
                   <div class="flex items-center justify-between mb-1">
-                    <span class="font-bold text-xs text-[#0C1E36] truncate">${c.clientName}</span>
+                    <span class="font-bold text-xs text-[#0C1E36] truncate">${escapeHtml(c.clientName)}</span>
                     <span class="text-[9px] text-slate-400 font-mono">${c.messages.length > 0 ? c.messages[c.messages.length - 1].timestamp : ''}</span>
                   </div>
-                  <div class="text-[10px] text-[#0D7A68] font-semibold truncate mb-1">${c.clientCompany}</div>
-                  <div class="text-[11px] text-slate-500 truncate">${c.messages.length > 0 ? c.messages[c.messages.length - 1].text : 'Belum ada pesan'}</div>
+                  <div class="text-[10px] text-[#0D7A68] font-semibold truncate mb-1">${escapeHtml(c.clientCompany)}</div>
+                  <div class="text-[11px] text-slate-500 truncate">${c.messages.length > 0 ? escapeHtml(c.messages[c.messages.length - 1].text) : 'Belum ada pesan'}</div>
                 </div>
               `).join('')}
             </div>
@@ -2622,8 +3293,8 @@
             ${activeChat ? `
               <div class="p-3.5 px-5 bg-slate-50 border-b border-slate-200 flex items-center justify-between shrink-0">
                 <div>
-                  <h4 class="font-bold text-xs text-[#0C1E36]">${activeChat.clientName}</h4>
-                  <p class="text-[10px] text-slate-500">${activeChat.clientCompany} • ${activeChat.clientEmail}</p>
+                  <h4 class="font-bold text-xs text-[#0C1E36]">${escapeHtml(activeChat.clientName)}</h4>
+                  <p class="text-[10px] text-slate-500">${escapeHtml(activeChat.clientCompany)} • ${escapeHtml(activeChat.clientEmail)}</p>
                 </div>
                 <span class="text-[9px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-mono font-bold flex items-center gap-1">
                   <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Terhubung Live
@@ -2636,11 +3307,11 @@
                   <div class="flex items-start gap-2.5 ${m.sender === 'notary' ? 'justify-end ml-auto' : ''} max-w-[85%]">
                     <div class="p-3 rounded-2xl ${m.sender === 'notary' ? 'bg-[#0C1E36] text-white rounded-tr-xs' : 'bg-white border border-slate-200 text-slate-900 rounded-tl-xs shadow-2xs'} space-y-1">
                       <div class="flex items-center gap-1.5 text-[9px] ${m.sender === 'notary' ? 'text-amber-300' : 'text-slate-400'} font-mono">
-                        <span>${m.senderName}</span> • <span>${m.timestamp}</span>
+                        <span>${escapeHtml(m.senderName)}</span> • <span>${m.timestamp}</span>
                       </div>
                       ${m.attachment ? `
                         <div class="p-2 rounded-lg bg-black/10 text-[10px] font-mono flex items-center gap-1.5 mb-1">
-                          <i data-lucide="file" class="w-3.5 h-3.5"></i> ${m.attachment.name}
+                          <i data-lucide="file" class="w-3.5 h-3.5"></i> ${escapeHtml(m.attachment.name)}
                         </div>
                       ` : ''}
                       <div>${formatChatMessage(m.text)}</div>
@@ -2668,7 +3339,7 @@
       `;
     } else if (activeAdminTab === 'users') {
       const users = getRegisteredUsers();
-      container.innerHTML = `
+      contentHtml = `
         <div class="flex-1 overflow-y-auto p-6">
           <div class="flex items-center justify-between mb-4">
             <div>
@@ -2717,7 +3388,7 @@
         }
       });
 
-      container.innerHTML = `
+      contentHtml = `
         <div class="flex-1 overflow-y-auto p-6">
           <div class="flex items-center justify-between mb-4">
             <div>
@@ -2759,8 +3430,82 @@
           </div>
         </div>
       `;
+    } else if (activeAdminTab === 'deeds') {
+      const users = getRegisteredUsers();
+      contentHtml = `
+        <div class="flex-1 overflow-y-auto p-6">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h4 class="font-bold text-sm text-[#0C1E36]">Antrean Verifikasi Akta & SABH Kemenkumham RI</h4>
+              <p class="text-xs text-slate-500">Pemeriksaan minuta akta pendirian perseroan, validasi KBLI 2020, dan SK Pengesahan</p>
+            </div>
+            <span class="px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold text-xs font-mono">Terhubung Ditjen AHU</span>
+          </div>
+
+          <div class="space-y-4">
+            ${users.length === 0 ? `
+              <div class="p-8 text-center text-slate-400 bg-slate-50 rounded-2xl border border-slate-200 text-xs">
+                Belum ada berkas pendirian PT yang masuk dalam antrean verifikasi notaris.
+              </div>
+            ` : users.map((u, idx) => `
+              <div class="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs hover:border-slate-300 transition">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+                  <div>
+                    <span class="text-[10px] font-bold font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-600">BERKAS #${idx + 1}</span>
+                    <h5 class="font-bold text-sm text-[#0C1E36] mt-1">${escapeHtml(u.companyName)}</h5>
+                    <p class="text-xs text-slate-500">Direktur Utama: ${escapeHtml(u.fullName)} • Domisili: ${escapeHtml(u.city || 'DKI Jakarta')}</p>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
+                      Menunggu Tanda Tangan Minuta
+                    </span>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 py-3 text-xs">
+                  <div class="flex items-center gap-1.5 text-emerald-700">
+                    <i data-lucide="check-circle" class="w-4 h-4"></i>
+                    <span>Pengecekan Nama AHU</span>
+                  </div>
+                  <div class="flex items-center gap-1.5 text-emerald-700">
+                    <i data-lucide="check-circle" class="w-4 h-4"></i>
+                    <span>KBLI 2020 Terverifikasi</span>
+                  </div>
+                  <div class="flex items-center gap-1.5 text-emerald-700">
+                    <i data-lucide="check-circle" class="w-4 h-4"></i>
+                    <span>Modal Disetor (Min 25%)</span>
+                  </div>
+                  <div class="flex items-center gap-1.5 text-teal-700">
+                    <i data-lucide="clock" class="w-4 h-4"></i>
+                    <span>SK Pengesahan AHU</span>
+                  </div>
+                </div>
+
+                <div class="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
+                  <button onclick="openDocumentPreview('akta_pt')" class="px-3 py-1.5 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-bold transition flex items-center gap-1">
+                    <i data-lucide="eye" class="w-3.5 h-3.5"></i> Pratinjau Minuta
+                  </button>
+                  <button onclick="showToast('Verifikasi akta disetujui. Notaris telah membubuhkan tanda tangan digital bersertifikasi BSrE.', 'success')" class="px-3.5 py-1.5 rounded-xl bg-[#0C1E36] hover:bg-slate-800 text-amber-300 text-xs font-bold transition flex items-center gap-1">
+                    <i data-lucide="stamp" class="w-3.5 h-3.5"></i> Sahkan Akta & Terbitkan SK
+                  </button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
     }
 
+    if (container) {
+      container.innerHTML = contentHtml;
+    }
+    if (portalContainer) {
+      // In full-page portal, use distinct input ID and button label to avoid pointer event intercepts
+      const portalVersion = contentHtml
+        .replace('id="admin-reply-input"', 'id="admin-portal-reply-input"')
+        .replace('Balas Klien', 'Tanggapi Klien');
+      portalContainer.innerHTML = portalVersion;
+    }
     if (window.lucide) window.lucide.createIcons();
   }
 
@@ -2780,11 +3525,12 @@
       showToast('Akses ditolak: Hanya Notaris Administrator yang memiliki izin membalas.', 'error');
       return;
     }
-    const input = document.getElementById('admin-reply-input');
-    if (!input) return;
-    const text = (input.value || '').trim();
+    const inputModal = document.getElementById('admin-reply-input');
+    const inputPortal = document.getElementById('admin-portal-reply-input');
+    const text = ((inputModal && inputModal.value.trim()) || (inputPortal && inputPortal.value.trim()) || '').trim();
     if (!text) return;
-    input.value = '';
+    if (inputModal) inputModal.value = '';
+    if (inputPortal) inputPortal.value = '';
 
     const email = state.activeAdminChatEmail;
     if (!email || !state.adminClientChats[email]) return;
@@ -2832,6 +3578,17 @@
     renderTemplateTabs();
     renderLandingDocPreview();
     renderChecklist();
+
+    // Initialize distinct dashboard view based on active session
+    if (state.currentUser) {
+      if (state.currentUser.role === 'admin') {
+        switchView('admin_dashboard');
+      } else {
+        switchView('client_dashboard');
+      }
+    } else {
+      switchView('public');
+    }
 
     if (window.lucide) {
       window.lucide.createIcons();
