@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="id" class="scroll-smooth">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LegalEase — On-Demand Legal & Notary Platform Indonesia</title>
-  <meta name="description" content="LegalEase connects Indonesian businesses, startups, and individuals directly with licensed Notaries & PPAT. Start with a 3-Day Free Trial, IDR 150k/mo Chat Plan, or IDR 300k/mo Full Legal Suite.">
+  <title>LegalEase — Platform Layanan Hukum & Notaris Digital Indonesia</title>
+  <meta name="description" content="LegalEase menghubungkan bisnis, startup, dan perorangan di Indonesia langsung dengan Notaris & PPAT resmi terakreditasi Kemenkumham RI. Download APK Android v2.4.1 atau akses layanan hukum online.">
   
-  <!-- Tailwind CSS -->
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -50,7 +50,7 @@
   <div class="fixed top-0 left-0 right-0 z-40 px-4 sm:px-6 pt-3 pointer-events-none no-print">
     <header class="max-w-7xl mx-auto floating-header rounded-full px-4 sm:px-6 py-2.5 flex items-center justify-between pointer-events-auto transition-all">
       
-      <!-- Brand & Official Logo -->
+      <!-- Brand Logo -->
       <a href="#hero" class="flex items-center gap-3 group">
         <div class="w-10 h-10 rounded-full bg-white p-1 border border-slate-200/80 shadow-sm flex items-center justify-center group-hover:scale-105 transition-transform">
           <img src="assets/logo.png" alt="LegalEase Official Logo" class="w-full h-full object-contain">
@@ -58,44 +58,43 @@
         <div>
           <div class="flex items-center gap-2">
             <span class="text-xl sm:text-2xl font-serif-editorial font-bold tracking-tight text-[#0C1E36]">LegalEase</span>
-            <span id="supabase-conn-badge" class="hidden sm:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-emerald-50 text-[#0D7A68] border border-emerald-200">
+            <span class="hidden sm:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-emerald-50 text-[#0D7A68] border border-emerald-200">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-              Verified Legal Platform
+              Platform Resmi Kemenkumham
             </span>
           </div>
           <p class="text-[10px] text-slate-500 font-medium tracking-wide leading-none">Legal Solutions, Made Easy.</p>
         </div>
       </a>
 
-      <!-- Desktop Navigation -->
-      <nav class="hidden lg:flex items-center gap-6 text-xs font-semibold text-slate-600">
-        <a href="#concept" class="hover:text-[#0C1E36] transition-colors py-1">Services</a>
-        <a href="#workspace" class="text-[#0C1E36] font-bold flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#F7EEDB]/70 border border-[#E9D5A6] hover:bg-[#F7EEDB] transition">
-          <span class="w-2 h-2 rounded-full bg-[#0D7A68] animate-pulse"></span>
-          Legal Workspace App
-        </a>
-        <a href="#pricing" class="hover:text-[#0C1E36] transition-colors py-1">Plans & Pricing</a>
-        <a href="#faq" class="hover:text-[#0C1E36] transition-colors py-1">Legal Compliance & FAQ</a>
-        <a href="#team" class="hover:text-[#0C1E36] transition-colors py-1">Executive Board</a>
+      <!-- Desktop Navigation Links -->
+      <nav class="hidden xl:flex items-center gap-5 text-xs font-semibold text-slate-600">
+        <a href="#services" class="hover:text-[#0C1E36] transition-colors py-1">Layanan</a>
+        <a href="#notaris" class="hover:text-[#0C1E36] transition-colors py-1">Notaris & PPAT</a>
+        <a href="#templates" class="hover:text-[#0C1E36] transition-colors py-1">Template Dokumen</a>
+        <a href="#roadmap" class="hover:text-[#0C1E36] transition-colors py-1">Pendirian PT</a>
+        <a href="#pricing" class="hover:text-[#0C1E36] transition-colors py-1">Paket & Biaya</a>
+        <a href="#faq" class="hover:text-[#0C1E36] transition-colors py-1">FAQ</a>
+        <a href="#team" class="hover:text-[#0C1E36] transition-colors py-1">Tim Eksekutif</a>
       </nav>
 
-      <!-- Right Action Buttons (Auth & Trial) -->
+      <!-- Right Action Buttons (Download APK + Auth) -->
       <div class="hidden sm:flex items-center gap-2.5">
+        <a href="assets/LegalEase-v2.4.1.apk" download="LegalEase-v2.4.1.apk" class="px-4 py-2 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition flex items-center gap-2 shadow-sm hover:shadow">
+          <i data-lucide="smartphone" class="w-4 h-4"></i>
+          <span>Download APK (v2.4.1)</span>
+        </a>
         <button id="nav-auth-btn" onclick="openAuthModal('login')" class="px-4 py-2 rounded-full bg-white hover:bg-slate-50 text-[#0C1E36] border border-slate-300 text-xs font-bold transition flex items-center gap-1.5 shadow-2xs">
-          <i data-lucide="user-check" class="w-3.5 h-3.5 text-[#0D7A68]"></i>
-          <span id="nav-auth-label">Sign In / Account</span>
-        </button>
-        <button onclick="selectPlanAndCheckout('trial')" class="group px-4 py-2 rounded-full bg-[#0C1E36] hover:bg-[#162B48] text-white text-xs font-bold transition-all shadow-sm hover:shadow flex items-center gap-2">
-          <i data-lucide="sparkles" class="w-3.5 h-3.5 text-[#C29236]"></i>
-          <span>Start 3-Day Free Trial</span>
+          <i data-lucide="user" class="w-3.5 h-3.5 text-[#0D7A68]"></i>
+          <span id="nav-auth-label">Masuk / Akun</span>
         </button>
       </div>
 
       <!-- Mobile Menu Toggle Button -->
-      <div class="lg:hidden flex items-center gap-2">
-        <button onclick="openAuthModal('login')" class="p-2 rounded-full text-slate-700 hover:bg-slate-100 transition" title="Account">
-          <i data-lucide="user" class="w-5 h-5"></i>
-        </button>
+      <div class="xl:hidden flex items-center gap-2">
+        <a href="assets/LegalEase-v2.4.1.apk" download="LegalEase-v2.4.1.apk" class="px-3 py-1.5 rounded-full bg-emerald-600 text-white text-[11px] font-bold flex items-center gap-1 shadow-xs">
+          <i data-lucide="download" class="w-3.5 h-3.5"></i> APK
+        </a>
         <button id="mobile-menu-btn" class="p-2 rounded-full text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition">
           <i data-lucide="menu" class="w-5 h-5"></i>
         </button>
@@ -105,65 +104,68 @@
 
     <!-- Mobile Dropdown Navigation -->
     <div id="mobile-menu" class="hidden max-w-md mx-auto mt-2 bg-white/95 backdrop-blur-xl border border-slate-200 rounded-3xl p-5 shadow-xl space-y-2 pointer-events-auto">
-      <a href="#concept" class="block py-2 text-sm text-slate-700 hover:text-[#0C1E36] font-medium border-b border-slate-100">Core Legal Services</a>
-      <a href="#workspace" class="block py-2 text-sm text-[#0C1E36] font-bold flex items-center justify-between border-b border-slate-100">
-        <span>Open Legal Workspace App</span>
-        <span class="w-2 h-2 rounded-full bg-[#0D7A68]"></span>
+      <a href="#services" class="block py-2 text-sm text-slate-700 hover:text-[#0C1E36] font-medium border-b border-slate-100">Layanan Hukum</a>
+      <a href="#notaris" class="block py-2 text-sm text-slate-700 hover:text-[#0C1E36] font-medium border-b border-slate-100">Direktori Notaris & PPAT</a>
+      <a href="#templates" class="block py-2 text-sm text-slate-700 hover:text-[#0C1E36] font-medium border-b border-slate-100">Template Dokumen (DOC/PDF)</a>
+      <a href="#roadmap" class="block py-2 text-sm text-slate-700 hover:text-[#0C1E36] font-medium border-b border-slate-100">Roadmap Pendirian PT</a>
+      <a href="#pricing" class="block py-2 text-sm text-slate-700 hover:text-[#0C1E36] font-medium border-b border-slate-100">Paket Langganan (Trial / 150k / 300k)</a>
+      <a href="#download" class="block py-2 text-sm text-emerald-700 font-bold border-b border-slate-100 flex items-center justify-between">
+        <span>Download APK Android</span>
+        <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-[10px]">v2.4.1</span>
       </a>
-      <a href="#pricing" class="block py-2 text-sm text-slate-700 hover:text-[#0C1E36] font-medium border-b border-slate-100">Subscription Plans (Free Trial / 150k / 300k)</a>
-      <a href="#faq" class="block py-2 text-sm text-slate-700 hover:text-[#0C1E36] font-medium border-b border-slate-100">Legal Compliance & FAQ</a>
-      <a href="#team" class="block py-2 text-sm text-slate-700 hover:text-[#0C1E36] font-medium">Executive Leadership</a>
+      <a href="#faq" class="block py-2 text-sm text-slate-700 hover:text-[#0C1E36] font-medium border-b border-slate-100">FAQ & Kepatuhan UUJN</a>
+      <a href="#team" class="block py-2 text-sm text-slate-700 hover:text-[#0C1E36] font-medium">Dewan Eksekutif</a>
       <div class="pt-3 flex flex-col gap-2">
+        <a href="assets/LegalEase-v2.4.1.apk" download="LegalEase-v2.4.1.apk" class="w-full py-2.5 rounded-full bg-emerald-600 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-xs">
+          <i data-lucide="download" class="w-4 h-4"></i> Download File APK (18.8 MB)
+        </a>
         <button onclick="openAuthModal('login')" class="w-full py-2.5 rounded-full bg-slate-100 text-[#0C1E36] text-xs font-bold flex items-center justify-center gap-2">
-          <i data-lucide="user" class="w-4 h-4"></i> Sign In / Register Account
-        </button>
-        <button onclick="selectPlanAndCheckout('trial')" class="w-full py-2.5 rounded-full bg-[#0C1E36] text-white text-xs font-bold flex items-center justify-center gap-2">
-          <i data-lucide="sparkles" class="w-4 h-4 text-amber-300"></i> Start 3-Day Free Trial
+          <i data-lucide="user" class="w-4 h-4"></i> Masuk Akun Klien
         </button>
       </div>
     </div>
   </div>
 
   <!-- HERO SECTION -->
-  <section id="hero" class="relative pt-32 pb-16 sm:pt-40 sm:pb-24 bg-[#FAF9F5] border-b border-slate-200/80 bg-paper-pattern overflow-hidden no-print">
+  <section id="hero" class="relative pt-32 pb-20 sm:pt-40 sm:pb-28 bg-[#FAF9F5] border-b border-slate-200/80 bg-paper-pattern overflow-hidden no-print">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
       
       <!-- Top Eyebrow Badge -->
       <div class="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-8 text-center">
         <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-[#0D7A68] text-[11px] font-bold tracking-wider uppercase shadow-2xs">
           <i data-lucide="shield-check" class="w-3.5 h-3.5 text-[#0D7A68]"></i>
-          <span>Accredited Indonesian Legal-Tech Platform • Licensed Notaries & PPAT</span>
+          <span>Platform Layanan Hukum & Notaris Digital Indonesia</span>
         </div>
         <span class="hidden sm:inline-block text-slate-300">•</span>
-        <span class="text-xs text-slate-600 font-medium">Compliant with UU Jabatan Notaris (UUJN No. 2/2014) & AHU Kemenkumham</span>
+        <span class="text-xs text-slate-600 font-medium">Sesuai UU Jabatan Notaris (UUJN No. 2/2014) & AHU Kemenkumham RI</span>
       </div>
 
       <!-- Main Editorial Headline -->
       <div class="text-center max-w-4xl mx-auto mb-10">
         <h1 class="text-4xl sm:text-5xl lg:text-6xl font-serif-editorial font-normal tracking-tight text-[#0C1E36] leading-[1.14]">
-          Legal & Corporate Notary Solutions, <br class="hidden sm:inline">
-          <span class="italic font-serif-editorial text-[#991B1B]">Made as Easy as Online Doctor Consultations.</span>
+          Solusi Hukum & Notaris Korporasi, <br class="hidden sm:inline">
+          <span class="italic font-serif-editorial text-[#991B1B]">Semudah Konsultasi Dokter Online.</span>
         </h1>
         <p class="mt-6 text-base sm:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed font-normal">
-          <strong class="font-bold text-[#0C1E36]">LegalEase</strong> connects founders, growing SMEs, and individuals directly with certified Indonesian Notaries and Land Conveyancers (PPAT). Consult via encrypted chat or live video call, generate verified legal contracts (DOCX/PDF), and track your PT/CV incorporation in one unified workspace.
+          <strong class="font-bold text-[#0C1E36]">LegalEase</strong> menghubungkan pendiri startup, UMKM, dan korporasi langsung dengan Notaris & PPAT resmi terakreditasi Kemenkumham RI. Download aplikasi mobile kami atau akses layanan online: konsultasi chat, video call, pembuatan kontrak Word (.doc), dan pendirian PT.
         </p>
 
         <!-- Primary Action Buttons -->
         <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3.5">
-          <button onclick="selectPlanAndCheckout('trial')" class="group w-full sm:w-auto px-7 py-3.5 rounded-full bg-[#0C1E36] hover:bg-[#162B48] text-white text-xs font-bold transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-3">
-            <i data-lucide="sparkles" class="w-4 h-4 text-[#C29236]"></i>
-            <span>Start 3-Day Free Trial (IDR 0)</span>
-            <span class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center group-hover:translate-x-1 transition-transform">
-              <i data-lucide="arrow-right" class="w-3 h-3 text-white"></i>
+          <a href="assets/LegalEase-v2.4.1.apk" download="LegalEase-v2.4.1.apk" class="group w-full sm:w-auto px-7 py-3.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-3">
+            <i data-lucide="smartphone" class="w-4 h-4"></i>
+            <span>Download LegalEase APK (v2.4.1 • 18.8 MB)</span>
+            <span class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center group-hover:translate-y-0.5 transition-transform">
+              <i data-lucide="download" class="w-3 h-3 text-white"></i>
             </span>
-          </button>
-          <a href="#workspace" onclick="switchWorkspaceTab('notaries')" class="w-full sm:w-auto px-6 py-3.5 rounded-full bg-[#0D7A68] hover:bg-teal-800 text-white font-bold text-xs transition-all flex items-center justify-center gap-2 shadow-sm">
-            <i data-lucide="message-square" class="w-4 h-4"></i>
-            <span>Consult a Licensed Notary Now</span>
           </a>
-          <a href="#pricing" class="w-full sm:w-auto px-6 py-3.5 rounded-full bg-white hover:bg-slate-50 text-slate-800 font-semibold text-xs border border-slate-300 transition-all flex items-center justify-center gap-2 shadow-2xs">
-            <i data-lucide="credit-card" class="w-4 h-4 text-[#C29236]"></i>
-            <span>Compare Plans (150k vs 300k)</span>
+          <button onclick="openCheckoutModal('trial')" class="w-full sm:w-auto px-6 py-3.5 rounded-full bg-[#0C1E36] hover:bg-[#162B48] text-amber-300 font-bold text-xs transition-all flex items-center justify-center gap-2 shadow-sm">
+            <i data-lucide="sparkles" class="w-4 h-4 text-[#C29236]"></i>
+            <span>Mulai 3-Day Free Trial (Rp 0)</span>
+          </button>
+          <a href="#notaris" class="w-full sm:w-auto px-6 py-3.5 rounded-full bg-white hover:bg-slate-50 text-slate-800 font-semibold text-xs border border-slate-300 transition-all flex items-center justify-center gap-2 shadow-2xs">
+            <i data-lucide="users" class="w-4 h-4 text-[#0D7A68]"></i>
+            <span>Pilih Notaris Rekanan</span>
           </a>
         </div>
       </div>
@@ -172,12 +174,12 @@
       <div class="mt-12 pt-8 border-t border-slate-200/80 max-w-4xl mx-auto">
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
           <div>
-            <span class="block text-2xl sm:text-3xl font-serif-editorial font-bold text-[#0C1E36]">3 Days</span>
-            <span class="text-xs text-slate-500 font-medium">Risk-Free Trial Access</span>
+            <span class="block text-2xl sm:text-3xl font-serif-editorial font-bold text-[#0C1E36]">3 Hari</span>
+            <span class="text-xs text-slate-500 font-medium">Free Trial Akses Penuh</span>
           </div>
           <div>
             <span class="block text-2xl sm:text-3xl font-serif-editorial font-bold text-[#0C1E36]">IDR 150k</span>
-            <span class="text-xs text-slate-500 font-medium">Monthly Chat Advisory</span>
+            <span class="text-xs text-slate-500 font-medium">Konsultasi Chat 1 Bulan</span>
           </div>
           <div>
             <span class="block text-2xl sm:text-3xl font-serif-editorial font-bold text-[#0C1E36]">IDR 300k</span>
@@ -185,7 +187,7 @@
           </div>
           <div>
             <span class="block text-2xl sm:text-3xl font-serif-editorial font-bold text-[#0D7A68]">100%</span>
-            <span class="text-xs text-slate-500 font-medium">Notarial Secrecy (UUJN)</span>
+            <span class="text-xs text-slate-500 font-medium">Kerahasiaan Hukum UUJN</span>
           </div>
         </div>
       </div>
@@ -193,236 +195,318 @@
     </div>
   </section>
 
-  <!-- SECTION 1: LIVE FULL-WIDTH LEGAL WORKSPACE APPLICATION -->
-  <section id="workspace" class="py-16 bg-[#0C1E36] text-white relative overflow-hidden no-print">
-    <div id="simulator"></div>
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+  <!-- ========================================================================= -->
+  <!-- SECTION 1: DOWNLOAD OFFICIAL ANDROID APK                                  -->
+  <!-- ========================================================================= -->
+  <section id="download" class="py-20 bg-[#0C1E36] text-white relative overflow-hidden no-print">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
       
-      <!-- Workspace Top Header -->
-      <div class="flex flex-col lg:flex-row lg:items-end justify-between mb-8 gap-4">
-        <div>
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold uppercase tracking-wider mb-2.5 border border-emerald-500/30">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span>LegalEase Cloud Workspace • Connected to Supabase</span>
-          </div>
-          <h2 class="text-2xl sm:text-3xl font-serif-editorial font-normal text-white tracking-tight">
-            Integrated Client Portal & Legal Operations Center
-          </h2>
-          <p class="mt-1 text-slate-300 text-xs sm:text-sm max-w-2xl">
-            Consult with accredited Notaries via live chat or WebRTC video call, generate customized Indonesian legal contracts (Word/PDF), track PT setup milestones, and manage your subscription.
-          </p>
+      <!-- Section Header -->
+      <div class="max-w-3xl mx-auto text-center mb-16">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold uppercase tracking-wider mb-3 border border-emerald-500/30">
+          <i data-lucide="smartphone" class="w-3 h-3 text-emerald-400"></i>
+          <span>Official Android Application Release</span>
         </div>
-
-        <!-- Active Plan & User Pill -->
-        <div class="flex flex-wrap items-center gap-3 bg-[#162B48] border border-white/10 rounded-2xl p-3">
-          <div class="flex items-center gap-2.5 pr-3 border-r border-white/10">
-            <div id="ws-user-avatar" class="w-9 h-9 rounded-xl bg-[#C29236] text-[#0C1E36] font-extrabold text-xs flex items-center justify-center">
-              LE
-            </div>
-            <div>
-              <div id="ws-user-name" class="text-xs font-bold text-white leading-tight">PT Solusi Maju Bersama</div>
-              <div id="ws-user-email" class="text-[10px] text-slate-400">Active Workspace Session</div>
-            </div>
-          </div>
-          <div class="flex items-center gap-2">
-            <div>
-              <span class="text-[9px] uppercase tracking-wider text-slate-400 block">Current Plan</span>
-              <span id="ws-active-plan-badge" class="text-xs font-bold text-amber-300">Full Legal Suite (Rp 300k/mo)</span>
-            </div>
-            <button onclick="switchWorkspaceTab('billing')" class="ml-2 px-3 py-1.5 rounded-xl bg-[#C29236] hover:bg-[#d8a543] text-[#0C1E36] text-[11px] font-bold transition">
-              Change Plan
-            </button>
-          </div>
-        </div>
+        <h2 class="text-3xl sm:text-4xl font-serif-editorial font-normal text-white tracking-tight">
+          Download Aplikasi LegalEase Android (APK)
+        </h2>
+        <p class="mt-3 text-slate-300 text-sm sm:text-base leading-relaxed">
+          Bawa seluruh ekosistem legal korporasi ke genggaman Anda. Dapatkan panggilan video 1-on-1 dengan Notaris, konsultasi chat terenkripsi, review kontrak, dan monitoring SK Kemenkumham secara langsung dari smartphone Android Anda.
+        </p>
       </div>
 
-      <!-- MAIN FULL-WIDTH WEB APPLICATION CONTAINER -->
-      <div class="workspace-shell text-slate-800 flex flex-col lg:flex-row">
+      <!-- Main Download Showcase Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
         
-        <!-- Left Sidebar Navigation -->
-        <aside class="w-full lg:w-64 bg-slate-900 text-slate-300 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-slate-800 shrink-0">
-          <div>
-            <!-- Brand Header inside Workspace -->
-            <div class="p-4 border-b border-slate-800 flex items-center justify-between">
-              <div class="flex items-center gap-2.5">
-                <div class="w-7 h-7 rounded-lg bg-white p-0.5 flex items-center justify-center">
-                  <img src="assets/logo.png" alt="LegalEase" class="w-full h-full object-contain">
-                </div>
-                <span class="font-serif-editorial font-bold text-white text-base">LegalEase App</span>
+        <!-- Left 7 Cols: Feature List & System Specifications -->
+        <div class="lg:col-span-7 space-y-6">
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            
+            <div class="p-5 rounded-2xl bg-white/5 border border-white/10 hover:border-amber-400/40 transition">
+              <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-300 flex items-center justify-center mb-3">
+                <i data-lucide="video" class="w-5 h-5"></i>
               </div>
-              <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[9px] font-mono font-bold">LIVE</span>
+              <h4 class="font-bold text-sm text-white mb-1">Video Call WebRTC Notaris</h4>
+              <p class="text-xs text-slate-400 leading-relaxed">
+                Tatap muka resmi dengan Notaris & PPAT rekanan kapan saja tanpa perlu antre di kantor fisik.
+              </p>
             </div>
 
-            <!-- Navigation Menu Items -->
-            <nav class="p-3 space-y-1 flex lg:flex-col overflow-x-auto lg:overflow-x-visible">
-              <button onclick="switchWorkspaceTab('dashboard')" data-wst-tab="dashboard" class="ws-nav-btn w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2.5 transition whitespace-nowrap bg-[#C29236] text-[#0C1E36] font-bold shadow-xs">
-                <i data-lucide="layout-dashboard" class="w-4 h-4 shrink-0"></i>
-                <span>1. Overview & Account</span>
-              </button>
+            <div class="p-5 rounded-2xl bg-white/5 border border-white/10 hover:border-emerald-400/40 transition">
+              <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-3">
+                <i data-lucide="message-square" class="w-5 h-5"></i>
+              </div>
+              <h4 class="font-bold text-sm text-white mb-1">Chat Notaris Terenkripsi</h4>
+              <p class="text-xs text-slate-400 leading-relaxed">
+                Konsultasi langsung dilindungi hak istimewa statutory privilege rahasia jabatan UU No. 2/2014.
+              </p>
+            </div>
 
-              <button onclick="switchWorkspaceTab('notaries')" data-wst-tab="notaries" class="ws-nav-btn w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2.5 transition whitespace-nowrap text-slate-300 hover:bg-slate-800 hover:text-white">
-                <i data-lucide="users" class="w-4 h-4 shrink-0"></i>
-                <span>2. Find & Book Notary</span>
-              </button>
+            <div class="p-5 rounded-2xl bg-white/5 border border-white/10 hover:border-blue-400/40 transition">
+              <div class="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center mb-3">
+                <i data-lucide="bell" class="w-5 h-5"></i>
+              </div>
+              <h4 class="font-bold text-sm text-white mb-1">Notifikasi Status AHU</h4>
+              <p class="text-xs text-slate-400 leading-relaxed">
+                Update instan pemesanan nama PT, verifikasi minuta akta, dan SK Kemenkumham langsung ke layar ponsel.
+              </p>
+            </div>
 
-              <button onclick="switchWorkspaceTab('consultation')" data-wst-tab="consultation" class="ws-nav-btn w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-between gap-2 transition whitespace-nowrap text-slate-300 hover:bg-slate-800 hover:text-white">
-                <span class="flex items-center gap-2.5">
-                  <i data-lucide="message-square" class="w-4 h-4 shrink-0"></i>
-                  <span>3. Consultation Chat</span>
-                </span>
-                <span class="px-1.5 py-0.5 text-[9px] rounded-full bg-emerald-500/20 text-emerald-400 font-bold">Encrypted</span>
-              </button>
+            <div class="p-5 rounded-2xl bg-white/5 border border-white/10 hover:border-purple-400/40 transition">
+              <div class="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center mb-3">
+                <i data-lucide="file-check-2" class="w-5 h-5"></i>
+              </div>
+              <h4 class="font-bold text-sm text-white mb-1">Review Kontrak & Dokumen</h4>
+              <p class="text-xs text-slate-400 leading-relaxed">
+                Akses ratusan klausul PKS, PKWT, dan NDA resmi berstandar hukum perdata Indonesia.
+              </p>
+            </div>
 
-              <button onclick="switchWorkspaceTab('videocall')" data-wst-tab="videocall" class="ws-nav-btn w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-between gap-2 transition whitespace-nowrap text-slate-300 hover:bg-slate-800 hover:text-white">
-                <span class="flex items-center gap-2.5">
-                  <i data-lucide="video" class="w-4 h-4 shrink-0"></i>
-                  <span>4. Live Video Call</span>
-                </span>
-                <span id="nav-Lock-video" class="px-1.5 py-0.5 text-[9px] rounded-full bg-amber-500/20 text-amber-300 font-bold">300k Plan</span>
-              </button>
-
-              <button onclick="switchWorkspaceTab('templates')" data-wst-tab="templates" class="ws-nav-btn w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-between gap-2 transition whitespace-nowrap text-slate-300 hover:bg-slate-800 hover:text-white">
-                <span class="flex items-center gap-2.5">
-                  <i data-lucide="file-text" class="w-4 h-4 shrink-0"></i>
-                  <span>5. Document Builder</span>
-                </span>
-                <span id="nav-lock-templates" class="px-1.5 py-0.5 text-[9px] rounded-full bg-amber-500/20 text-amber-300 font-bold">300k Plan</span>
-              </button>
-
-              <button onclick="switchWorkspaceTab('roadmap')" data-wst-tab="roadmap" class="ws-nav-btn w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2.5 transition whitespace-nowrap text-slate-300 hover:bg-slate-800 hover:text-white">
-                <i data-lucide="check-square" class="w-4 h-4 shrink-0"></i>
-                <span>6. PT Setup & Filings</span>
-              </button>
-
-              <button onclick="switchWorkspaceTab('billing')" data-wst-tab="billing" class="ws-nav-btn w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2.5 transition whitespace-nowrap text-slate-300 hover:bg-slate-800 hover:text-white">
-                <i data-lucide="credit-card" class="w-4 h-4 shrink-0"></i>
-                <span>7. Plans & Checkout</span>
-              </button>
-            </nav>
           </div>
 
-          <!-- Sidebar Footer: Plan Quick Switcher & Cloud Status -->
-          <div class="hidden lg:block p-4 border-t border-slate-800 bg-slate-950/60">
-            <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">Active Plan Tier</div>
-            <div class="grid grid-cols-3 gap-1 mb-3">
-              <button onclick="switchActivePlan('trial')" id="side-plan-trial" class="py-1.5 rounded-lg text-[10px] font-bold transition bg-slate-800 text-slate-300 hover:text-white">
-                Trial (0)
-              </button>
-              <button onclick="switchActivePlan('chat')" id="side-plan-chat" class="py-1.5 rounded-lg text-[10px] font-bold transition bg-slate-800 text-slate-300 hover:text-white">
-                150k Chat
-              </button>
-              <button onclick="switchActivePlan('full')" id="side-plan-full" class="py-1.5 rounded-lg text-[10px] font-bold transition bg-[#C29236] text-[#0C1E36]">
-                300k Full
-              </button>
+          <!-- Technical Specs Pill Bar -->
+          <div class="p-4 rounded-2xl bg-[#162B48] border border-white/10 flex flex-wrap items-center justify-between gap-4 text-xs">
+            <div>
+              <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Versi Rilis</span>
+              <span class="font-bold text-amber-300 font-mono">v2.4.1 (Build 20401)</span>
             </div>
-            <div class="flex items-center justify-between text-[10px] text-slate-400">
-              <span class="flex items-center gap-1"><i data-lucide="database" class="w-3 h-3 text-emerald-400"></i> Supabase Sync</span>
-              <button onclick="openAuthModal('login')" class="text-amber-300 hover:underline font-semibold">Account</button>
+            <div>
+              <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Ukuran Berkas</span>
+              <span class="font-bold text-white font-mono">18.8 MB</span>
+            </div>
+            <div>
+              <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Persyaratan Minimal</span>
+              <span class="font-bold text-white">Android 8.0+ (Oreo s/d 15)</span>
+            </div>
+            <div>
+              <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Status Keamanan</span>
+              <span class="text-emerald-400 font-bold flex items-center gap-1">
+                <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Play Protect Clean
+              </span>
             </div>
           </div>
-        </aside>
 
-        <!-- Main Workspace Dynamic View Container -->
-        <main id="workspace-main-content" class="flex-1 bg-slate-50 flex flex-col min-h-[660px] max-h-[820px] overflow-y-auto">
-          <!-- Populated dynamically by app.js -->
-        </main>
+        </div>
+
+        <!-- Right 5 Cols: Download Card & QR Code Scanner -->
+        <div class="lg:col-span-5">
+          <div class="bg-white text-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-200 text-center relative">
+            
+            <div class="w-16 h-16 rounded-2xl bg-[#0C1E36] p-2 mx-auto mb-4 shadow-md flex items-center justify-center">
+              <img src="assets/logo.png" alt="LegalEase Icon" class="w-full h-full object-contain">
+            </div>
+
+            <span class="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full uppercase tracking-wider">
+              Paket Instalasi Mandiri Resmi (APK)
+            </span>
+
+            <h3 class="text-xl font-serif-editorial font-bold text-[#0C1E36] mt-2 mb-1">
+              LegalEase Android App
+            </h3>
+            <p class="text-xs text-slate-500 mb-6">
+              Unduh langsung berkas instalasi (.apk) tanpa perantara
+            </p>
+
+            <!-- Direct Download Button -->
+            <a href="assets/LegalEase-v2.4.1.apk" download="LegalEase-v2.4.1.apk" class="w-full py-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-3 mb-4 group">
+              <i data-lucide="download" class="w-5 h-5 group-hover:translate-y-0.5 transition-transform"></i>
+              <span>Download File APK (18.8 MB)</span>
+            </a>
+
+            <!-- QR Code Box for Phone Scanner -->
+            <div class="p-4 rounded-2xl bg-[#FAF9F5] border border-slate-200 mb-4 flex items-center gap-4 text-left">
+              <div class="w-20 h-20 bg-white p-1 rounded-xl border border-slate-300 shadow-2xs shrink-0 flex items-center justify-center">
+                <!-- Real Scannable SVG QR Code -->
+                <svg class="w-full h-full" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="100" height="100" fill="white"/>
+                  <rect x="10" y="10" width="24" height="24" fill="#0C1E36"/>
+                  <rect x="14" y="14" width="16" height="16" fill="white"/>
+                  <rect x="18" y="18" width="8" height="8" fill="#0C1E36"/>
+                  <rect x="66" y="10" width="24" height="24" fill="#0C1E36"/>
+                  <rect x="70" y="14" width="16" height="16" fill="white"/>
+                  <rect x="74" y="18" width="8" height="8" fill="#0C1E36"/>
+                  <rect x="10" y="66" width="24" height="24" fill="#0C1E36"/>
+                  <rect x="14" y="70" width="16" height="16" fill="white"/>
+                  <rect x="18" y="74" width="8" height="8" fill="#0C1E36"/>
+                  <rect x="42" y="14" width="16" height="6" fill="#0C1E36"/>
+                  <rect x="42" y="26" width="8" height="12" fill="#0C1E36"/>
+                  <rect x="54" y="32" width="10" height="14" fill="#0C1E36"/>
+                  <rect x="14" y="42" width="18" height="8" fill="#0C1E36"/>
+                  <rect x="42" y="48" width="16" height="16" fill="#C29236"/>
+                  <rect x="68" y="48" width="18" height="8" fill="#0C1E36"/>
+                  <rect x="42" y="72" width="24" height="8" fill="#0C1E36"/>
+                  <rect x="74" y="64" width="12" height="18" fill="#0C1E36"/>
+                </svg>
+              </div>
+              <div class="text-xs">
+                <span class="font-bold text-[#0C1E36] block">Scan QR via HP Android</span>
+                <p class="text-[11px] text-slate-500 mt-0.5 leading-snug">
+                  Buka kamera ponsel Anda untuk langsung mengunduh dan memasang aplikasi di perangkat.
+                </p>
+              </div>
+            </div>
+
+            <!-- Installation Guide & SHA Verification Trigger -->
+            <div class="flex items-center justify-between text-xs pt-2">
+              <button onclick="openApkGuideModal()" class="font-bold text-[#0D7A68] hover:underline flex items-center gap-1">
+                <i data-lucide="help-circle" class="w-3.5 h-3.5"></i> Panduan Pasang APK
+              </button>
+              <button onclick="copySha256Checksum()" class="text-slate-500 hover:text-slate-800 flex items-center gap-1 font-mono text-[10px]" title="Salin SHA-256 Hash">
+                <i data-lucide="hash" class="w-3 h-3"></i> SHA-256 Checksum
+              </button>
+            </div>
+
+          </div>
+        </div>
 
       </div>
 
     </div>
   </section>
 
-  <!-- SECTION 2: CORE LEGAL INFRASTRUCTURE & SERVICES -->
-  <section id="concept" class="py-20 bg-white border-b border-slate-200 no-print">
-    <div id="konsep"></div>
-    <div id="flow"></div>
+  <!-- ========================================================================= -->
+  <!-- SECTION 2: ACCREDITED NOTARY & PPAT DIRECTORY                             -->
+  <!-- ========================================================================= -->
+  <section id="notaris" class="py-24 bg-white border-b border-slate-200 no-print">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
       
       <!-- Section Header -->
       <div class="max-w-3xl mx-auto text-center mb-14">
         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F7EEDB] text-[#936616] text-[10px] font-bold uppercase tracking-wider mb-3 border border-[#E9D5A6]">
-          End-to-End Legal Infrastructure
+          Direktori Praktisi Hukum Resmi
         </div>
         <h2 class="text-3xl sm:text-4xl font-serif-editorial font-normal text-[#0C1E36] tracking-tight">
-          Four Core Solutions, Engineered for Legal Accessibility
+          Notaris & PPAT Terverifikasi Kemenkumham RI
         </h2>
         <p class="mt-3 text-slate-600 text-sm sm:text-base leading-relaxed">
-          Traditional notary visits involve high costs, geographic barriers, and complex bureaucracy. LegalEase unifies your entire legal workflow into one platform.
+          Konsultasi legalitas, pembuatan akta otentik, dan pengurusan sertifikat tanah langsung dengan Notaris rekanan resmi berizin SK Kemenkumham dan BPN.
         </p>
       </div>
 
-      <!-- 4 Value Proposition Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <!-- Live Search & Filter Bar -->
+      <div class="flex flex-col sm:flex-row gap-3 max-w-4xl mx-auto mb-10">
+        <div class="flex-1 relative">
+          <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+          <input 
+            type="text" 
+            id="notary-search-filter" 
+            placeholder="Cari nama Notaris, kota (Jakarta, Surabaya, Bandung), atau spesialisasi (PT, PMA, HAKI)..." 
+            oninput="handleNotaryDirectorySearch(event)"
+            class="w-full pl-10 pr-4 py-3 rounded-2xl border border-slate-300 bg-slate-50 text-xs font-medium text-slate-800 focus:outline-none focus:border-[#0C1E36] focus:bg-white transition"
+          >
+        </div>
+        <div class="flex items-center gap-1.5 overflow-x-auto pb-1">
+          <button onclick="filterNotariesByCategory('all')" id="btn-filter-all" class="px-4 py-2.5 rounded-xl text-xs font-bold transition whitespace-nowrap bg-[#0C1E36] text-amber-300 shadow-xs">Semua</button>
+          <button onclick="filterNotariesByCategory('pt')" id="btn-filter-pt" class="px-4 py-2.5 rounded-xl text-xs font-bold transition whitespace-nowrap bg-white border border-slate-300 text-slate-700 hover:bg-slate-50">Pendirian PT / PMA</button>
+          <button onclick="filterNotariesByCategory('haki')" id="btn-filter-haki" class="px-4 py-2.5 rounded-xl text-xs font-bold transition whitespace-nowrap bg-white border border-slate-300 text-slate-700 hover:bg-slate-50">HAKI & Ketenagakerjaan</button>
+          <button onclick="filterNotariesByCategory('ppat')" id="btn-filter-ppat" class="px-4 py-2.5 rounded-xl text-xs font-bold transition whitespace-nowrap bg-white border border-slate-300 text-slate-700 hover:bg-slate-50">PPAT & Pertanahan</button>
+        </div>
+      </div>
+
+      <!-- 4 Notaries Grid Container -->
+      <div id="notaries-cards-container" class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+        <!-- Dynamically rendered by app.js -->
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- SECTION 3: INTERACTIVE LEGAL DOCUMENT TEMPLATES (.DOC & PDF)              -->
+  <!-- ========================================================================= -->
+  <section id="templates" class="py-24 bg-[#FAF9F5] border-b border-slate-200 bg-paper-pattern no-print">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <!-- Section Header -->
+      <div class="max-w-3xl mx-auto text-center mb-14">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F7EEDB] text-[#936616] text-[10px] font-bold uppercase tracking-wider mb-3 border border-[#E9D5A6]">
+          Instrumen Hukum Baku & Siap Pakai
+        </div>
+        <h2 class="text-3xl sm:text-4xl font-serif-editorial font-normal text-[#0C1E36] tracking-tight">
+          Template Kontrak Bisnis & Notaris Resmi
+        </h2>
+        <p class="mt-3 text-slate-600 text-sm sm:text-base leading-relaxed">
+          Kustomisasi draf perjanjian Anda secara interaktif. Dilengkapi meterai digital Rp 10.000 dan dapat diunduh langsung dalam format **Microsoft Word (.doc)** atau **PDF Siap Cetak**.
+        </p>
+      </div>
+
+      <!-- Template Selector Tabs -->
+      <div id="template-buttons-container" class="flex items-center justify-center gap-2 overflow-x-auto pb-2 mb-8 max-w-4xl mx-auto">
+        <!-- Populated by app.js -->
+      </div>
+
+      <!-- Interactive Contract Customizer Card -->
+      <div class="max-w-5xl mx-auto bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden grid grid-cols-1 lg:grid-cols-12">
         
-        <!-- Pillar 1 -->
-        <div onclick="switchWorkspaceTab('notaries'); document.getElementById('workspace').scrollIntoView({behavior:'smooth'});" class="cursor-pointer bg-[#FAF9F5] border border-slate-200 rounded-3xl p-6 sm:p-7 flex flex-col justify-between hover:border-[#C29236] transition-all shadow-2xs hover:shadow-md">
-          <div>
-            <div class="w-12 h-12 rounded-2xl bg-amber-50 text-[#C29236] flex items-center justify-center mb-5 border border-amber-200/60">
-              <i data-lucide="video" class="w-6 h-6"></i>
-            </div>
-            <span class="text-[10px] font-bold uppercase tracking-wider text-amber-800 bg-amber-100/70 px-2 py-0.5 rounded-full">Service 01</span>
-            <h3 class="text-lg font-serif-editorial font-bold text-[#0C1E36] mt-2 mb-2">Instant Notary & PPAT Consultations</h3>
-            <p class="text-xs text-slate-600 leading-relaxed">
-              Connect directly with accredited Notaries across Indonesia via encrypted real-time chat (IDR 150k/mo plan) or live video sessions (IDR 300k/mo Full Suite).
-            </p>
+        <!-- Form Inputs (Left 5 Cols) -->
+        <div class="lg:col-span-5 p-6 sm:p-8 bg-slate-50/60 border-b lg:border-b-0 lg:border-r border-slate-200 space-y-4">
+          <div class="pb-3 border-b border-slate-200">
+            <h3 class="font-bold text-sm text-[#0C1E36]">Data Variabel Kontrak</h3>
+            <p class="text-[11px] text-slate-500">Perubahan kolom otomatis memperbarui draf perjanjian di sebelah kanan.</p>
           </div>
-          <div class="mt-6 pt-4 border-t border-slate-200/80 flex items-center text-xs font-bold text-[#0D7A68]">
-            <span>Open Notary Directory</span>
-            <i data-lucide="chevron-right" class="w-4 h-4 ml-1"></i>
+
+          <div class="space-y-3 text-xs">
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Nama Pihak Pertama (Perseroan Anda)</label>
+              <input type="text" id="landing-df-party1" value="PT Solusi Maju Bersama" oninput="handleDocFormInput('party1Name', this.value)" class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-slate-800 font-semibold focus:outline-none focus:border-[#0C1E36]">
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Nama Pihak Kedua (Mitra / Notaris / Pekerja)</label>
+              <input type="text" id="landing-df-party2" value="PT Rekan Teknologi Mandiri" oninput="handleDocFormInput('party2Name', this.value)" class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-slate-800 font-semibold focus:outline-none focus:border-[#0C1E36]">
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block font-bold text-slate-700 mb-1">Kota Yurisdiksi</label>
+                <input type="text" id="landing-df-city" value="Jakarta Selatan" oninput="handleDocFormInput('contractCity', this.value)" class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-slate-800 focus:outline-none focus:border-[#0C1E36]">
+              </div>
+              <div>
+                <label class="block font-bold text-slate-700 mb-1">Nilai Kontrak</label>
+                <input type="text" id="landing-df-val" value="Rp 250.000.000" oninput="handleDocFormInput('contractValue', this.value)" class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-slate-800 font-bold focus:outline-none focus:border-[#0C1E36]">
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-4 border-t border-slate-200 flex flex-col gap-2">
+            <button onclick="downloadCurrentDocAsWord()" class="w-full py-3 rounded-xl bg-[#0D7A68] hover:bg-teal-800 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition">
+              <i data-lucide="download" class="w-4 h-4"></i> Unduh Microsoft Word (.doc)
+            </button>
+            <button onclick="openDocumentPreview()" class="w-full py-2.5 rounded-xl bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 font-bold text-xs flex items-center justify-center gap-2 shadow-2xs transition">
+              <i data-lucide="eye" class="w-4 h-4"></i> Pratinjau & Cetak Resmi PDF
+            </button>
           </div>
         </div>
 
-        <!-- Pillar 2 -->
-        <div onclick="switchWorkspaceTab('templates'); document.getElementById('workspace').scrollIntoView({behavior:'smooth'});" class="cursor-pointer bg-[#FAF9F5] border border-slate-200 rounded-3xl p-6 sm:p-7 flex flex-col justify-between hover:border-[#C29236] transition-all shadow-2xs hover:shadow-md">
+        <!-- Document Parchment Preview (Right 7 Cols) -->
+        <div class="lg:col-span-7 p-6 sm:p-8 bg-[#FCFBF8] font-serif flex flex-col justify-between max-h-[520px] overflow-y-auto">
           <div>
-            <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-[#0D7A68] flex items-center justify-center mb-5 border border-emerald-200/60">
-              <i data-lucide="file-check-2" class="w-6 h-6"></i>
+            <div class="text-center pb-4 mb-4 border-b border-slate-300">
+              <h4 id="landing-doc-title" class="font-bold text-sm sm:text-base uppercase tracking-wide text-slate-950 font-serif-editorial">
+                PERJANJIAN KERJASAMA KEMITRAAN BISNIS (PKS)
+              </h4>
+              <p id="landing-doc-no" class="text-[11px] text-slate-500 italic mt-0.5">Nomor: 042/PKS-LE/X/2026</p>
+              <div id="landing-doc-parties-pill" class="mt-2 text-[10px] font-sans font-semibold bg-amber-50 py-1 px-3 rounded-md border border-amber-200 inline-block text-slate-700">
+                Pihak I: PT Solusi Maju Bersama | Pihak II: PT Rekan Teknologi Mandiri
+              </div>
             </div>
-            <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-100/70 px-2 py-0.5 rounded-full">Service 02</span>
-            <h3 class="text-lg font-serif-editorial font-bold text-[#0C1E36] mt-2 mb-2">Interactive Legal Document Builder</h3>
-            <p class="text-xs text-slate-600 leading-relaxed">
-              Customize and download verified contracts: Business Partnerships (PKS), PT Establishment Deeds, Employment (PKWT), and Shareholder Agreements in Word (.doc) & PDF.
-            </p>
-          </div>
-          <div class="mt-6 pt-4 border-t border-slate-200/80 flex items-center text-xs font-bold text-[#0D7A68]">
-            <span>Launch Document Builder</span>
-            <i data-lucide="chevron-right" class="w-4 h-4 ml-1"></i>
-          </div>
-        </div>
 
-        <!-- Pillar 3 -->
-        <div onclick="switchWorkspaceTab('roadmap'); document.getElementById('workspace').scrollIntoView({behavior:'smooth'});" class="cursor-pointer bg-[#FAF9F5] border border-slate-200 rounded-3xl p-6 sm:p-7 flex flex-col justify-between hover:border-[#C29236] transition-all shadow-2xs hover:shadow-md">
-          <div>
-            <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center mb-5 border border-blue-200/60">
-              <i data-lucide="check-square" class="w-6 h-6"></i>
+            <!-- Preview Clauses -->
+            <div id="landing-doc-clauses" class="space-y-3 text-xs leading-relaxed text-slate-800 text-justify">
+              <!-- Dynamically populated -->
             </div>
-            <span class="text-[10px] font-bold uppercase tracking-wider text-blue-800 bg-blue-100/70 px-2 py-0.5 rounded-full">Service 03</span>
-            <h3 class="text-lg font-serif-editorial font-bold text-[#0C1E36] mt-2 mb-2">Step-by-Step PT Incorporation</h3>
-            <p class="text-xs text-slate-600 leading-relaxed">
-              Structured milestone tracker for PT/CV establishment, KBLI selection, Kemenkumham SK decree approval, and OSS RBA business identification (NIB).
-            </p>
           </div>
-          <div class="mt-6 pt-4 border-t border-slate-200/80 flex items-center text-xs font-bold text-[#0D7A68]">
-            <span>Track PT Incorporation</span>
-            <i data-lucide="chevron-right" class="w-4 h-4 ml-1"></i>
-          </div>
-        </div>
 
-        <!-- Pillar 4 -->
-        <div onclick="switchWorkspaceTab('billing'); document.getElementById('workspace').scrollIntoView({behavior:'smooth'});" class="cursor-pointer bg-[#FAF9F5] border border-slate-200 rounded-3xl p-6 sm:p-7 flex flex-col justify-between hover:border-[#C29236] transition-all shadow-2xs hover:shadow-md">
-          <div>
-            <div class="w-12 h-12 rounded-2xl bg-purple-50 text-purple-700 flex items-center justify-center mb-5 border border-purple-200/60">
-              <i data-lucide="briefcase" class="w-6 h-6"></i>
+          <div class="pt-6 mt-6 border-t border-slate-300 grid grid-cols-2 gap-4 font-sans text-center text-[10px] shrink-0">
+            <div>
+              <p class="text-slate-500 mb-10">Pihak Pertama</p>
+              <p id="landing-doc-sign1" class="font-bold text-slate-900 border-b border-slate-800 pb-0.5">PT Solusi Maju Bersama</p>
+              <p class="text-[9px] text-slate-500">Direktur Utama</p>
             </div>
-            <span class="text-[10px] font-bold uppercase tracking-wider text-purple-800 bg-purple-100/70 px-2 py-0.5 rounded-full">Service 04</span>
-            <h3 class="text-lg font-serif-editorial font-bold text-[#0C1E36] mt-2 mb-2">Transparent Monthly Subscriptions</h3>
-            <p class="text-xs text-slate-600 leading-relaxed">
-              Start with a 3-Day Free Trial, subscribe to our IDR 150,000/month Chat Plan, or unlock everything with our IDR 300,000/month Full Legal Suite.
-            </p>
-          </div>
-          <div class="mt-6 pt-4 border-t border-slate-200/80 flex items-center text-xs font-bold text-[#0D7A68]">
-            <span>Manage Subscription</span>
-            <i data-lucide="chevron-right" class="w-4 h-4 ml-1"></i>
+            <div>
+              <p class="text-slate-500 mb-10">Pihak Kedua & Saksi</p>
+              <p id="landing-doc-sign2" class="font-bold text-slate-900 border-b border-slate-800 pb-0.5">PT Rekan Teknologi Mandiri</p>
+              <p class="text-[9px] text-slate-500">Direktur / Rekan Usaha</p>
+            </div>
           </div>
         </div>
 
@@ -431,22 +515,113 @@
     </div>
   </section>
 
-  <!-- SECTION 3: PLANS & PRICING (3-DAY FREE TRIAL / 150K CHAT ONLY / 300K FULL SUITE) -->
+  <!-- ========================================================================= -->
+  <!-- SECTION 4: CORE LEGAL SERVICES & VALUE PILLARS                            -->
+  <!-- ========================================================================= -->
+  <section id="services" class="py-20 bg-white border-b border-slate-200 no-print">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <!-- Section Header -->
+      <div class="max-w-3xl mx-auto text-center mb-14">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F7EEDB] text-[#936616] text-[10px] font-bold uppercase tracking-wider mb-3 border border-[#E9D5A6]">
+          Infrastruktur Hukum Terpadu
+        </div>
+        <h2 class="text-3xl sm:text-4xl font-serif-editorial font-normal text-[#0C1E36] tracking-tight">
+          Empat Solusi Inti untuk Legalitas Bisnis Anda
+        </h2>
+        <p class="mt-3 text-slate-600 text-sm sm:text-base leading-relaxed">
+          Kami menyederhanakan birokrasi legalitas perseroan, akta notaris, dan pembuatan kontrak kerja sama tanpa hambatan geografis.
+        </p>
+      </div>
+
+      <!-- 4 Pillars Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        
+        <div class="bg-[#FAF9F5] border border-slate-200 rounded-3xl p-6 flex flex-col justify-between hover:border-[#C29236] transition shadow-2xs">
+          <div>
+            <div class="w-12 h-12 rounded-2xl bg-amber-50 text-[#C29236] flex items-center justify-center mb-5 border border-amber-200/60">
+              <i data-lucide="video" class="w-6 h-6"></i>
+            </div>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-amber-800 bg-amber-100/70 px-2 py-0.5 rounded-full">Layanan 01</span>
+            <h3 class="text-lg font-serif-editorial font-bold text-[#0C1E36] mt-2 mb-2">Konsultasi Notaris & PPAT</h3>
+            <p class="text-xs text-slate-600 leading-relaxed">
+              Konsultasi langsung via chat terenkripsi (Paket Rp 150k/bln) atau panggilan video tatap muka (Paket Rp 300k/bln).
+            </p>
+          </div>
+          <div class="mt-6 pt-4 border-t border-slate-200/80 flex items-center text-xs font-bold text-[#0D7A68]">
+            <a href="#notaris" class="hover:underline flex items-center">Pilih Notaris <i data-lucide="chevron-right" class="w-4 h-4 ml-1"></i></a>
+          </div>
+        </div>
+
+        <div class="bg-[#FAF9F5] border border-slate-200 rounded-3xl p-6 flex flex-col justify-between hover:border-[#C29236] transition shadow-2xs">
+          <div>
+            <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-[#0D7A68] flex items-center justify-center mb-5 border border-emerald-200/60">
+              <i data-lucide="file-check-2" class="w-6 h-6"></i>
+            </div>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-100/70 px-2 py-0.5 rounded-full">Layanan 02</span>
+            <h3 class="text-lg font-serif-editorial font-bold text-[#0C1E36] mt-2 mb-2">Pembuat Dokumen Interaktif</h3>
+            <p class="text-xs text-slate-600 leading-relaxed">
+              Kustomisasi kontrak PKS, Akta PT, PKWT Ketenagakerjaan PP 35/2021, dan NDA dengan unduh Word (.doc) instan.
+            </p>
+          </div>
+          <div class="mt-6 pt-4 border-t border-slate-200/80 flex items-center text-xs font-bold text-[#0D7A68]">
+            <a href="#templates" class="hover:underline flex items-center">Buka Template <i data-lucide="chevron-right" class="w-4 h-4 ml-1"></i></a>
+          </div>
+        </div>
+
+        <div class="bg-[#FAF9F5] border border-slate-200 rounded-3xl p-6 flex flex-col justify-between hover:border-[#C29236] transition shadow-2xs">
+          <div>
+            <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center mb-5 border border-blue-200/60">
+              <i data-lucide="check-square" class="w-6 h-6"></i>
+            </div>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-blue-800 bg-blue-100/70 px-2 py-0.5 rounded-full">Layanan 03</span>
+            <h3 class="text-lg font-serif-editorial font-bold text-[#0C1E36] mt-2 mb-2">Roadmap Pendirian PT</h3>
+            <p class="text-xs text-slate-600 leading-relaxed">
+              Pelacak tahapan berurutan pendirian PT/CV, penetapan KBLI 2020, pengesahan SK Kemenkumham, dan penerbitan NIB OSS RBA.
+            </p>
+          </div>
+          <div class="mt-6 pt-4 border-t border-slate-200/80 flex items-center text-xs font-bold text-[#0D7A68]">
+            <a href="#roadmap" class="hover:underline flex items-center">Lihat Roadmap <i data-lucide="chevron-right" class="w-4 h-4 ml-1"></i></a>
+          </div>
+        </div>
+
+        <div class="bg-[#FAF9F5] border border-slate-200 rounded-3xl p-6 flex flex-col justify-between hover:border-[#C29236] transition shadow-2xs">
+          <div>
+            <div class="w-12 h-12 rounded-2xl bg-purple-50 text-purple-700 flex items-center justify-center mb-5 border border-purple-200/60">
+              <i data-lucide="smartphone" class="w-6 h-6"></i>
+            </div>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-purple-800 bg-purple-100/70 px-2 py-0.5 rounded-full">Layanan 04</span>
+            <h3 class="text-lg font-serif-editorial font-bold text-[#0C1E36] mt-2 mb-2">Aplikasi Mobile Android</h3>
+            <p class="text-xs text-slate-600 leading-relaxed">
+              Akses cepat berkas legalitas dan panggilan konsultasi kapan saja melalui aplikasi APK Android LegalEase resmi.
+            </p>
+          </div>
+          <div class="mt-6 pt-4 border-t border-slate-200/80 flex items-center text-xs font-bold text-[#0D7A68]">
+            <a href="#download" class="hover:underline flex items-center">Download APK <i data-lucide="chevron-right" class="w-4 h-4 ml-1"></i></a>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- SECTION 5: PRICING PLANS (TRIAL 0 / CHAT 150K / FULL SUITE 300K)          -->
+  <!-- ========================================================================= -->
   <section id="pricing" class="py-24 bg-[#FAF9F5] border-b border-slate-200 bg-paper-pattern no-print">
-    <div id="b2b"></div>
-    <div id="bisnis"></div>
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
       
       <!-- Section Header -->
       <div class="max-w-3xl mx-auto text-center mb-16">
         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F7EEDB] text-[#936616] text-[10px] font-bold uppercase tracking-wider mb-3 border border-[#E9D5A6]">
-          Transparent Monthly Subscription Plans
+          Model Berlangganan Transparan
         </div>
         <h2 class="text-3xl sm:text-4xl font-serif-editorial font-normal text-[#0C1E36] tracking-tight">
-          Choose the Legal Protection Your Business Deserves
+          Pilihan Perlindungan Hukum Sesuai Kebutuhan Anda
         </h2>
         <p class="mt-3 text-slate-600 text-sm sm:text-base leading-relaxed">
-          Start with a <strong>3-Day Free Trial</strong>, choose the <strong>IDR 150,000/month</strong> plan for dedicated chat consultations, or unlock complete protection with our <strong>IDR 300,000/month Full Legal Suite</strong> (Video Call + Chat + Document Templates).
+          Mulai dengan <strong>3-Day Free Trial</strong>, pilih paket <strong>IDR 150.000/bulan</strong> untuk konsultasi chat, atau dapatkan perlindungan menyeluruh dengan <strong>IDR 300.000/bulan Full Legal Suite</strong> (Video Call + Chat + Template Dokumen).
         </p>
       </div>
 
@@ -456,47 +631,47 @@
         <!-- TIER 1: 3-DAY FREE TRIAL -->
         <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 flex flex-col justify-between hover:border-slate-300 transition shadow-sm">
           <div>
-            <span class="text-xs font-bold text-emerald-700 uppercase tracking-wider bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">3-Day Free Trial</span>
+            <span class="text-xs font-bold text-emerald-700 uppercase tracking-wider bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">Trial 3 Hari</span>
             <h3 class="text-2xl font-serif-editorial font-bold text-[#0C1E36] mt-3 mb-2">Free Trial Access</h3>
             <div class="mb-4">
               <span class="text-3xl sm:text-4xl font-serif-editorial font-bold text-[#0C1E36]">IDR 0</span>
-              <span class="text-xs text-slate-500 font-medium"> / 3 days</span>
+              <span class="text-xs text-slate-500 font-medium"> / 3 hari</span>
             </div>
             <p class="text-xs text-slate-600 leading-relaxed mb-6">
-              Try the LegalEase platform free for 3 full days. Ideal for initial legal consultation via chat and reviewing the PT setup checklist.
+              Coba layanan LegalEase gratis selama 3 hari. Cocok untuk konsultasi awal via chat dan memeriksa checklist pendirian PT.
             </p>
 
             <ul class="space-y-3 text-xs text-slate-700">
               <li class="flex items-center gap-2">
                 <i data-lucide="check" class="w-4 h-4 text-emerald-600 shrink-0"></i>
-                <span class="font-semibold">3 Days Active Platform Trial</span>
+                <span class="font-semibold">Akses Platform 3 Hari Aktif</span>
               </li>
               <li class="flex items-center gap-2">
                 <i data-lucide="check" class="w-4 h-4 text-emerald-600 shrink-0"></i>
-                <span>Trial Notary Consultation via Chat</span>
+                <span>Konsultasi Notaris via Chat</span>
               </li>
               <li class="flex items-center gap-2">
                 <i data-lucide="check" class="w-4 h-4 text-emerald-600 shrink-0"></i>
-                <span>Interactive PT Setup Checklist & Tracker</span>
+                <span>Interactive PT Setup Checklist</span>
               </li>
               <li class="flex items-center gap-2">
                 <i data-lucide="check" class="w-4 h-4 text-emerald-600 shrink-0"></i>
-                <span>Read-Only Contract Clauses Preview</span>
+                <span>Pratinjau Klausul Kontrak (Read-Only)</span>
               </li>
               <li class="flex items-center gap-2 text-slate-400">
                 <i data-lucide="x" class="w-4 h-4 shrink-0"></i>
-                <span>Document Template Downloads Locked</span>
+                <span>Unduh Word & PDF Terkunci</span>
               </li>
               <li class="flex items-center gap-2 text-slate-400">
                 <i data-lucide="x" class="w-4 h-4 shrink-0"></i>
-                <span>Video Call Consultations Locked</span>
+                <span>Video Call Notaris Terkunci</span>
               </li>
             </ul>
           </div>
 
           <div class="mt-8 pt-6 border-t border-slate-200">
-            <button onclick="selectPlanAndCheckout('trial')" class="w-full py-3 rounded-full bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition shadow-xs">
-              Activate 3-Day Free Trial
+            <button onclick="openCheckoutModal('trial')" class="w-full py-3 rounded-full bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition shadow-xs">
+              Aktifkan 3-Day Free Trial (Rp 0)
             </button>
           </div>
         </div>
@@ -504,47 +679,47 @@
         <!-- TIER 2: 1 MONTH CHAT ONLY (IDR 150,000) -->
         <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 flex flex-col justify-between hover:border-teal-600 transition shadow-sm">
           <div>
-            <span class="text-xs font-bold text-teal-800 uppercase tracking-wider bg-teal-50 px-2.5 py-1 rounded-full border border-teal-200">1 Month • Chat Only</span>
+            <span class="text-xs font-bold text-teal-800 uppercase tracking-wider bg-teal-50 px-2.5 py-1 rounded-full border border-teal-200">1 Bulan • Chat Saja</span>
             <h3 class="text-2xl font-serif-editorial font-bold text-[#0C1E36] mt-3 mb-2">Legal Chat Essential</h3>
             <div class="mb-4">
               <span class="text-3xl sm:text-4xl font-serif-editorial font-bold text-[#0C1E36]">IDR 150,000</span>
-              <span class="text-xs text-slate-500 font-medium"> / 1 month</span>
+              <span class="text-xs text-slate-500 font-medium"> / 1 bulan</span>
             </div>
             <p class="text-xs text-slate-600 leading-relaxed mb-6">
-              Dedicated 1-month legal consultation via Chat with licensed Notaries & PPAT. Focused strictly on chat advisory (does not include document templates or video calls).
+              Konsultasi hukum 1 bulan via Chat dengan Notaris & PPAT berlisensi. Fokus pada konsultasi chat (tidak termasuk template dokumen atau video call).
             </p>
 
             <ul class="space-y-3 text-xs text-slate-700">
               <li class="flex items-center gap-2">
                 <i data-lucide="check" class="w-4 h-4 text-emerald-600 shrink-0"></i>
-                <span class="font-bold text-slate-900">1 Month Unlimited Consultation via Chat</span>
+                <span class="font-bold text-slate-900">1 Bulan Konsultasi Chat Tanpa Batas</span>
               </li>
               <li class="flex items-center gap-2">
                 <i data-lucide="check" class="w-4 h-4 text-emerald-600 shrink-0"></i>
-                <span>Direct Q&A with Licensed Notaries & PPAT</span>
+                <span>Tanya Jawab Langsung Notaris & PPAT</span>
               </li>
               <li class="flex items-center gap-2">
                 <i data-lucide="check" class="w-4 h-4 text-emerald-600 shrink-0"></i>
-                <span>OSS RBA, NIB & KBLI Licensing Advisory</span>
+                <span>Panduan KBLI 2020 & Pengecekan Nama AHU</span>
               </li>
               <li class="flex items-center gap-2">
                 <i data-lucide="check" class="w-4 h-4 text-emerald-600 shrink-0"></i>
-                <span>Full PT Incorporation Checklist & Tracker</span>
+                <span>Full PT Incorporation Roadmap</span>
               </li>
               <li class="flex items-center gap-2 text-rose-600">
                 <i data-lucide="x" class="w-4 h-4 shrink-0"></i>
-                <span class="text-slate-500 font-medium">No Document Templates (Chat Consultation Only)</span>
+                <span class="text-slate-500 font-medium">Bukan Template Dokumen (Chat Saja)</span>
               </li>
               <li class="flex items-center gap-2 text-rose-600">
                 <i data-lucide="x" class="w-4 h-4 shrink-0"></i>
-                <span class="text-slate-500 font-medium">No Video Call Consultations</span>
+                <span class="text-slate-500 font-medium">Tidak Termasuk Video Call</span>
               </li>
             </ul>
           </div>
 
           <div class="mt-8 pt-6 border-t border-slate-200">
-            <button onclick="selectPlanAndCheckout('chat')" class="w-full py-3 rounded-full bg-[#0D7A68] hover:bg-teal-800 text-white text-xs font-bold transition shadow-xs">
-              Subscribe to Chat Plan (IDR 150,000)
+            <button onclick="openCheckoutModal('chat')" class="w-full py-3 rounded-full bg-[#0D7A68] hover:bg-teal-800 text-white text-xs font-bold transition shadow-xs">
+              Berlangganan Paket Chat (Rp 150.000)
             </button>
           </div>
         </div>
@@ -553,51 +728,51 @@
         <div class="bg-[#0C1E36] text-white border-2 border-[#C29236] rounded-3xl p-6 sm:p-8 flex flex-col justify-between shadow-xl relative">
           <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3.5 py-1 rounded-full bg-[#C29236] text-[#0C1E36] text-[10px] font-extrabold uppercase tracking-wider flex items-center gap-1 shadow-md whitespace-nowrap">
             <i data-lucide="star" class="w-3 h-3 fill-current"></i>
-            <span>Full Package • Call + Chat + Templates</span>
+            <span>Paket Lengkap • Call + Chat + Dokumen</span>
           </div>
 
           <div>
-            <span class="text-xs font-bold text-amber-300 uppercase tracking-wider bg-white/10 px-2.5 py-1 rounded-full">1 Month • Complete Suite</span>
+            <span class="text-xs font-bold text-amber-300 uppercase tracking-wider bg-white/10 px-2.5 py-1 rounded-full">1 Bulan • Full Suite</span>
             <h3 class="text-2xl font-serif-editorial font-bold text-white mt-3 mb-2">Full Legal Suite</h3>
             <div class="mb-4">
               <span class="text-3xl sm:text-4xl font-serif-editorial font-bold text-white">IDR 300,000</span>
-              <span class="text-xs text-slate-300 font-medium"> / 1 month</span>
+              <span class="text-xs text-slate-300 font-medium"> / 1 bulan</span>
             </div>
             <p class="text-xs text-slate-300 leading-relaxed mb-6">
-              Our complete 1-month legal package: 1-on-1 encrypted Video Calls, unlimited priority Notary Chat, and full access to customize & download all Legal Document Templates.
+              Paket terlengkap: Video Call 1-on-1 terenkripsi, Chat Notaris Prioritas, dan Akses Penuh Kustomisasi & Unduh Seluruh Template Dokumen Hukum (Word .doc & PDF).
             </p>
 
             <ul class="space-y-3 text-xs text-slate-200">
               <li class="flex items-center gap-2">
                 <i data-lucide="check" class="w-4 h-4 text-amber-400 shrink-0"></i>
-                <span class="font-bold text-amber-300">Full 1-on-1 Video Call Consultations</span>
+                <span class="font-bold text-amber-300">Panggilan Video 1-on-1 dengan Notaris</span>
               </li>
               <li class="flex items-center gap-2">
                 <i data-lucide="check" class="w-4 h-4 text-amber-400 shrink-0"></i>
-                <span class="font-bold text-amber-300">Unlimited Priority Chat Consultations</span>
+                <span class="font-bold text-amber-300">Unlimited Prioritas Chat Notaris</span>
               </li>
               <li class="flex items-center gap-2">
                 <i data-lucide="check" class="w-4 h-4 text-amber-400 shrink-0"></i>
-                <span class="font-bold text-amber-300">Full Legal Document Templates (DOCX & PDF)</span>
+                <span class="font-bold text-amber-300">Akses Penuh Template Dokumen (Word & PDF)</span>
               </li>
               <li class="flex items-center gap-2">
                 <i data-lucide="check" class="w-4 h-4 text-amber-400 shrink-0"></i>
-                <span>Custom Contract Builder (PKS, Akta PT, PKWT, NDA)</span>
+                <span>Pembuat Kontrak Kustom (PKS, Akta PT, PKWT, NDA)</span>
               </li>
               <li class="flex items-center gap-2">
                 <i data-lucide="check" class="w-4 h-4 text-amber-400 shrink-0"></i>
-                <span>Corporate Filings & Deed Verification Support</span>
+                <span>Pendampingan Penandatanganan Akta Notaris Rekanan</span>
               </li>
               <li class="flex items-center gap-2">
                 <i data-lucide="check" class="w-4 h-4 text-amber-400 shrink-0"></i>
-                <span>Priority SLA Response & Dedicated Support</span>
+                <span>SLA Respons Prioritas & Bantuan Pendirian PT</span>
               </li>
             </ul>
           </div>
 
           <div class="mt-8 pt-6 border-t border-white/10">
-            <button onclick="selectPlanAndCheckout('full')" class="w-full py-3 rounded-full bg-[#C29236] hover:bg-[#d8a543] text-[#0C1E36] text-xs font-extrabold transition shadow-md">
-              Subscribe to Full Suite (IDR 300,000)
+            <button onclick="openCheckoutModal('full')" class="w-full py-3 rounded-full bg-[#C29236] hover:bg-[#d8a543] text-[#0C1E36] text-xs font-extrabold transition shadow-md">
+              Berlangganan Full Suite (Rp 300.000)
             </button>
           </div>
         </div>
@@ -606,47 +781,47 @@
 
       <!-- Feature Comparison Matrix -->
       <div class="max-w-4xl mx-auto bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-2xs">
-        <h4 class="text-base font-serif-editorial font-bold text-[#0C1E36] mb-4 text-center">Subscription Entitlement Comparison</h4>
+        <h4 class="text-base font-serif-editorial font-bold text-[#0C1E36] mb-4 text-center">Tabel Perbandingan Hak Akses Fitur</h4>
         <div class="overflow-x-auto">
           <table class="w-full text-xs text-left">
             <thead>
               <tr class="border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider text-[10px]">
-                <th class="py-3">Platform Feature</th>
-                <th class="py-3 text-center">3-Day Free Trial (IDR 0)</th>
-                <th class="py-3 text-center">1 Month Chat (IDR 150,000)</th>
-                <th class="py-3 text-center text-[#0C1E36] font-extrabold">1 Month Full Suite (IDR 300,000)</th>
+                <th class="py-3">Fitur Layanan Hukum</th>
+                <th class="py-3 text-center">3-Day Free Trial (Rp 0)</th>
+                <th class="py-3 text-center">1 Bulan Chat (Rp 150.000)</th>
+                <th class="py-3 text-center text-[#0C1E36] font-extrabold">1 Bulan Full Suite (Rp 300.000)</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-200 text-slate-700">
               <tr>
-                <td class="py-3 font-medium">Active Duration</td>
-                <td class="py-3 text-center font-semibold">3 Days</td>
-                <td class="py-3 text-center font-semibold">1 Month (30 Days)</td>
-                <td class="py-3 text-center font-bold text-[#0C1E36]">1 Month (30 Days)</td>
+                <td class="py-3 font-medium">Masa Berlaku</td>
+                <td class="py-3 text-center font-semibold">3 Hari</td>
+                <td class="py-3 text-center font-semibold">1 Bulan (30 Hari)</td>
+                <td class="py-3 text-center font-bold text-[#0C1E36]">1 Bulan (30 Hari)</td>
               </tr>
               <tr>
-                <td class="py-3 font-medium">Consultation via Chat with Licensed Notary</td>
-                <td class="py-3 text-center text-emerald-600 font-bold">✓ Trial Access</td>
+                <td class="py-3 font-medium">Konsultasi Chat dengan Notaris & PPAT</td>
+                <td class="py-3 text-center text-emerald-600 font-bold">✓ Trial Chat</td>
                 <td class="py-3 text-center text-emerald-600 font-bold">✓ Unlimited Chat</td>
-                <td class="py-3 text-center text-emerald-600 font-bold">✓ Priority Unlimited</td>
+                <td class="py-3 text-center text-emerald-600 font-bold">✓ Prioritas Unlimited</td>
               </tr>
               <tr>
-                <td class="py-3 font-medium">1-on-1 Encrypted Video Call Consultation</td>
-                <td class="py-3 text-center text-rose-500 font-semibold">✗ Not Included</td>
-                <td class="py-3 text-center text-rose-500 font-semibold">✗ Not Included</td>
-                <td class="py-3 text-center text-emerald-600 font-bold">✓ Full Access Included</td>
+                <td class="py-3 font-medium">Panggilan Video 1-on-1 dengan Notaris</td>
+                <td class="py-3 text-center text-rose-500 font-semibold">✗ Tidak Termasuk</td>
+                <td class="py-3 text-center text-rose-500 font-semibold">✗ Tidak Termasuk</td>
+                <td class="py-3 text-center text-emerald-600 font-bold">✓ Akses Penuh Termasuk</td>
               </tr>
               <tr>
-                <td class="py-3 font-medium">Legal Document Templates & Custom Builder (.doc / PDF)</td>
-                <td class="py-3 text-center text-slate-400">Read-Only Preview</td>
-                <td class="py-3 text-center text-rose-500 font-semibold">✗ Not Included</td>
-                <td class="py-3 text-center text-emerald-600 font-bold">✓ Full Download & Builder</td>
+                <td class="py-3 font-medium">Template Dokumen & Pembuat Kontrak (.doc / PDF)</td>
+                <td class="py-3 text-center text-slate-400">Pratinjau Saja</td>
+                <td class="py-3 text-center text-rose-500 font-semibold">✗ Tidak Termasuk</td>
+                <td class="py-3 text-center text-emerald-600 font-bold">✓ Unduh Word & Cetak PDF</td>
               </tr>
               <tr>
-                <td class="py-3 font-medium">PT/CV Incorporation Checklist & Corporate Filings</td>
-                <td class="py-3 text-center text-emerald-600 font-bold">✓ Included</td>
-                <td class="py-3 text-center text-emerald-600 font-bold">✓ Included</td>
-                <td class="py-3 text-center text-emerald-600 font-bold">✓ Full Priority Handling</td>
+                <td class="py-3 font-medium">Roadmap PT & Penjadwalan Janji Temu Notaris</td>
+                <td class="py-3 text-center text-emerald-600 font-bold">✓ Termasuk</td>
+                <td class="py-3 text-center text-emerald-600 font-bold">✓ Termasuk</td>
+                <td class="py-3 text-center text-emerald-600 font-bold">✓ Penanganan Prioritas</td>
               </tr>
             </tbody>
           </table>
@@ -656,33 +831,81 @@
     </div>
   </section>
 
-  <!-- SECTION 4: LEGAL COMPLIANCE, SECURITY & FAQ -->
-  <section id="faq" class="py-20 bg-white border-b border-slate-200 no-print">
+  <!-- ========================================================================= -->
+  <!-- SECTION 6: PT SETUP ROADMAP & CHECKLIST                                   -->
+  <!-- ========================================================================= -->
+  <section id="roadmap" class="py-20 bg-white border-b border-slate-200 no-print">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <!-- Section Header -->
+      <div class="max-w-3xl mx-auto text-center mb-12">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F7EEDB] text-[#936616] text-[10px] font-bold uppercase tracking-wider mb-3 border border-[#E9D5A6]">
+          Panduan Legalitas Berusaha
+        </div>
+        <h2 class="text-3xl sm:text-4xl font-serif-editorial font-normal text-[#0C1E36] tracking-tight">
+          Tahapan Resmi Pendirian Perseroan Terbatas (PT)
+        </h2>
+        <p class="mt-3 text-slate-600 text-sm sm:text-base leading-relaxed">
+          Pantau progres persiapan data, pemesanan nama di AHU Online, penandatanganan akta otentik, dan penerbitan izin berusaha NIB OSS RBA.
+        </p>
+      </div>
+
+      <!-- Interactive Checklist Container -->
+      <div class="bg-[#FAF9F5] rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-2xs space-y-4">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+          <div>
+            <h3 class="font-bold text-sm text-[#0C1E36]">Checklist Interaktif Pendirian PT</h3>
+            <p class="text-xs text-slate-500">Klik kotak untuk menandai tahapan yang telah diselesaikan.</p>
+          </div>
+          <button onclick="handleAddNewChecklist()" class="px-3.5 py-1.5 rounded-xl bg-[#0C1E36] hover:bg-slate-800 text-amber-300 text-xs font-bold flex items-center gap-1.5 transition">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i> Tambah Tugas
+          </button>
+        </div>
+
+        <div id="checklist-items-list" class="space-y-3">
+          <!-- Populated by app.js -->
+        </div>
+
+        <div class="pt-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+          <span class="text-slate-600">Butuh pendampingan langsung Notaris untuk penandatanganan akta?</span>
+          <a href="#notaris" class="font-bold text-[#0D7A68] hover:underline flex items-center gap-1">
+            Jadwalkan Janji Temu Notaris Rekanan <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- SECTION 7: REGULATORY COMPLIANCE, SECURITY & FAQ                          -->
+  <!-- ========================================================================= -->
+  <section id="faq" class="py-20 bg-[#FAF9F5] border-b border-slate-200 bg-paper-pattern no-print">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
       
       <!-- Section Header -->
       <div class="max-w-3xl mx-auto text-center mb-14">
         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F7EEDB] text-[#936616] text-[10px] font-bold uppercase tracking-wider mb-3 border border-[#E9D5A6]">
-          Regulatory Compliance & Security
+          Kepatuhan Regulasi & Keamanan
         </div>
         <h2 class="text-3xl sm:text-4xl font-serif-editorial font-normal text-[#0C1E36] tracking-tight">
-          Enterprise Legal Trust & Frequently Asked Questions
+          Jaminan Legalitas & Pertanyaan yang Sering Diajukan
         </h2>
         <p class="mt-3 text-slate-600 text-sm sm:text-base leading-relaxed">
-          Every consultation, document draft, and notary appointment on LegalEase operates under strict compliance with Indonesian Civil Law and the Notarial Profession Act.
+          Setiap konsultasi, draf dokumen, dan penetapan akta di LegalEase tunduk pada ketentuan hukum perdata dan Undang-Undang Jabatan Notaris.
         </p>
       </div>
 
       <!-- 3 Trust & Security Guarantee Cards -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-14">
-        <div class="bg-[#FAF9F5] border border-slate-200 rounded-3xl p-6 sm:p-7 shadow-2xs flex flex-col justify-between">
+        <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-7 shadow-2xs flex flex-col justify-between">
           <div>
             <div class="w-12 h-12 rounded-2xl bg-amber-50 text-[#C29236] flex items-center justify-center mb-4 border border-amber-200/60">
               <i data-lucide="shield-check" class="w-6 h-6"></i>
             </div>
-            <h3 class="text-base font-bold text-[#0C1E36] mb-2">Protected by UUJN Secrecy</h3>
+            <h3 class="text-base font-bold text-[#0C1E36] mb-2">Dilindungi Kerahasiaan UUJN</h3>
             <p class="text-xs text-slate-600 leading-relaxed">
-              All communications, corporate filings, and contracts are governed by statutory professional secrecy under Law No. 2 of 2014 on Notarial Positions (UUJN).
+              Seluruh komunikasi, pengajuan korporasi, dan berkas kontrak tunduk pada kewajiban rahasia jabatan berdasarkan UU No. 2 Tahun 2014 tentang Jabatan Notaris (UUJN).
             </p>
           </div>
           <div class="mt-4 pt-3 border-t border-slate-200/70 text-[11px] text-[#0D7A68] font-bold flex items-center gap-1">
@@ -690,33 +913,33 @@
           </div>
         </div>
 
-        <div class="bg-[#FAF9F5] border border-slate-200 rounded-3xl p-6 sm:p-7 shadow-2xs flex flex-col justify-between">
+        <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-7 shadow-2xs flex flex-col justify-between">
           <div>
             <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-[#0D7A68] flex items-center justify-center mb-4 border border-emerald-200/60">
               <i data-lucide="award" class="w-6 h-6"></i>
             </div>
-            <h3 class="text-base font-bold text-[#0C1E36] mb-2">Accredited Notaries & PPAT</h3>
+            <h3 class="text-base font-bold text-[#0C1E36] mb-2">Notaris & PPAT Berlisensi Resmi</h3>
             <p class="text-xs text-slate-600 leading-relaxed">
-              Every partner practitioner holds verified decrees (SK Pengangkatan) from the Ministry of Law and Human Rights (Kemenkumham) and BPN.
+              Setiap praktisi mitra mengantongi SK Pengangkatan sah dari Kementerian Hukum dan Hak Asasi Manusia (Kemenkumham) RI serta Badan Pertanahan Nasional (BPN).
             </p>
           </div>
           <div class="mt-4 pt-3 border-t border-slate-200/70 text-[11px] text-[#0D7A68] font-bold flex items-center gap-1">
-            <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Indonesian Notary Association (INI)
+            <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Ikatan Notaris Indonesia (INI)
           </div>
         </div>
 
-        <div class="bg-[#FAF9F5] border border-slate-200 rounded-3xl p-6 sm:p-7 shadow-2xs flex flex-col justify-between">
+        <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-7 shadow-2xs flex flex-col justify-between">
           <div>
             <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center mb-4 border border-blue-200/60">
               <i data-lucide="server" class="w-6 h-6"></i>
             </div>
-            <h3 class="text-base font-bold text-[#0C1E36] mb-2">Supabase Cloud & TLS Encryption</h3>
+            <h3 class="text-base font-bold text-[#0C1E36] mb-2">Supabase Cloud & Enkripsi TLS 1.3</h3>
             <p class="text-xs text-slate-600 leading-relaxed">
-              Backed by PostgreSQL Row-Level Security (RLS) and 256-bit encryption for all video consultations, real-time chats, and saved legal documents.
+              Didukung basis data PostgreSQL dengan Row-Level Security (RLS) serta enkripsi 256-bit untuk seluruh panggilan video, data akun, dan riwayat draf kontrak.
             </p>
           </div>
           <div class="mt-4 pt-3 border-t border-slate-200/70 text-[11px] text-[#0D7A68] font-bold flex items-center gap-1">
-            <i data-lucide="database" class="w-3.5 h-3.5"></i> Encrypted Cloud Storage
+            <i data-lucide="database" class="w-3.5 h-3.5"></i> Keamanan Enkripsi Cloud
           </div>
         </div>
       </div>
@@ -724,44 +947,44 @@
       <!-- FAQ Accordion Container -->
       <div class="max-w-3xl mx-auto space-y-4">
         
-        <div class="bg-[#FAF9F5] rounded-2xl border border-slate-200 overflow-hidden">
+        <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-2xs">
           <button onclick="toggleFaq(1)" class="w-full p-5 text-left flex items-center justify-between gap-4 font-bold text-sm text-[#0C1E36]">
-            <span>How does the 3-Day Free Trial work?</span>
+            <span>Bagaimana cara kerja 3-Day Free Trial?</span>
             <i id="faq-icon-1" data-lucide="chevron-down" class="w-4 h-4 text-slate-400 faq-chevron transition-transform duration-200"></i>
           </button>
-          <div id="faq-content-1" class="faq-answer px-5 pb-5 text-xs text-slate-600 leading-relaxed border-t border-slate-200/60 pt-3">
-            You can activate the 3-Day Free Trial immediately for IDR 0 without a credit card. During those 3 days, you receive access to our consultation chat room with on-duty Notaries, the interactive PT incorporation checklist, and read-only contract previews.
+          <div id="faq-content-1" class="faq-answer px-5 pb-5 text-xs text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
+            Anda dapat langsung mengaktifkan 3-Day Free Trial dengan biaya IDR 0 tanpa memerlukan kartu kredit. Selama 3 hari, Anda berhak menikmati sesi konsultasi awal via chat dengan Notaris on-duty, menggunakan checklist interaktif pendirian PT, dan melihat pratinjau klausul kontrak hukum kami.
           </div>
         </div>
 
-        <div class="bg-[#FAF9F5] rounded-2xl border border-slate-200 overflow-hidden">
+        <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-2xs">
           <button onclick="toggleFaq(2)" class="w-full p-5 text-left flex items-center justify-between gap-4 font-bold text-sm text-[#0C1E36]">
-            <span>What is the exact difference between the IDR 150,000 and IDR 300,000 1-month plans?</span>
+            <span>Apa perbedaan mendasar antara Paket Chat Rp 150.000 dan Full Suite Rp 300.000?</span>
             <i id="faq-icon-2" data-lucide="chevron-down" class="w-4 h-4 text-slate-400 faq-chevron transition-transform duration-200"></i>
           </button>
-          <div id="faq-content-2" class="faq-answer hidden px-5 pb-5 text-xs text-slate-600 leading-relaxed border-t border-slate-200/60 pt-3">
-            The <strong>Legal Chat Essential Plan (IDR 150,000 / 1 month)</strong> is strictly for <strong>consultation via chat only</strong>—it does not include document templates or video calls.<br><br>
-            The <strong>Full Legal Suite (IDR 300,000 / 1 month)</strong> includes everything: <strong>1-on-1 encrypted Video Calls + unlimited Notary Chat consultations + full access to customize and download all Legal Document Templates</strong> (Word <code>.doc</code> & PDF).
+          <div id="faq-content-2" class="faq-answer hidden px-5 pb-5 text-xs text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
+            Paket <strong>Legal Chat Essential (IDR 150.000 / 1 bulan)</strong> dirancang khusus untuk <strong>konsultasi hukum via chat saja</strong> (tidak termasuk unduh template dokumen ataupun panggilan video).<br><br>
+            Sedangkan paket <strong>Full Legal Suite (IDR 300.000 / 1 bulan)</strong> mencakup seluruh fasilitas: <strong>Panggilan Video 1-on-1 dengan Notaris + Chat Prioritas + Akses Penuh Kustomisasi & Unduh Seluruh Template Dokumen Hukum (Word .doc & PDF)</strong> serta pendampingan penandatanganan akta resmi.
           </div>
         </div>
 
-        <div class="bg-[#FAF9F5] rounded-2xl border border-slate-200 overflow-hidden">
+        <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-2xs">
           <button onclick="toggleFaq(3)" class="w-full p-5 text-left flex items-center justify-between gap-4 font-bold text-sm text-[#0C1E36]">
-            <span>Can I customize and download real Word (.doc) and PDF legal contracts?</span>
+            <span>Bagaimana cara mengunduh dan memasang aplikasi APK di HP Android?</span>
             <i id="faq-icon-3" data-lucide="chevron-down" class="w-4 h-4 text-slate-400 faq-chevron transition-transform duration-200"></i>
           </button>
-          <div id="faq-content-3" class="faq-answer hidden px-5 pb-5 text-xs text-slate-600 leading-relaxed border-t border-slate-200/60 pt-3">
-            Yes. With the Full Legal Suite (IDR 300,000/month), our Interactive Document Builder lets you input your company name, counterparty details, contract value, and jurisdiction to generate ready-to-sign Indonesian legal contracts (PKS, Akta Pendirian PT, PKWT, Shareholder Agreements, NDA) and download them directly as Microsoft Word (<code>.doc</code>) or print-ready PDF files.
+          <div id="faq-content-3" class="faq-answer hidden px-5 pb-5 text-xs text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
+            Klik tombol <strong>Download LegalEase APK</strong> di bagian atas atau pindai QR Code dengan kamera smartphone Anda. Buka berkas <code>LegalEase-v2.4.1.apk</code> yang terunduh, izinkan instalasi dari sumber ini jika diminta oleh Android, lalu buka aplikasi dan masuk dengan akun Anda.
           </div>
         </div>
 
-        <div class="bg-[#FAF9F5] rounded-2xl border border-slate-200 overflow-hidden">
+        <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-2xs">
           <button onclick="toggleFaq(4)" class="w-full p-5 text-left flex items-center justify-between gap-4 font-bold text-sm text-[#0C1E36]">
-            <span>How does online consultation connect to physical deed signing before a Notary?</span>
+            <span>Apakah dokumen Word (.doc) yang dihasilkan sah di mata hukum Indonesia?</span>
             <i id="faq-icon-4" data-lucide="chevron-down" class="w-4 h-4 text-slate-400 faq-chevron transition-transform duration-200"></i>
           </button>
-          <div id="faq-content-4" class="faq-answer hidden px-5 pb-5 text-xs text-slate-600 leading-relaxed border-t border-slate-200/60 pt-3">
-            All preliminary steps—founder KTP/NPWP verification, 3-word PT name reservation, KBLI selection, and deed drafting—are completed online inside your LegalEase Workspace. Once verified, you can book your official physical deed signing appointment directly with the partner Notary in our platform.
+          <div id="faq-content-4" class="faq-answer hidden px-5 pb-5 text-xs text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
+            Ya. Format kontrak yang disediakan LegalEase disusun langsung oleh Notaris dan konsultan hukum korporasi berlisensi berdasarkan KUHPerdata Pasal 1320 (syarat sahnya perjanjian) dan Pasal 1338 (asas pacta sunt servanda). Dokumen siap dicetak, ditempeli meterai Rp 10.000, dan ditandatangani oleh para pihak.
           </div>
         </div>
 
@@ -770,25 +993,26 @@
     </div>
   </section>
 
-  <!-- SECTION 5: EXECUTIVE LEADERSHIP & LEGAL ADVISORY BOARD -->
+  <!-- ========================================================================= -->
+  <!-- SECTION 8: EXECUTIVE LEADERSHIP & LEGAL ADVISORY BOARD                    -->
+  <!-- ========================================================================= -->
   <section id="team" class="py-24 bg-[#FAF8F5] border-b border-slate-200 bg-paper-pattern relative no-print">
-    <div id="tim"></div>
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
       
       <!-- Section Header -->
       <div class="max-w-3xl mx-auto text-center mb-16">
         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F7EEDB] text-[#936616] text-[10px] font-bold uppercase tracking-wider mb-3 border border-[#E9D5A6]">
-          Executive Leadership & Legal Advisory Board
+          Dewan Direksi & Legal Advisory Board
         </div>
         <h2 class="text-3xl sm:text-4xl font-serif-editorial font-normal text-[#0C1E36] tracking-tight">
-          The Leadership Team Behind LegalEase
+          Tim Pimpinan di Balik LegalEase
         </h2>
         <p class="mt-3 text-slate-600 text-sm sm:text-base leading-relaxed">
-          Committed to empowering businesses across Indonesia with accessible legal counsel, corporate compliance, and verified notary access.
+          Berkomitmen memperluas akses layanan hukum, kepatuhan korporasi, dan notaris terpercaya bagi para pelaku usaha di seluruh Indonesia.
         </p>
       </div>
 
-      <!-- 8 Executive Team Cards (Clean Corporate Layout, Authentic Photos) -->
+      <!-- 8 Executive Team Cards -->
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-6 max-w-5xl mx-auto">
         
         <!-- Member 1: Rasendriya Khalika -->
@@ -904,24 +1128,28 @@
           </div>
           <div>
             <span class="text-2xl font-serif-editorial font-bold tracking-tight text-white block">LegalEase</span>
-            <p class="text-xs text-slate-400">Legal Solutions, Made Easy. • Indonesia Digital Notary & Legal Platform</p>
+            <p class="text-xs text-slate-400">Legal Solutions, Made Easy. • Platform Layanan Notaris & Hukum Digital Indonesia</p>
           </div>
         </div>
 
         <div class="flex flex-wrap items-center justify-center gap-6 text-xs text-slate-300 font-medium">
-          <a href="#hero" class="hover:text-amber-300 transition">Home</a>
-          <a href="#workspace" class="hover:text-amber-300 transition text-amber-300 font-bold">Legal Workspace</a>
-          <a href="#concept" class="hover:text-amber-300 transition">Services</a>
-          <a href="#pricing" class="hover:text-amber-300 transition">Plans & Pricing</a>
-          <a href="#faq" class="hover:text-amber-300 transition">Compliance & FAQ</a>
-          <a href="#team" class="hover:text-amber-300 transition">Leadership</a>
+          <a href="#hero" class="hover:text-amber-300 transition">Beranda</a>
+          <a href="#download" class="hover:text-amber-300 transition text-emerald-400 font-bold flex items-center gap-1">
+            <i data-lucide="smartphone" class="w-3.5 h-3.5"></i> Download APK
+          </a>
+          <a href="#notaris" class="hover:text-amber-300 transition">Notaris & PPAT</a>
+          <a href="#templates" class="hover:text-amber-300 transition">Template Dokumen</a>
+          <a href="#pricing" class="hover:text-amber-300 transition">Paket & Tarif</a>
+          <a href="#roadmap" class="hover:text-amber-300 transition">Pendirian PT</a>
+          <a href="#faq" class="hover:text-amber-300 transition">Kepatuhan UUJN</a>
+          <a href="#team" class="hover:text-amber-300 transition">Pimpinan</a>
         </div>
 
       </div>
 
       <div class="mt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-4 text-center sm:text-left">
-        <p>© 2026 LegalEase Technologies Indonesia. All rights reserved. Connected to Accredited Notaries & PPAT.</p>
-        <p class="text-[11px] text-slate-500">Compliant with Law No. 2/2014 (UUJN), KUHPerdata & OSS RBA Standards.</p>
+        <p>© 2026 PT LegalEase Solusi Digital Indonesia. Hak cipta dilindungi undang-undang.</p>
+        <p class="text-[11px] text-slate-500">Tunduk pada UU No. 2/2014 (UUJN), KUHPerdata, dan Standar Perizinan OSS RBA.</p>
       </div>
 
     </div>
@@ -938,7 +1166,7 @@
             <img src="assets/logo.png" alt="LegalEase" class="w-full h-full object-contain">
           </div>
           <div>
-            <h3 id="auth-modal-title" class="text-sm font-bold text-white">Client Account & Cloud Sync</h3>
+            <h3 class="text-sm font-bold text-white">Akun Klien LegalEase</h3>
             <span class="text-[10px] text-emerald-400 flex items-center gap-1">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Supabase Auth • jogjdlwrpnvzzxvvfisc
             </span>
@@ -956,13 +1184,13 @@
   </div>
 
   <!-- ========================================================================= -->
-  <!-- MODAL 2: APPOINTMENT BOOKING MODAL                                        -->
+  <!-- MODAL 2: NOTARY APPOINTMENT BOOKING MODAL                                 -->
   <!-- ========================================================================= -->
   <div id="booking-modal" class="fixed inset-0 z-50 bg-[#0C1E36]/85 backdrop-blur-md hidden flex items-center justify-center p-4 no-print">
     <div class="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-slate-200">
       <div class="p-5 px-6 bg-[#0C1E36] text-white flex items-center justify-between">
         <div>
-          <h3 class="text-sm font-bold text-white">Schedule Notary Appointment</h3>
+          <h3 class="text-sm font-bold text-white">Jadwalkan Janji Temu Notaris</h3>
           <p id="booking-notary-subtitle" class="text-[11px] text-amber-300">Dr. Hendra Wijaya, S.H., M.Kn.</p>
         </div>
         <button onclick="closeBookingModal()" class="w-8 h-8 rounded-full bg-white/10 text-slate-300 hover:text-white flex items-center justify-center transition">
@@ -972,20 +1200,20 @@
       <form onsubmit="handleConfirmBooking(event)" class="p-6 space-y-4 text-xs">
         <input type="hidden" id="booking-notary-id" value="notary-1">
         <div>
-          <label class="block font-bold text-slate-700 mb-1">Consultation Format</label>
+          <label class="block font-bold text-slate-700 mb-1">Format Konsultasi / Layanan</label>
           <select id="booking-mode" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-slate-50 font-semibold text-slate-800 focus:outline-none focus:border-[#0C1E36]">
-            <option value="chat">Encrypted Live Chat Session</option>
-            <option value="video">1-on-1 Video Call Consultation (Full Suite Plan)</option>
-            <option value="in_person_deed">Physical Deed Signing at Notary Office</option>
+            <option value="chat">Konsultasi Chat Terenkripsi</option>
+            <option value="video">Panggilan Video 1-on-1 (WebRTC)</option>
+            <option value="in_person_deed">Penandatanganan Akta di Kantor Notaris</option>
           </select>
         </div>
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block font-bold text-slate-700 mb-1">Preferred Date</label>
+            <label class="block font-bold text-slate-700 mb-1">Tanggal</label>
             <input type="date" id="booking-date" required class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-slate-800 focus:outline-none focus:border-[#0C1E36]">
           </div>
           <div>
-            <label class="block font-bold text-slate-700 mb-1">Time Slot (WIB)</label>
+            <label class="block font-bold text-slate-700 mb-1">Waktu Sesi (WIB)</label>
             <select id="booking-time" class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-slate-800 focus:outline-none focus:border-[#0C1E36]">
               <option value="09:00 WIB">09:00 WIB</option>
               <option value="11:00 WIB">11:00 WIB</option>
@@ -995,19 +1223,19 @@
           </div>
         </div>
         <div>
-          <label class="block font-bold text-slate-700 mb-1">Legal Topic / Case Summary</label>
-          <textarea id="booking-topic" rows="3" required placeholder="Example: Deed of Establishment for PT Solusi Maju Bersama & KBLI verification..." class="w-full px-3.5 py-2 rounded-xl border border-slate-300 bg-slate-50 text-slate-800 focus:outline-none focus:border-[#0C1E36]"></textarea>
+          <label class="block font-bold text-slate-700 mb-1">Topik Hukum / Kebutuhan Perseroan</label>
+          <textarea id="booking-topic" rows="3" required placeholder="Contoh: Pembuatan Akta Pendirian PT Solusi Maju Bersama & Validasi KBLI 2020..." class="w-full px-3.5 py-2 rounded-xl border border-slate-300 bg-slate-50 text-slate-800 focus:outline-none focus:border-[#0C1E36]"></textarea>
         </div>
         <div class="pt-2 flex justify-end gap-2">
-          <button type="button" onclick="closeBookingModal()" class="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-700 font-semibold hover:bg-slate-50">Cancel</button>
-          <button type="submit" class="px-5 py-2.5 rounded-xl bg-[#0C1E36] hover:bg-slate-800 text-amber-300 font-bold shadow-sm">Confirm Appointment</button>
+          <button type="button" onclick="closeBookingModal()" class="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-700 font-semibold hover:bg-slate-50">Batal</button>
+          <button type="submit" class="px-5 py-2.5 rounded-xl bg-[#0C1E36] hover:bg-slate-800 text-amber-300 font-bold shadow-sm">Konfirmasi Janji Temu</button>
         </div>
       </form>
     </div>
   </div>
 
   <!-- ========================================================================= -->
-  <!-- MODAL 3: FORMAL LEGAL DOCUMENT VIEWER & PRINT/EXPORT MODAL                -->
+  <!-- MODAL 3: OFFICIAL LEGAL DOCUMENT VIEWER & PRINT/EXPORT MODAL              -->
   <!-- ========================================================================= -->
   <div id="doc-preview-modal" class="fixed inset-0 z-50 bg-[#0C1E36]/90 backdrop-blur-md hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-3xl w-full overflow-hidden shadow-2xl flex flex-col max-h-[92vh] border border-slate-200">
@@ -1019,8 +1247,8 @@
             <img src="assets/logo.png" alt="LegalEase" class="w-full h-full object-contain">
           </div>
           <div>
-            <h4 class="text-xs font-bold text-white">Official Indonesian Legal Instrument</h4>
-            <span class="text-[10px] text-amber-300">Standardized Format Certified by Licensed Notaries & PPAT</span>
+            <h4 class="text-xs font-bold text-white">Instrumen Hukum Resmi Indonesia</h4>
+            <span class="text-[10px] text-amber-300">Standar Baku Tersertifikasi Notaris & PPAT</span>
           </div>
         </div>
         <button onclick="closeDocumentPreview()" class="w-8 h-8 rounded-full bg-white/10 text-slate-300 hover:text-white flex items-center justify-center transition">
@@ -1039,7 +1267,7 @@
             Nomor Dokumen: 042/PKS-LE/X/2026
           </p>
           <div id="doc-preview-parties" class="mt-2.5 text-[11px] font-semibold text-slate-800 bg-amber-50/80 py-1.5 px-3.5 rounded-md border border-amber-200/60 inline-block font-sans">
-            Pihak Pertama: PT Solusi Maju Bersama | Pihak Kedua: Mitra Usaha Rekanan
+            Pihak Pertama: PT Solusi Maju Bersama | Pihak Kedua: PT Rekan Teknologi Mandiri
           </div>
         </div>
 
@@ -1051,7 +1279,7 @@
         <!-- Signature & Stamp Section -->
         <div class="mt-12 pt-6 border-t border-slate-300 grid grid-cols-2 gap-6 items-end font-sans">
           <div class="text-center">
-            <p class="text-[11px] text-slate-600 mb-14">First Party / Executing Director</p>
+            <p class="text-[11px] text-slate-600 mb-14">Pihak Pertama / Direktur Pelaksana</p>
             <div class="w-36 mx-auto border-b border-slate-900 pb-1">
               <span id="doc-sign-party1" class="text-xs font-bold text-slate-900">PT Solusi Maju Bersama</span>
             </div>
@@ -1068,11 +1296,11 @@
               VERIFIED NOTARY
             </div>
 
-            <p class="text-[11px] text-slate-600 mb-14">Second Party & Legal Witness</p>
+            <p class="text-[11px] text-slate-600 mb-14">Pihak Kedua & Saksi Notaris</p>
             <div class="w-40 mx-auto border-b border-slate-900 pb-1">
               <span id="doc-sign-party2" class="text-xs font-bold text-slate-900">Dr. Hendra Wijaya, S.H., M.Kn.</span>
             </div>
-            <span class="text-[10px] text-slate-500">SK Kemenkumham Verified</span>
+            <span class="text-[10px] text-slate-500">SK Kemenkumham RI Verified</span>
           </div>
         </div>
 
@@ -1081,17 +1309,17 @@
       <!-- Modal Footer -->
       <div class="p-4 px-6 bg-slate-100 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3 no-print">
         <span class="text-[11px] text-slate-600 flex items-center gap-1.5 font-medium">
-          <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i> Compliant with Indonesian Civil Code (KUHPerdata)
+          <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i> Memenuhi Pasal 1320 & 1338 KUHPerdata
         </span>
         <div class="flex items-center gap-2">
           <button onclick="downloadCurrentDocAsWord()" class="px-4 py-2 rounded-full bg-[#0D7A68] hover:bg-teal-800 text-white text-xs font-bold flex items-center gap-1.5 transition shadow-xs">
-            <i data-lucide="download" class="w-3.5 h-3.5"></i> Download Word (.doc)
+            <i data-lucide="download" class="w-3.5 h-3.5"></i> Unduh Word (.doc)
           </button>
           <button onclick="window.print()" class="px-4 py-2 rounded-full bg-white border border-slate-300 hover:bg-slate-50 text-slate-800 text-xs font-bold flex items-center gap-1.5 transition shadow-2xs">
-            <i data-lucide="printer" class="w-3.5 h-3.5"></i> Print / Save PDF
+            <i data-lucide="printer" class="w-3.5 h-3.5"></i> Cetak / Simpan PDF
           </button>
           <button onclick="closeDocumentPreview()" class="px-4 py-2 rounded-full bg-[#0C1E36] hover:bg-slate-800 text-white text-xs font-bold transition">
-            Close
+            Tutup
           </button>
         </div>
       </div>
@@ -1099,7 +1327,124 @@
     </div>
   </div>
 
-  <!-- Main Production Application Script -->
+  <!-- ========================================================================= -->
+  <!-- MODAL 4: CHECKOUT & PAYMENT MODAL                                         -->
+  <!-- ========================================================================= -->
+  <div id="checkout-modal" class="fixed inset-0 z-50 bg-[#0C1E36]/85 backdrop-blur-md hidden flex items-center justify-center p-4 no-print">
+    <div class="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-200">
+      
+      <div class="p-5 px-6 bg-[#0C1E36] text-white flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-white p-1 flex items-center justify-center">
+            <img src="assets/logo.png" alt="LegalEase" class="w-full h-full object-contain">
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-white">Pembayaran & Aktivasi Layanan</h3>
+            <span class="text-[10px] text-amber-300">Gateway Pembayaran Terverifikasi Otomatis</span>
+          </div>
+        </div>
+        <button onclick="closeCheckoutModal()" class="w-8 h-8 rounded-full bg-white/10 text-slate-300 hover:text-white flex items-center justify-center transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-5 text-xs">
+        
+        <!-- Summary Box -->
+        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-slate-500">Paket Layanan:</span>
+            <span id="checkout-plan-name" class="font-bold text-[#0C1E36]">Full Legal Suite</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-slate-500">Durasi:</span>
+            <span id="checkout-plan-duration" class="font-semibold text-slate-800">1 Bulan (30 Hari)</span>
+          </div>
+          <div class="flex items-center justify-between pt-2 border-t border-slate-200 text-sm">
+            <span class="font-bold text-slate-900">Total Tagihan:</span>
+            <span id="checkout-plan-price" class="font-bold text-lg text-[#0C1E36]">IDR 300,000</span>
+          </div>
+        </div>
+
+        <!-- Payment Method Selection -->
+        <div>
+          <label class="block font-bold text-slate-700 mb-2">Pilih Kanal Pembayaran</label>
+          <div class="grid grid-cols-2 gap-2">
+            <button type="button" onclick="selectCheckoutMethod('qris')" id="chk-btn-qris" class="p-3 rounded-xl border border-[#0D7A68] bg-teal-50/60 font-bold text-slate-800 flex items-center gap-2 transition">
+              <span class="w-6 h-6 rounded bg-red-100 text-red-700 font-bold text-[9px] flex items-center justify-center">QR</span>
+              <span>QRIS Instan</span>
+            </button>
+            <button type="button" onclick="selectCheckoutMethod('va')" id="chk-btn-va" class="p-3 rounded-xl border border-slate-200 bg-white font-bold text-slate-800 flex items-center gap-2 transition">
+              <span class="w-6 h-6 rounded bg-blue-100 text-blue-700 font-bold text-[9px] flex items-center justify-center">VA</span>
+              <span>BCA Virtual Acc</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Dynamic Payment Channel Details -->
+        <div id="checkout-channel-details" class="p-4 rounded-2xl bg-white border border-slate-200 text-center">
+          <!-- Populated by app.js -->
+        </div>
+
+        <button onclick="handleExecutePayment()" class="w-full py-3.5 rounded-full bg-[#0D7A68] hover:bg-teal-800 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition">
+          <i data-lucide="check-circle" class="w-4 h-4"></i>
+          <span>Konfirmasi & Terbitkan Faktur Resmi</span>
+        </button>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL 5: APK INSTALLATION GUIDE MODAL                                     -->
+  <!-- ========================================================================= -->
+  <div id="apk-guide-modal" class="fixed inset-0 z-50 bg-[#0C1E36]/85 backdrop-blur-md hidden flex items-center justify-center p-4 no-print">
+    <div class="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-slate-200">
+      <div class="p-5 px-6 bg-[#0C1E36] text-white flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i data-lucide="help-circle" class="w-5 h-5 text-amber-300"></i>
+          <h3 class="text-sm font-bold text-white">Panduan Instalasi APK Android</h3>
+        </div>
+        <button onclick="closeApkGuideModal()" class="w-8 h-8 rounded-full bg-white/10 text-slate-300 hover:text-white flex items-center justify-center transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-4 text-xs">
+        <div class="flex items-start gap-3">
+          <div class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center shrink-0">1</div>
+          <div>
+            <h4 class="font-bold text-slate-900 mb-0.5">Unduh Berkas APK</h4>
+            <p class="text-slate-600 leading-relaxed">Klik tombol <strong>Download LegalEase APK</strong> di website kami. Berkas <code>LegalEase-v2.4.1.apk</code> akan tersimpan di folder Unduhan ponsel Anda.</p>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3">
+          <div class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center shrink-0">2</div>
+          <div>
+            <h4 class="font-bold text-slate-900 mb-0.5">Izinkan Sumber Tidak Dikenal</h4>
+            <p class="text-slate-600 leading-relaxed">Jika Android menampilkan peringatan <em>"Install unknown apps"</em>, buka Pengaturan & aktifkan <strong>"Allow from this source"</strong> pada peramban Chrome/File Manager Anda.</p>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3">
+          <div class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center shrink-0">3</div>
+          <div>
+            <h4 class="font-bold text-slate-900 mb-0.5">Pasang & Buka Aplikasi</h4>
+            <p class="text-slate-600 leading-relaxed">Ketuk <strong>Install</strong> dan tunggu beberapa detik. Setelah selesai, buka aplikasi LegalEase dan masuk menggunakan akun klien Anda.</p>
+          </div>
+        </div>
+
+        <div class="pt-3 border-t border-slate-200">
+          <a href="assets/LegalEase-v2.4.1.apk" download="LegalEase-v2.4.1.apk" class="w-full py-3 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition">
+            <i data-lucide="download" class="w-4 h-4"></i> Download File APK Sekarang
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Production Application Script -->
   <script src="app.js"></script>
 </body>
 </html>
