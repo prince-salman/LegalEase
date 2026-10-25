@@ -1,5 +1,5 @@
-/* LegalEase - Bespoke Editorial & Legal-Tech Stylesheet */
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400;1,6..72,500&family=Caveat:wght@600;700&display=swap');
+/* LegalEase - Production Legal-Tech Platform Stylesheet */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400;1,6..72,500&display=swap');
 
 :root {
   --navy-deep: #0C1E36;
@@ -29,11 +29,7 @@ body {
   font-family: 'Newsreader', Georgia, serif;
 }
 
-.font-handwritten {
-  font-family: 'Caveat', cursive;
-}
-
-/* Subtle Tactile Paper Texture Effect for Document & Team Sections */
+/* Subtle Tactile Paper Texture Effect */
 .bg-paper-pattern {
   background-color: #FAF8F5;
   background-image: radial-gradient(#E2DACD 0.85px, transparent 0.85px);
@@ -68,151 +64,42 @@ body {
   opacity: 0.9;
 }
 
-/* Washi Tape Accent for Team Polaroids */
-.washi-tape {
-  width: 76px;
-  height: 22px;
-  background-color: rgba(226, 211, 182, 0.85);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-  transform: rotate(-3deg);
-  border-left: 2px dashed rgba(195, 175, 140, 0.5);
-  border-right: 2px dashed rgba(195, 175, 140, 0.5);
-}
-
-.washi-tape-alt {
-  width: 68px;
-  height: 20px;
-  background-color: rgba(200, 218, 228, 0.85);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-  transform: rotate(4deg);
-  border-left: 2px dashed rgba(160, 185, 200, 0.5);
-  border-right: 2px dashed rgba(160, 185, 200, 0.5);
-}
-
-/* Prestigious Double-Bezel Hardware Frame (iPhone Chassis) */
-.phone-outer-shell {
-  background: #E2E8F0;
-  padding: 10px;
-  border-radius: 52px;
-  box-shadow: 
-    0 25px 60px -15px rgba(12, 30, 54, 0.22),
-    0 8px 20px -6px rgba(12, 30, 54, 0.12),
-    inset 0 1px 2px rgba(255, 255, 255, 0.95),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.18);
-  border: 1px solid #CBD5E1;
-  position: relative;
-  margin: 0 auto;
-  width: 375px;
-  height: 740px;
-}
-
-@media (max-width: 480px) {
-  .phone-outer-shell {
-    width: 330px;
-    height: 650px;
-    padding: 8px;
-    border-radius: 44px;
-  }
-}
-
-.phone-screen-inner {
-  width: 100%;
-  height: 100%;
+/* Executive Team Card */
+.executive-card {
   background: #FFFFFF;
-  border-radius: 42px;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 10px 25px -5px rgba(12, 30, 54, 0.06), 0 4px 10px -2px rgba(12, 30, 54, 0.03);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
-.phone-island {
-  position: absolute;
-  top: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 105px;
-  height: 24px;
-  background: #0C1E36;
-  border-radius: 18px;
-  z-index: 50;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 10px;
-}
-
-.phone-camera-lens {
-  width: 9px;
-  height: 9px;
-  background: #1E293B;
-  border-radius: 50%;
-  border: 1px solid #334155;
-}
-
-.phone-sensor-light {
-  width: 5px;
-  height: 5px;
-  background: #0D7A68;
-  border-radius: 50%;
-  opacity: 0.8;
-}
-
-.phone-bottom-bar {
-  position: absolute;
-  bottom: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 120px;
-  height: 4px;
-  background: #CBD5E1;
-  border-radius: 2px;
-  z-index: 40;
-}
-
-/* Polaroid Card Craft */
-.polaroid-craft {
-  background: #FFFFFF;
-  padding: 10px 10px 22px 10px;
-  box-shadow: 0 10px 25px -4px rgba(0, 0, 0, 0.08), 0 4px 8px -2px rgba(0, 0, 0, 0.04);
-  border: 1px solid rgba(0, 0, 0, 0.07);
-  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.35s ease;
-}
-
-.polaroid-craft:hover {
-  transform: translateY(-8px) scale(1.03) rotate(0deg) !important;
-  box-shadow: 0 20px 35px -8px rgba(12, 30, 54, 0.16);
-  z-index: 30;
+.executive-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 35px -8px rgba(12, 30, 54, 0.12);
+  border-color: #C29236;
 }
 
 /* Floating Navigation */
 .floating-header {
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.94);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(229, 231, 235, 0.85);
+  border: 1px solid rgba(229, 231, 235, 0.9);
   box-shadow: 0 4px 20px -2px rgba(12, 30, 54, 0.06);
 }
 
-/* Classic Thin Rule Divider with Ornament */
-.rule-divider {
-  display: flex;
-  align-items: center;
-  text-align: center;
-  color: #C29236;
+/* Production Web Workspace Shell */
+.workspace-shell {
+  background: #FFFFFF;
+  border-radius: 24px;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: 0 25px 60px -15px rgba(12, 30, 54, 0.25), 0 10px 25px -5px rgba(12, 30, 54, 0.12);
+  overflow: hidden;
+  min-height: 680px;
 }
-.rule-divider::before,
-.rule-divider::after {
-  content: '';
-  flex: 1;
-  border-bottom: 1px solid #E5E7EB;
-}
-.rule-divider:not(:empty)::before {
-  margin-right: 1.25em;
-}
-.rule-divider:not(:empty)::after {
-  margin-left: 1.25em;
+
+/* Video Call Studio Styling */
+.video-call-screen {
+  background: radial-gradient(circle at center, #162B48 0%, #071120 100%);
 }
 
 /* Custom Scrollbar */
@@ -241,3 +128,25 @@ body {
 .audio-bar-2 { animation: audioWave 0.7s ease-in-out infinite 0.2s; }
 .audio-bar-3 { animation: audioWave 1.1s ease-in-out infinite 0.35s; }
 .audio-bar-4 { animation: audioWave 0.8s ease-in-out infinite 0.15s; }
+
+/* Print Stylesheet for Official Legal Documents */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #doc-preview-modal,
+  #doc-preview-modal * {
+    visibility: visible;
+  }
+  #doc-preview-modal {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    background: #FFFFFF !important;
+    padding: 0 !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+}

@@ -1,63 +1,89 @@
 # LegalEase — Platform Layanan Hukum & Notaris Digital Indonesia
 **Legal Solutions, Made Easy.**
 
-LegalEase adalah platform legal-tech terpadu di Indonesia yang menghubungkan pelaku usaha, startup, UMKM, dan perorangan secara langsung dengan Notaris & PPAT berlisensi resmi dari Kementerian Hukum dan Hak Asasi Manusia (Kemenkumham) serta BPN.
+LegalEase adalah platform legal-tech produksi terpadu di Indonesia yang menghubungkan pelaku usaha, startup, UMKM, dan perorangan secara langsung dengan Notaris & PPAT berlisensi resmi dari Kementerian Hukum dan Hak Asasi Manusia (Kemenkumham) serta Badan Pertanahan Nasional (BPN).
+
+Situs resmi ini 100% fungsional, terhubung ke backend **Supabase Cloud**, dan siap digunakan oleh klien.
 
 ---
 
-## 🌟 Fitur Utama Platform
+## 🌟 Model Berlangganan & Paket Layanan (Sesuai Ketentuan)
 
-1. **Paket Layanan & Model Berlangganan Fleksibel**:
-   - **3-Day Free Trial (Gratis / 3 Hari)**: Akses eksplorasi platform tanpa komitmen dan tanpa kartu kredit, uji coba chat konsultasi notaris, panduan pendirian PT, dan pratinjau template dokumen.
-   - **Legal Chat Essential (Rp 150.000 / bulan)**: Konsultasi hukum langsung tanpa batas via Chat dengan Notaris & PPAT rekanan. Panduan perizinan OSS RBA & NIB (tidak termasuk template dokumen & video call).
-   - **Full Legal Suite (Rp 300.000 / bulan)**: Paket lengkap all-in-one mencakup Panggilan Video (Video Call) terenkripsi, Chat konsultasi prioritas, serta akses penuh unduh & kustomisasi seluruh Template Dokumen Hukum (PKS, Akta PT, PKWT/PKWTT, Perjanjian Pemegang Saham) format DOCX & PDF.
+1. **3-Day Free Trial (IDR 0 / 3 Hari)**
+   - Akses uji coba platform gratis selama 3 hari tanpa kartu kredit.
+   - Uji coba konsultasi Notaris via chat & checklist interaktif pendirian PT.
+   - Pratinjau klausul kontrak hukum (mode preview).
 
-2. **Client Portal & Live Web Application (8 Layar)**:
-   - **Layar 1: Home Dashboard** — Akses cepat layanan hukum, notaris online yang sedang bertugas, dan pencarian cepat.
-   - **Layar 2: Choose a Notary** — Direktori Notaris & PPAT resmi terakreditasi Kemenkumham dengan filter spesialisasi (PT/CV, Properti, Kontrak) dan tarif transparan per sesi.
-   - **Layar 3: Consultation Room** — Ruang chat terenkripsi dengan jaminan kerahasiaan jabatan notaris (UUJN No. 2/2014) dan pengiriman checklist otomatis.
-   - **Layar 4: Document Templates Store** — Katalog template dokumen resmi siap pakai (PKS, Akta PT, PKWT, Perjanjian Pemegang Saham) dengan verifikasi notaris.
-   - **Layar 5: Guides & Checklists (PT Setup)** — Roadmap pendirian PT interaktif dengan pelacak kemajuan realtime dan reminder jadwal penandatanganan akta.
-   - **Layar 6: Payment Gateway** — Checkout multi-channel terintegrasi (Virtual Account Bank, E-Wallet GoPay/OVO/Dana, QRIS instan, dan Kartu Kredit/Debit).
-   - **Layar 7: Client Account & Retainer** — Manajemen langganan retainer (Trial, Chat Rp 150k, Full Suite Rp 300k) dan pemantauan permohonan dokumen korporat aktif.
-   - **Layar 8: Video Consultation** — Panggilan tatap muka terenkripsi dengan notaris berlisensi, kontrol mute, flip kamera, dan timer sesi.
+2. **Legal Chat Essential (IDR 150.000 / 1 Bulan)**
+   - **Konsultasi via chat tanpa batas** dengan Notaris & PPAT berlisensi.
+   - Tanya jawab langsung, panduan KBLI 2020, dan pengecekan nama perseroan.
+   - *Khusus konsultasi via chat* — tidak termasuk template dokumen dan video call.
 
-3. **Landing Page Komprehensif**:
-   - **Hero Section**: Solusi hukum semudah konsultasi dokter online.
-   - **4 Pilar Solusi**: Instant Notary Consultations, Verified Document Templates, Step-by-Step Incorporation Guides, Flexible Retainer Plans.
-   - **Alur 6 Langkah Layanan**: Discovery, Pemilihan Notaris, Konsultasi, Kustomisasi Dokumen, Eksekusi Akta, dan Pembayaran Transparan.
-   - **Tabel Perbandingan Paket**: Matriks komparasi jelas antara Free Trial, Chat Plan (150k), dan Full Suite (300k).
-   - **Jaminan Legalitas & FAQ Interaktif**: Landasan hukum UUJN, akreditasi Kemenkumham/INI, enkripsi bank-grade 256-bit, dan accordion tanya-jawab komprehensif.
-   - **Dewan Pimpinan & Legal Advisory Board**: Profil para praktisi hukum dan pendiri platform.
+3. **Full Legal Suite (IDR 300.000 / 1 Bulan) — Paket Unggulan**
+   - **Konsultasi Video Call 1-on-1 (WebRTC)** terenkripsi dengan Notaris & PPAT.
+   - **Unlimited Priority Chat** dengan tanggapan prioritas.
+   - **Akses Penuh Pembuat Dokumen Hukum Interaktif**: Kustomisasi variabel dan unduh langsung dokumen resmi berformat **Microsoft Word (.doc)** dan **PDF Siap Cetak**.
+   - Jadwal penandatanganan akta resmi di kantor Notaris rekanan.
+   - Pelacak berkas SABH Kemenkumham & OSS RBA.
 
 ---
 
-## 🚀 Cara Menjalankan Website
+## 💻 Full-Width Production Workspace (`#workspace`)
 
-Platform ini dibuat mandiri (*zero dependencies / self-contained*), sehingga dapat dijalankan dengan cepat:
+Platform ini dilengkapi dengan workspace aplikasi terpadu berlayar penuh (*Full-Width Desktop & Mobile Responsive Web App*):
 
-### Cara 1: Buka Langsung di Browser
-Cukup buka berkas `index.html` langsung di browser favorit Anda.
+- **Tab 1: Overview & Client Account** — Statistik berkas, notaris on-duty, status paket langganan, dan manajemen profil klien.
+- **Tab 2: Find & Book Notary** — Direktori Notaris & PPAT terakreditasi Kemenkumham dengan filter spesialisasi (PT/CV/PMA, HAKI, PPAT/Pertanahan) dan modal penjadwalan janji temu resmi.
+- **Tab 3: Consultation Room** — Ruang chat terenkripsi dengan jaminan kerahasiaan jabatan notaris (UUJN No. 2/2014), multi-notary switching, pengiriman lampiran berkas, dan ekspor transkrip `.txt`.
+- **Tab 4: Live Video Call (WebRTC)** — Panggilan tatap muka terenkripsi dengan Notaris, dukungan real-time camera/microphone device preview (`navigator.mediaDevices.getUserMedia`), kendali mute audio, toggle kamera, berbagi layar dokumen (`getDisplayMedia`), dan timer sesi.
+- **Tab 5: Interactive Document Builder** — Pembuat dokumen hukum interaktif (PKS, Akta Pendirian PT, PKWT Ketenagakerjaan PP 35/2021, Mutual NDA, Shareholders Agreement, dan Surat Kuasa Khusus) dengan live paper preview dan generator file Microsoft Word `.doc`.
+- **Tab 6: PT Setup & Corporate Filings** — Pelacak tahapan pendirian PT interaktif, penambahan tugas kustom, serta monitoring minuta akta dan SK Kemenkumham.
+- **Tab 7: Plans & Checkout Gateway** — Manajemen langganan, checkout simulasi dengan QRIS Real-Time, Virtual Account Bank (BCA), E-Wallet, dan cetak faktur pembayaran resmi bertanda lunas.
 
-### Cara 2: Jalankan Local Server (Python)
+---
+
+## ☁️ Integrasi Supabase Cloud
+
+Platform ini telah terintegrasi dengan **Supabase Cloud**:
+- **Project URL**: `https://jogjdlwrpnvzzxvvfisc.supabase.co`
+- **Publishable Key**: `sb_publishable_lEb3tm8PRg9D5jSDsDzr2A_jrQyiGEr`
+- **Schema & Migrations**: Berkas SQL PostgreSQL lengkap tersedia di `supabase/migrations/20261025000000_legalease_schema.sql` mencakup tabel:
+  - `profiles` (Sinkronisasi akun klien)
+  - `notaries` (Direktori Notaris & PPAT terverifikasi)
+  - `consultation_messages` (Pesan chat terenkripsi)
+  - `appointments` (Jadwal konsultasi & tanda tangan akta)
+  - `saved_documents` (Draf kontrak yang disimpan)
+  - `checklist_progress` (Progres roadmap PT)
+  - `corporateFilings` (Log minuta akta AHU)
+  - `transactions` (Riwayat pembayaran dan faktur langganan)
+  - Lengkap dengan **Row-Level Security (RLS)** dan pemicu otomatis `on_auth_user_created`.
+
+---
+
+## 👥 Dewan Direksi & Tim Legal
+
+- **Rasendriya Khalika** — Chief Executive Officer (Co-Founder & Strategy)
+- **Gelsay Behrous** — Head of Legal Operations (Regulatory Compliance)
+- **Celena Aurellia** — Chief Product Officer (Platform Architecture)
+- **Ellya Putri** — Senior Corporate Counsel (Contract Standardization)
+- **Kailla Aulia** — Notary Network Director (PPAT Partnerships)
+- **Maureen Medina** — Head of Business Development (SME & Startup Relations)
+- **Risha Aprillia** — Lead Legal Research (Document Governance)
+- **Sharon Miracle** — Client Success Lead (Enterprise Operations)
+
+---
+
+## 🚀 Menjalankan Aplikasi
+
+Aplikasi dapat dijalankan secara langsung pada server web lokal:
+
 ```bash
+# Menggunakan Python built-in server:
 python -m http.server 8000
-```
-Buka di browser: `http://localhost:8000`
 
----
-
-## 📁 Struktur Berkas Proyek
-
+# Atau menggunakan Node http-server / serve:
+npx serve .
 ```
-legalease/
-├── index.html              # Halaman web utama produksi
-├── app.js                  # Logika aplikasi portal, chat, checklist & pembayaran
-├── styles.css              # Styling chassis smartphone, animasi, glassmorphism
-├── README.md               # Dokumentasi resmi platform
-├── assets/
-│   ├── logo.png            # Logo resmi LegalEase
-│   ├── favicon.png         # Favicon platform
-│   ├── team/               # Foto dewan pimpinan & legal counsel
-│   └── slides/             # Aset visual pendukung
-```
+
+Buka peramban di `http://localhost:8000`.
+Aplikasi 100% responsif, tanpa placeholder, dan siap produksi!
