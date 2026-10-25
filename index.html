@@ -216,12 +216,12 @@
 
       <!-- Right Action Buttons (Download APK + User Profile / Switcher) -->
       <div class="hidden sm:flex items-center gap-2.5">
-        <button onclick="openLiveChat()" class="hidden lg:flex px-3.5 py-2 rounded-full bg-[#0D7A68]/10 hover:bg-[#0D7A68]/20 text-[#0D7A68] border border-[#0D7A68]/30 text-xs font-bold transition items-center gap-1.5 shadow-2xs" title="Konsultasi Chat Notaris Online">
+        <button onclick="openLiveChat()" class="hidden 2xl:flex px-3.5 py-2 rounded-full bg-[#0D7A68]/10 hover:bg-[#0D7A68]/20 text-[#0D7A68] border border-[#0D7A68]/30 text-xs font-bold transition items-center gap-1.5 shadow-2xs" title="Konsultasi Chat Notaris Online">
           <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
           <i data-lucide="message-square" class="w-3.5 h-3.5"></i>
           <span>Chat Notaris</span>
         </button>
-        <a href="assets/LegalEase-v2.4.1.apk" download="LegalEase-v2.4.1.apk" class="hidden md:flex px-4 py-2 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition items-center gap-2 shadow-sm hover:shadow">
+        <a href="assets/LegalEase-v2.4.1.apk" download="LegalEase-v2.4.1.apk" class="hidden lg:flex px-4 py-2 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition items-center gap-2 shadow-sm hover:shadow">
           <i data-lucide="smartphone" class="w-4 h-4"></i>
           <span>Download APK</span>
         </a>
@@ -534,7 +534,7 @@
       </div>
 
       <!-- Live Search & Filter Bar -->
-      <div class="flex flex-col sm:flex-row gap-3 max-w-4xl mx-auto mb-10">
+      <div class="flex flex-col lg:flex-row gap-3 max-w-4xl mx-auto mb-8">
         <div class="flex-1 relative">
           <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
           <input 
@@ -545,7 +545,7 @@
             class="w-full pl-10 pr-4 py-3 rounded-2xl border border-slate-300 bg-slate-50 text-xs font-medium text-slate-800 focus:outline-none focus:border-[#0C1E36] focus:bg-white transition"
           >
         </div>
-        <div class="flex items-center gap-1.5 overflow-x-auto pb-1">
+        <div class="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full no-scrollbar">
           <button onclick="filterNotariesByCategory('all')" id="btn-filter-all" class="px-4 py-2.5 rounded-xl text-xs font-bold transition whitespace-nowrap bg-[#0C1E36] text-amber-300 shadow-xs">Semua</button>
           <button onclick="filterNotariesByCategory('pt')" id="btn-filter-pt" class="px-4 py-2.5 rounded-xl text-xs font-bold transition whitespace-nowrap bg-white border border-slate-300 text-slate-700 hover:bg-slate-50">Pendirian PT / PMA</button>
           <button onclick="filterNotariesByCategory('haki')" id="btn-filter-haki" class="px-4 py-2.5 rounded-xl text-xs font-bold transition whitespace-nowrap bg-white border border-slate-300 text-slate-700 hover:bg-slate-50">HAKI & Ketenagakerjaan</button>
@@ -589,7 +589,7 @@
       <div class="max-w-5xl mx-auto bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden grid grid-cols-1 lg:grid-cols-12">
         
         <!-- Form Inputs (Left 5 Cols) -->
-        <div class="lg:col-span-5 p-6 sm:p-8 bg-slate-50/60 border-b lg:border-b-0 lg:border-r border-slate-200 space-y-4">
+        <div class="lg:col-span-5 p-4 sm:p-8 bg-slate-50/60 border-b lg:border-b-0 lg:border-r border-slate-200 space-y-4">
           <div class="pb-3 border-b border-slate-200">
             <h3 class="font-bold text-sm text-[#0C1E36]">Data Variabel Kontrak</h3>
             <p class="text-[11px] text-slate-500">Perubahan kolom otomatis memperbarui draf perjanjian di sebelah kanan.</p>
@@ -627,7 +627,7 @@
         </div>
 
         <!-- Document Parchment Preview (Right 7 Cols) -->
-        <div class="lg:col-span-7 p-6 sm:p-8 bg-[#FCFBF8] font-serif flex flex-col justify-between max-h-[520px] overflow-y-auto">
+        <div class="lg:col-span-7 p-4 sm:p-8 bg-[#FCFBF8] font-serif flex flex-col justify-between max-h-[520px] overflow-y-auto">
           <div>
             <div class="text-center pb-4 mb-4 border-b border-slate-300">
               <h4 id="landing-doc-title" class="font-bold text-sm sm:text-base uppercase tracking-wide text-slate-950 font-serif-editorial">
@@ -935,7 +935,7 @@
       <div class="max-w-4xl mx-auto bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-2xs">
         <h4 class="text-base font-serif-editorial font-bold text-[#0C1E36] mb-4 text-center">Tabel Perbandingan Hak Akses Fitur</h4>
         <div class="overflow-x-auto">
-          <table class="w-full text-xs text-left">
+          <table class="w-full text-xs text-left min-w-[560px]">
             <thead>
               <tr class="border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider text-[10px]">
                 <th class="py-3">Fitur Layanan Hukum</th>
@@ -1326,7 +1326,7 @@
   <!-- MODAL 1: CLIENT ACCOUNT & 2-PROFILE SWITCHER (SUPABASE CLOUD)             -->
   <!-- ========================================================================= -->
   <div id="auth-modal" class="fixed inset-0 z-50 bg-[#0C1E36]/85 backdrop-blur-md hidden flex items-center justify-center p-4 no-print">
-    <div class="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-200">
+    <div class="bg-white rounded-3xl max-w-lg w-full max-h-[92vh] flex flex-col overflow-hidden shadow-2xl border border-slate-200">
       
       <div class="p-5 px-6 bg-[#0C1E36] text-white flex items-center justify-between">
         <div class="flex items-center gap-2.5">
@@ -1345,7 +1345,7 @@
         </button>
       </div>
 
-      <div id="auth-modal-body" class="p-6">
+      <div id="auth-modal-body" class="p-4 sm:p-6 overflow-y-auto flex-1">
         <!-- Dynamically rendered by app.js (Account Switcher between Akun 1 & Akun 2, or login form) -->
       </div>
     </div>
@@ -1355,7 +1355,7 @@
   <!-- MODAL 2: NOTARY APPOINTMENT BOOKING MODAL                                 -->
   <!-- ========================================================================= -->
   <div id="booking-modal" class="fixed inset-0 z-50 bg-[#0C1E36]/85 backdrop-blur-md hidden flex items-center justify-center p-4 no-print">
-    <div class="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-slate-200">
+    <div class="bg-white rounded-3xl max-w-md w-full max-h-[92vh] flex flex-col overflow-hidden shadow-2xl border border-slate-200">
       <div class="p-5 px-6 bg-[#0C1E36] text-white flex items-center justify-between">
         <div>
           <h3 class="text-sm font-bold text-white">Jadwalkan Janji Temu Notaris</h3>
@@ -1365,7 +1365,7 @@
           <i data-lucide="x" class="w-4 h-4"></i>
         </button>
       </div>
-      <form onsubmit="handleConfirmBooking(event)" class="p-6 space-y-4 text-xs">
+      <form onsubmit="handleConfirmBooking(event)" class="p-5 sm:p-6 space-y-4 text-xs overflow-y-auto flex-1">
         <input type="hidden" id="booking-notary-id" value="notary-1">
         <div>
           <label class="block font-bold text-slate-700 mb-1">Format Konsultasi / Layanan</label>
@@ -1531,7 +1531,7 @@
   <!-- MODAL 5: APK INSTALLATION GUIDE MODAL                                     -->
   <!-- ========================================================================= -->
   <div id="apk-guide-modal" class="fixed inset-0 z-50 bg-[#0C1E36]/85 backdrop-blur-md hidden flex items-center justify-center p-4 no-print">
-    <div class="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-slate-200">
+    <div class="bg-white rounded-3xl max-w-md w-full max-h-[92vh] flex flex-col overflow-hidden shadow-2xl border border-slate-200">
       <div class="p-5 px-6 bg-[#0C1E36] text-white flex items-center justify-between">
         <div class="flex items-center gap-2">
           <i data-lucide="help-circle" class="w-5 h-5 text-amber-300"></i>
@@ -1542,7 +1542,7 @@
         </button>
       </div>
 
-      <div class="p-6 space-y-4 text-xs">
+      <div class="p-5 sm:p-6 space-y-4 text-xs overflow-y-auto flex-1">
         <div class="flex items-start gap-3">
           <div class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center shrink-0">1</div>
           <div>
@@ -1601,7 +1601,7 @@
   <!-- ========================================================================= -->
   <!-- MODAL 6: INTERACTIVE LIVE CHAT CONSULTATION DIALOGUE                      -->
   <!-- ========================================================================= -->
-  <div id="live-chat-modal" class="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-[450px] h-[640px] max-h-[calc(100vh-2.5rem)] bg-white rounded-3xl chat-drawer-shadow border border-slate-300 flex flex-col overflow-hidden hidden transition-all duration-300 no-print">
+  <div id="live-chat-modal" class="fixed bottom-2 right-2 sm:bottom-6 sm:right-6 z-50 w-[calc(100vw-1rem)] sm:w-[420px] max-w-[420px] h-[580px] max-h-[calc(100vh-1rem)] bg-white rounded-3xl chat-drawer-shadow border border-slate-300 flex flex-col overflow-hidden hidden transition-all duration-300 no-print">
     
     <!-- Top Header: Active Notary Profile & Status -->
     <div class="p-4 bg-[#0C1E36] text-white flex items-center justify-between border-b border-white/10 shrink-0">

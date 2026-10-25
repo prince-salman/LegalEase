@@ -739,10 +739,10 @@
     }
 
     container.innerHTML = filtered.map(notary => `
-      <div class="bg-[#FAF9F5] border border-slate-200 rounded-3xl p-6 hover:border-[#C29236] transition-all shadow-2xs hover:shadow-md flex flex-col justify-between">
+      <div class="bg-[#FAF9F5] border border-slate-200 rounded-3xl p-4 sm:p-6 hover:border-[#C29236] transition-all shadow-2xs hover:shadow-md flex flex-col justify-between">
         <div>
-          <div class="flex items-start gap-4 mb-4">
-            <img src="${notary.avatar}" alt="${notary.name}" class="w-16 h-16 rounded-2xl object-cover border border-slate-200 shadow-2xs shrink-0">
+          <div class="flex items-start gap-3 sm:gap-4 mb-4">
+            <img src="${notary.avatar}" alt="${notary.name}" class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl object-cover border border-slate-200 shadow-2xs shrink-0">
             <div class="flex-1">
               <div class="flex items-center justify-between mb-1">
                 <span class="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full flex items-center gap-1">
@@ -1205,7 +1205,7 @@
           ${chk.planPrice > 0 ? `
             <div>
               <label class="block font-bold text-slate-800 mb-2">Metode Pembayaran Resmi</label>
-              <div class="grid grid-cols-3 gap-2 mb-3">
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-3">
                 <button type="button" onclick="selectPaymentChannel('qris')" class="p-3 rounded-2xl border text-center transition ${chk.method === 'qris' ? 'border-[#0D7A68] bg-teal-50/70 text-[#0D7A68] font-bold ring-1 ring-[#0D7A68]' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'}">
                   <span class="block text-xs font-bold">QRIS</span>
                   <span class="text-[9px] text-slate-500 block">Semua Bank & E-Wallet</span>
@@ -2043,16 +2043,34 @@
   };
 
   // --- MOBILE MENU ---
+  window.toggleMobileMenu = function () {
+    const menu = document.getElementById('mobile-menu');
+    if (menu) menu.classList.toggle('hidden');
+  };
+  window.closeMobileMenu = function () {
+    const menu = document.getElementById('mobile-menu');
+    if (menu) menu.classList.add('hidden');
+  };
+  window.switchClientPortalTab = function (tab) {
+    if (typeof window.switchClientTab === 'function') {
+      window.switchClientTab(tab);
+    }
+  };
+  window.deselectAdminChat = function () {
+    state.activeAdminChatEmail = null;
+    renderAdminContent();
+  };
+
   function initMobileMenu() {
     const btn = document.getElementById('mobile-menu-btn');
     const menu = document.getElementById('mobile-menu');
     if (btn && menu) {
       btn.addEventListener('click', () => {
-        menu.classList.toggle('hidden');
+        window.toggleMobileMenu();
       });
-      menu.querySelectorAll('a').forEach(link => {
-        link.addEventListener('click', () => {
-          menu.classList.add('hidden');
+      menu.querySelectorAll('a, button').forEach(el => {
+        el.addEventListener('click', () => {
+          window.closeMobileMenu();
         });
       });
     }
@@ -2911,7 +2929,7 @@
               <label class="block font-bold text-slate-700 mb-1">Pihak Kedua (Mitra / Rekan)</label>
               <input type="text" oninput="handleClientDocFormInput('party2Name', this.value)" value="${escapeHtml(state.docFormData.party2Name || 'PT Rekan Teknologi Mandiri')}" class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 text-xs font-semibold focus:outline-none focus:border-[#0C1E36]">
             </div>
-            <div class="grid grid-cols-2 gap-2">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <div>
                 <label class="block font-bold text-slate-700 mb-1">Kota Penandatanganan</label>
                 <input type="text" oninput="handleClientDocFormInput('contractCity', this.value)" value="${escapeHtml(state.docFormData.contractCity || user.city || 'Jakarta Selatan')}" class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 text-xs font-semibold focus:outline-none focus:border-[#0C1E36]">
@@ -3083,7 +3101,7 @@
           </div>
 
           <!-- 4 KPI Cards -->
-          <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-6 pt-6 border-t border-slate-100">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-6 pt-6 border-t border-slate-100">
             <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100">
               <div class="text-[10px] font-bold uppercase text-slate-400 font-mono">Status AHU Online</div>
               <div class="text-sm font-bold text-[#0C1E36] mt-0.5">Badan Hukum Aktif</div>
@@ -3114,7 +3132,7 @@
         </div>
 
         <!-- 2. Workspace Navigation Tabs -->
-        <div class="bg-white rounded-2xl border border-slate-200 p-1.5 flex flex-wrap items-center gap-1.5 shadow-xs">
+        <div class="bg-white rounded-2xl border border-slate-200 p-1.5 grid grid-cols-1 sm:grid-cols-3 gap-1.5 shadow-xs">
           <button onclick="switchClientTab('documents')" id="btn-client-tab-documents" class="flex-1 py-3 px-4 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${state.activeClientTab === 'documents' ? 'bg-[#0C1E36] text-amber-300 shadow-xs' : 'text-slate-600 hover:text-slate-900'}">
             <i data-lucide="file-text" class="w-4 h-4"></i>
             <span>Berkas & Kontrak Perseroan</span>
@@ -3221,7 +3239,7 @@
           </div>
 
           <!-- 4 Executive KPI Cards -->
-          <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-6 pt-6 border-t border-white/10">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-6 pt-6 border-t border-white/10">
             <div class="p-4 rounded-2xl bg-black/30 border border-white/5">
               <div class="text-[10px] font-bold uppercase text-amber-300/80 font-mono">Total Klien Terdaftar</div>
               <div class="text-2xl font-bold text-white mt-1">${users.length} Perusahaan</div>
@@ -3248,7 +3266,7 @@
         </div>
 
         <!-- 2. Admin Workspace Tabs -->
-        <div class="bg-[#0C1E36] rounded-2xl border border-slate-800 p-1.5 flex flex-wrap items-center gap-1.5 shadow-xs">
+        <div class="bg-[#0C1E36] rounded-2xl border border-slate-800 p-1.5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1.5 shadow-xs">
           <button onclick="switchAdminPortalTab('chats')" id="btn-admin-portal-tab-chats" class="flex-1 py-3 px-4 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${activeAdminTab === 'chats' ? 'bg-amber-400 text-slate-950 font-extrabold shadow-xs' : 'text-slate-300 hover:text-white'}">
             <i data-lucide="messages-square" class="w-4 h-4"></i>
             <span>Studio Konsultasi Klien Real-Time</span>
@@ -3330,9 +3348,9 @@
       const activeChat = clients.find(c => c.clientEmail === activeEmail) || null;
 
       contentHtml = `
-        <div class="flex-1 flex overflow-hidden">
-          <!-- Left Client Threads List -->
-          <div class="w-72 sm:w-80 border-r border-slate-200 bg-slate-50 flex flex-col shrink-0">
+        <div class="flex-1 flex flex-col md:flex-row overflow-hidden">
+          <!-- Left Client Threads List (Hidden on mobile if a chat is active) -->
+          <div class="${activeChat ? 'hidden md:flex' : 'flex'} w-full md:w-80 border-b md:border-b-0 md:border-r border-slate-200 bg-slate-50 flex-col shrink-0">
             <div class="p-3 border-b border-slate-200 flex items-center justify-between">
               <span class="text-xs font-bold text-slate-800">Sesi Klien Multi-Perangkat</span>
               <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold">${clients.length} Percakapan</span>
@@ -3356,12 +3374,16 @@
             </div>
           </div>
 
-          <!-- Right Chat Stream -->
-          <div class="flex-1 flex flex-col bg-white">
+          <!-- Right Chat Stream (Hidden on mobile if no active chat) -->
+          <div class="${activeChat ? 'flex' : 'hidden md:flex'} flex-1 flex-col bg-white">
             ${activeChat ? `
-              <div class="p-3.5 px-5 bg-slate-50 border-b border-slate-200 flex items-center justify-between shrink-0">
-                <div>
-                  <h4 class="font-bold text-xs text-[#0C1E36]">${escapeHtml(activeChat.clientName)}</h4>
+              <div class="p-3.5 px-4 sm:px-5 bg-slate-50 border-b border-slate-200 flex items-center justify-between shrink-0">
+                <div class="flex items-center gap-2">
+                  <button type="button" onclick="deselectAdminChat()" class="md:hidden p-1.5 rounded-lg bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 transition shadow-2xs" title="Kembali ke Daftar Klien">
+                    <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                  </button>
+                  <div>
+                    <h4 class="font-bold text-xs text-[#0C1E36]">${escapeHtml(activeChat.clientName)}</h4>
                   <p class="text-[10px] text-slate-500">${escapeHtml(activeChat.clientCompany)} • ${escapeHtml(activeChat.clientEmail)}</p>
                 </div>
                 <span class="text-[9px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-mono font-bold flex items-center gap-1">
@@ -3418,7 +3440,8 @@
           </div>
 
           <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-2xs">
-            <table class="w-full text-xs text-left">
+            <div class="overflow-x-auto w-full">
+              <table class="w-full text-xs text-left min-w-[650px]">
               <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase text-[10px] font-bold">
                 <tr>
                   <th class="p-3.5">Nama Klien</th>
@@ -3443,7 +3466,8 @@
                   </tr>
                 `).join('')}
               </tbody>
-            </table>
+              </table>
+            </div>
           </div>
         </div>
       `;
@@ -3467,10 +3491,11 @@
           </div>
 
           <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-2xs">
-            <table class="w-full text-xs text-left">
-              <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase text-[10px] font-bold">
-                <tr>
-                  <th class="p-3.5">No. Faktur</th>
+            <div class="overflow-x-auto w-full">
+              <table class="w-full text-xs text-left min-w-[680px]">
+                <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase text-[10px] font-bold">
+                  <tr>
+                    <th class="p-3.5">No. Faktur</th>
                   <th class="p-3.5">Klien & Perusahaan</th>
                   <th class="p-3.5">Paket</th>
                   <th class="p-3.5">Jumlah (IDR)</th>
@@ -3494,7 +3519,8 @@
                   </tr>
                 `).join('')}
               </tbody>
-            </table>
+              </table>
+            </div>
           </div>
         </div>
       `;
