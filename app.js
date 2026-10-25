@@ -2134,7 +2134,7 @@
     const not = NOTARIES.find(n => n.id === notaryId) || NOTARIES[0];
     const now = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB';
 
-    if (user.plan === 'full') {
+    if (user && user.plan === 'full') {
       return [
         {
           id: 'msg_init_' + notaryId,
@@ -2146,13 +2146,15 @@
         }
       ];
     } else {
+      const cName = user ? user.fullName : 'Calon Klien';
+      const compName = user ? ` dari **${user.companyName}**` : '';
       return [
         {
           id: 'msg_init_' + notaryId,
           sender: 'notary',
           senderName: not.name,
           senderAvatar: not.avatar,
-          text: `Halo Bapak/Ibu **${user.fullName}** dari **${user.companyName}**!\n\nSaya **${not.name}** (${not.title}). Sesi konsultasi hukum resmi LegalEase telah terhubung langsung dengan kantor kami. Apakah ada kebutuhan terkait pendirian PT, perizinan KBLI, kontrak kerja, atau legalitas bisnis yang dapat saya bantu telaah hari ini?`,
+          text: `Halo Bapak/Ibu **${cName}**${compName}!\n\nSaya **${not.name}** (${not.title}). Sesi konsultasi hukum resmi LegalEase telah terhubung langsung dengan kantor kami. Apakah ada kebutuhan terkait pendirian PT, perizinan KBLI, kontrak kerja, atau legalitas bisnis yang dapat saya bantu telaah hari ini?`,
           timestamp: now
         }
       ];
@@ -2335,7 +2337,13 @@
     if (nameEl) nameEl.textContent = notary.name;
     if (titleEl) titleEl.textContent = `${notary.title} • Online Siap Menjawab`;
     if (selectEl) selectEl.value = notId;
-    if (clientPill) clientPill.textContent = `${state.currentUser.fullName} (${state.currentUser.companyName})`;
+    if (clientPill) {
+      if (state.currentUser) {
+        clientPill.textContent = `${state.currentUser.fullName} (${state.currentUser.companyName})`;
+      } else {
+        clientPill.textContent = 'Pengunjung Platform LegalEase';
+      }
+    }
 
     if (modal) modal.classList.remove('hidden');
     if (trigger) trigger.classList.add('hidden');
@@ -2386,11 +2394,17 @@
       state.chatHistory[notaryId] = generateInitialGreeting(notaryId, state.currentUser);
     }
 
+    const cUser = state.currentUser || {
+      fullName: 'Pengunjung Platform',
+      companyName: 'Calon Klien',
+      email: 'tamu@legalease.co.id'
+    };
+
     // Append user message
     state.chatHistory[notaryId].push({
       id: 'msg_usr_' + Date.now(),
       sender: 'user',
-      senderName: state.currentUser.fullName,
+      senderName: cUser.fullName,
       text: text,
       attachment: attachment || null,
       timestamp: now
@@ -3663,6 +3677,18 @@
 
     showToast('Balasan notaris berhasil dikirimkan ke perangkat klien.', 'success');
   };
+
+  // Global Escape Key Listener to dismiss any active modal or live chat
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      if (typeof window.closeLiveChat === 'function') window.closeLiveChat();
+      if (typeof window.closeAuthModal === 'function') window.closeAuthModal();
+      if (typeof window.closeBookingModal === 'function') window.closeBookingModal();
+      if (typeof window.closeApkGuideModal === 'function') window.closeApkGuideModal();
+      if (typeof window.closeDocumentPreview === 'function') window.closeDocumentPreview();
+      if (typeof window.closeCheckoutModal === 'function') window.closeCheckoutModal();
+    }
+  });
 
   document.addEventListener('DOMContentLoaded', () => {
     initMobileMenu();
