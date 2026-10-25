@@ -1143,9 +1143,11 @@
   let checkoutCountdownTimer = null;
 
   window.openCheckoutModal = function (planId) {
+    planId = planId || 'trial';
     if (!state.currentUser) {
-      showToast('Silakan masuk atau buat akun perseroan terlebih dahulu untuk memilih paket berlangganan.', 'info');
-      openAuthModal('register');
+      const planLabel = (planId === 'trial' ? 'Free Trial (Rp 0)' : (planId === 'chat' ? 'Chat Essential (Rp 150.000)' : 'Full Legal Suite (Rp 300.000)'));
+      showToast('Silakan lengkapi pendaftaran akun perseroan terlebih dahulu untuk paket ' + planLabel + '.', 'info');
+      openAuthModal('register', planId);
       return;
     }
 
@@ -1705,8 +1707,47 @@
   };
 
   // --- PRODUCTION AUTH MODAL (LOGIN, REGISTER, PROFILE) ---
-  window.openAuthModal = function (mode) {
+  window.selectRegPlan = function (planId) {
+    state.selectedRegPlan = planId;
+    ['trial', 'chat', 'full'].forEach(p => {
+      const card = document.getElementById('reg-card-' + p);
+      const radio = document.getElementById('reg-radio-' + p);
+      if (!card || !radio) return;
+      if (p === planId) {
+        if (p === 'trial') {
+          card.className = 'cursor-pointer p-3 rounded-2xl border-2 transition-all flex flex-col justify-between border-emerald-600 bg-emerald-50/70 shadow-xs';
+          radio.className = 'w-4 h-4 rounded-full border-2 border-emerald-600 bg-emerald-600 flex items-center justify-center';
+        } else if (p === 'chat') {
+          card.className = 'cursor-pointer p-3 rounded-2xl border-2 transition-all flex flex-col justify-between border-teal-600 bg-teal-50/70 shadow-xs';
+          radio.className = 'w-4 h-4 rounded-full border-2 border-teal-600 bg-teal-600 flex items-center justify-center';
+        } else {
+          card.className = 'cursor-pointer p-3 rounded-2xl border-2 transition-all flex flex-col justify-between border-amber-500 bg-amber-50/70 shadow-xs';
+          radio.className = 'w-4 h-4 rounded-full border-2 border-amber-500 bg-amber-500 flex items-center justify-center';
+        }
+        radio.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-white"></span>';
+      } else {
+        card.className = 'cursor-pointer p-3 rounded-2xl border-2 transition-all flex flex-col justify-between border-slate-200 bg-slate-50 hover:bg-white hover:border-slate-300';
+        radio.className = 'w-4 h-4 rounded-full border-2 border-slate-300 bg-white flex items-center justify-center';
+        radio.innerHTML = '';
+      }
+    });
+
+    const submitText = document.getElementById('reg-submit-text');
+    if (submitText) {
+      if (planId === 'trial') {
+        submitText.textContent = 'Buat Akun & Aktifkan Free Trial (Rp 0)';
+      } else if (planId === 'chat') {
+        submitText.textContent = 'Buat Akun & Lanjut Pembayaran (Rp 150.000)';
+      } else {
+        submitText.textContent = 'Buat Akun & Lanjut Pembayaran (Rp 300.000)';
+      }
+    }
+  };
+
+  window.openAuthModal = function (mode, selectedPlanId) {
     mode = mode || (state.currentUser ? 'profile' : 'login');
+    selectedPlanId = selectedPlanId || state.selectedRegPlan || 'trial';
+    state.selectedRegPlan = selectedPlanId;
     const modal = document.getElementById('auth-modal');
     const body = document.getElementById('auth-modal-body');
     if (!modal || !body) return;
@@ -1753,11 +1794,12 @@
         </div>
       `;
     } else if (mode === 'register') {
+      const curPlan = selectedPlanId || state.selectedRegPlan || 'trial';
       body.innerHTML = `
         <div class="space-y-4 text-xs">
           <div class="text-center pb-2 border-b border-slate-100">
             <h4 class="font-serif-editorial font-bold text-xl text-[#0C1E36]">Registrasi Akun Klien Baru</h4>
-            <p class="text-[11px] text-slate-500 mt-0.5">Daftarkan perusahaan Anda untuk konsultasi langsung dengan Notaris berlisensi</p>
+            <p class="text-[11px] text-slate-500 mt-0.5">Daftarkan perusahaan Anda & pilih paket perlindungan hukum sesuai kebutuhan</p>
           </div>
 
           <form onsubmit="handleUserRegisterSubmit(event)" class="space-y-3 pt-1">
@@ -1794,8 +1836,64 @@
               </div>
             </div>
 
-            <button type="submit" class="w-full py-3 rounded-xl bg-[#0D7A68] hover:bg-teal-800 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition mt-2">
-              <i data-lucide="user-plus" class="w-4 h-4"></i> Buat Akun Klien Sekarang
+            <!-- PILIHAN PAKET LAYANAN UNTUK PENGGUNA BARU -->
+            <div class="pt-1">
+              <div class="flex items-center justify-between mb-1.5">
+                <label class="block font-bold text-slate-800 text-xs">Pilih Paket Layanan Sesuai Kebutuhan:</label>
+                <span class="text-[10px] text-emerald-700 font-semibold">Fleksibel & Tanpa Kontrak Kaku</span>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2" id="reg-plan-cards-container">
+                <!-- Option 1: 3-Day Free Trial (Rp 0) -->
+                <div onclick="selectRegPlan('trial')" id="reg-card-trial" class="cursor-pointer p-3 rounded-2xl border-2 transition-all flex flex-col justify-between ${curPlan === 'trial' ? 'border-emerald-600 bg-emerald-50/70 shadow-xs' : 'border-slate-200 bg-slate-50 hover:bg-white hover:border-slate-300'}">
+                  <div>
+                    <div class="flex items-center justify-between mb-1">
+                      <span class="text-[9px] px-2 py-0.5 rounded-full font-bold bg-emerald-200 text-emerald-900 font-mono">GRATIS</span>
+                      <span id="reg-radio-trial" class="w-4 h-4 rounded-full border-2 ${curPlan === 'trial' ? 'border-emerald-600 bg-emerald-600' : 'border-slate-300 bg-white'} flex items-center justify-center">
+                        ${curPlan === 'trial' ? '<span class="w-1.5 h-1.5 rounded-full bg-white"></span>' : ''}
+                      </span>
+                    </div>
+                    <div class="font-bold text-xs text-[#0C1E36]">3-Day Free Trial</div>
+                    <div class="text-sm font-bold text-emerald-700 my-0.5">Rp 0</div>
+                    <p class="text-[10px] text-slate-500 leading-tight">Konsultasi notaris via chat & checklist PT.</p>
+                  </div>
+                </div>
+
+                <!-- Option 2: Legal Chat Essential (Rp 150.000) -->
+                <div onclick="selectRegPlan('chat')" id="reg-card-chat" class="cursor-pointer p-3 rounded-2xl border-2 transition-all flex flex-col justify-between ${curPlan === 'chat' ? 'border-teal-600 bg-teal-50/70 shadow-xs' : 'border-slate-200 bg-slate-50 hover:bg-white hover:border-slate-300'}">
+                  <div>
+                    <div class="flex items-center justify-between mb-1">
+                      <span class="text-[9px] px-2 py-0.5 rounded-full font-bold bg-teal-100 text-teal-800 font-mono">HEMAT</span>
+                      <span id="reg-radio-chat" class="w-4 h-4 rounded-full border-2 ${curPlan === 'chat' ? 'border-teal-600 bg-teal-600' : 'border-slate-300 bg-white'} flex items-center justify-center">
+                        ${curPlan === 'chat' ? '<span class="w-1.5 h-1.5 rounded-full bg-white"></span>' : ''}
+                      </span>
+                    </div>
+                    <div class="font-bold text-xs text-[#0C1E36]">Chat Essential</div>
+                    <div class="text-sm font-bold text-teal-800 my-0.5">Rp 150.000</div>
+                    <p class="text-[10px] text-slate-500 leading-tight">Tanya jawab notaris unlimited via chat 30 hari.</p>
+                  </div>
+                </div>
+
+                <!-- Option 3: Full Legal Suite (Rp 300.000) -->
+                <div onclick="selectRegPlan('full')" id="reg-card-full" class="cursor-pointer p-3 rounded-2xl border-2 transition-all flex flex-col justify-between ${curPlan === 'full' ? 'border-amber-500 bg-amber-50/70 shadow-xs' : 'border-slate-200 bg-slate-50 hover:bg-white hover:border-slate-300'}">
+                  <div>
+                    <div class="flex items-center justify-between mb-1">
+                      <span class="text-[9px] px-2 py-0.5 rounded-full font-bold bg-amber-200 text-amber-900 font-mono">LENGKAP</span>
+                      <span id="reg-radio-full" class="w-4 h-4 rounded-full border-2 ${curPlan === 'full' ? 'border-amber-500 bg-amber-500' : 'border-slate-300 bg-white'} flex items-center justify-center">
+                        ${curPlan === 'full' ? '<span class="w-1.5 h-1.5 rounded-full bg-white"></span>' : ''}
+                      </span>
+                    </div>
+                    <div class="font-bold text-xs text-[#0C1E36]">Full Legal Suite</div>
+                    <div class="text-sm font-bold text-amber-900 my-0.5">Rp 300.000</div>
+                    <p class="text-[10px] text-slate-500 leading-tight">Video call notaris + 6 draf akta PT & kontrak Word.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" id="reg-submit-btn" class="w-full py-3 rounded-xl bg-[#0D7A68] hover:bg-teal-800 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition mt-2">
+              <i data-lucide="user-plus" class="w-4 h-4"></i>
+              <span id="reg-submit-text">${curPlan === 'trial' ? 'Buat Akun & Aktifkan Free Trial (Rp 0)' : (curPlan === 'chat' ? 'Buat Akun & Lanjut Pembayaran (Rp 150.000)' : 'Buat Akun & Lanjut Pembayaran (Rp 300.000)')}</span>
             </button>
           </form>
 
@@ -2061,6 +2159,21 @@
     const salt = generateCryptoSalt(16);
     const passwordHash = await computeHash(password, salt);
 
+    const selectedPlan = state.selectedRegPlan || 'trial';
+    let planName = '3-Day Free Trial (Rp 0)';
+    let planDuration = '3 Hari Aktif';
+    if (selectedPlan === 'chat') {
+      planName = 'Legal Chat Essential';
+      planDuration = '1 Bulan (30 Hari)';
+    } else if (selectedPlan === 'full') {
+      planName = 'Full Legal Suite';
+      planDuration = '1 Bulan (Akses Penuh)';
+    } else {
+      const expDate = new Date();
+      expDate.setDate(expDate.getDate() + 3);
+      planDuration = '3 Hari Aktif (s.d ' + expDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }) + ')';
+    }
+
     const newUser = {
       id: 'usr_' + Date.now().toString(36),
       fullName: name,
@@ -2072,9 +2185,9 @@
       passwordSalt: salt,
       city: city,
       role: 'client',
-      plan: 'biasa',
-      planName: 'Paket Biasa (Rp 0)',
-      planDuration: '0 Hari Aktif',
+      plan: selectedPlan,
+      planName: planName,
+      planDuration: planDuration,
       registeredAt: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
       isAuthenticated: true,
       transactions: []
@@ -2096,6 +2209,16 @@
     syncNavbarUser();
     closeAuthModal();
     switchView('client_dashboard');
+
+    if (selectedPlan === 'trial') {
+      showToast('Akun perseroan berhasil didaftarkan! Paket 3-Day Free Trial (Rp 0) telah aktif.', 'success');
+    } else if (selectedPlan === 'chat') {
+      showToast('Akun berhasil dibuat. Mengalihkan ke pembayaran paket Legal Chat Essential (Rp 150.000)...', 'info');
+      openCheckoutModal('chat');
+    } else if (selectedPlan === 'full') {
+      showToast('Akun berhasil dibuat. Mengalihkan ke pembayaran paket Full Legal Suite (Rp 300.000)...', 'info');
+      openCheckoutModal('full');
+    }
 
     // Broadcast new registration to Realtime channel for cross-device awareness
     if (realtimeChannel) {
@@ -3157,6 +3280,19 @@
     `;
   }
 
+  window.openPlanPickerModal = function () {
+    const modal = document.getElementById('plan-picker-modal');
+    if (modal) {
+      modal.classList.remove('hidden');
+      if (window.lucide) window.lucide.createIcons();
+    }
+  };
+
+  window.closePlanPickerModal = function () {
+    const modal = document.getElementById('plan-picker-modal');
+    if (modal) modal.classList.add('hidden');
+  };
+
   window.renderClientPortal = function () {
     const portal = document.getElementById('client-portal-view');
     if (!portal) return;
@@ -3230,10 +3366,10 @@
                 </div>
               </div>
 
-              ${user.plan === 'biasa' ? `
-                <button onclick="openCheckoutModal('full')" class="px-4 py-3 rounded-2xl bg-[#0D7A68] hover:bg-teal-800 text-white font-bold text-xs shadow-xs transition flex items-center gap-2">
+              ${(user.plan === 'biasa' || user.plan === 'trial' || user.plan === 'chat') ? `
+                <button onclick="openPlanPickerModal()" class="px-4 py-3 rounded-2xl bg-[#0D7A68] hover:bg-teal-800 text-white font-bold text-xs shadow-xs transition flex items-center gap-2" title="Pilih / Upgrade Paket Langganan">
                   <i data-lucide="zap" class="w-4 h-4 text-amber-300"></i>
-                  <span>Upgrade Paket</span>
+                  <span>${user.plan === 'chat' ? 'Upgrade ke Full Suite' : 'Pilih / Upgrade Paket'}</span>
                 </button>
               ` : ''}
 
@@ -3909,6 +4045,7 @@
       if (typeof window.closeBookingModal === 'function') window.closeBookingModal();
       if (typeof window.closeApkGuideModal === 'function') window.closeApkGuideModal();
       if (typeof window.closeDocumentPreview === 'function') window.closeDocumentPreview();
+      if (typeof window.closePlanPickerModal === 'function') window.closePlanPickerModal();
       if (typeof window.closeCheckoutModal === 'function') window.closeCheckoutModal();
     }
   });

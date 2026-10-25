@@ -1535,6 +1535,84 @@
   </div>
 
   <!-- ========================================================================= -->
+  <!-- MODAL 4B: PLAN PICKER MODAL (PILIHAN PAKET FLEKSIBEL Rp 150k / Rp 300k)   -->
+  <!-- ========================================================================= -->
+  <div id="plan-picker-modal" class="fixed inset-0 z-50 bg-[#0C1E36]/80 backdrop-blur-sm hidden flex items-center justify-center p-4 no-print">
+    <div class="bg-white rounded-3xl max-w-xl w-full max-h-[92vh] flex flex-col overflow-hidden shadow-2xl border border-slate-200">
+      <!-- Modal Header -->
+      <div class="p-5 px-6 bg-[#0C1E36] text-white flex items-center justify-between shrink-0">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center font-bold">
+            <i data-lucide="zap" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-sm text-white">Pilih Paket Langganan LegalEase</h3>
+            <p class="text-[11px] text-slate-300 mt-0.5">Tingkatkan perlindungan hukum bisnis Anda sesuai kebutuhan</p>
+          </div>
+        </div>
+        <button type="button" onclick="closePlanPickerModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-rose-600 text-white flex items-center justify-center transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-6 overflow-y-auto space-y-4 text-xs">
+        <p class="text-slate-600 text-xs leading-relaxed">
+          Pilih paket perlindungan hukum yang sesuai dengan skala dan kebutuhan operasional perusahaan Anda:
+        </p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- Card 1: Paket Chat Essential Rp 150.000 -->
+          <div class="p-5 rounded-2xl border-2 border-teal-200 bg-teal-50/40 hover:border-teal-500 hover:bg-white transition flex flex-col justify-between shadow-2xs">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-teal-100 text-teal-800 font-mono">HEMAT</span>
+                <i data-lucide="messages-square" class="w-4 h-4 text-teal-600"></i>
+              </div>
+              <h4 class="font-bold text-sm text-[#0C1E36]">Legal Chat Essential</h4>
+              <div class="text-xl font-bold text-teal-800 my-1">IDR 150.000 <span class="text-xs text-slate-500 font-normal">/ 30 hari</span></div>
+              <p class="text-[11px] text-slate-600 mt-1 mb-4 leading-relaxed">Konsultasi tanya jawab langsung dengan Notaris tanpa batas melalui chat terenkripsi 256-bit.</p>
+
+              <ul class="space-y-2 text-[11px] text-slate-700 mb-6">
+                <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-teal-600"></i> Chat Notaris Siaga Unlimited</li>
+                <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-teal-600"></i> Review Klausul Singkat</li>
+                <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-teal-600"></i> Masa Aktif 30 Hari Penuh</li>
+              </ul>
+            </div>
+
+            <button id="btn-plan-picker-chat" onclick="closePlanPickerModal(); openCheckoutModal('chat');" class="w-full py-2.5 rounded-xl bg-teal-700 hover:bg-teal-800 text-white font-bold text-xs transition shadow-xs">
+              Pilih Paket Chat (Rp 150.000)
+            </button>
+          </div>
+
+          <!-- Card 2: Full Legal Suite Rp 300.000 -->
+          <div class="p-5 rounded-2xl border-2 border-amber-300 bg-amber-50/40 hover:border-amber-500 hover:bg-white transition flex flex-col justify-between shadow-2xs">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-200 text-amber-900 font-mono">LENGKAP</span>
+                <i data-lucide="shield-check" class="w-4 h-4 text-amber-600"></i>
+              </div>
+              <h4 class="font-bold text-sm text-[#0C1E36]">Full Legal Suite</h4>
+              <div class="text-xl font-bold text-amber-900 my-1">IDR 300.000 <span class="text-xs text-slate-500 font-normal">/ bulan</span></div>
+              <p class="text-[11px] text-slate-600 mt-1 mb-4 leading-relaxed">Perlindungan menyeluruh: Video Call Notaris, 6 draf akta/kontrak Word (.doc), dan prioritas AHU.</p>
+
+              <ul class="space-y-2 text-[11px] text-slate-700 mb-6">
+                <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-amber-600"></i> Video Call Tatap Muka Notaris</li>
+                <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-amber-600"></i> Download 6 Template Word/PDF</li>
+                <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-amber-600"></i> Pendampingan Notaris Prioritas</li>
+              </ul>
+            </div>
+
+            <button id="btn-plan-picker-full" onclick="closePlanPickerModal(); openCheckoutModal('full');" class="w-full py-2.5 rounded-xl bg-[#0C1E36] hover:bg-slate-800 text-amber-300 font-bold text-xs transition shadow-xs">
+              Pilih Full Suite (Rp 300.000)
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
   <!-- MODAL 5: APK INSTALLATION GUIDE MODAL                                     -->
   <!-- ========================================================================= -->
   <div id="apk-guide-modal" class="fixed inset-0 z-50 bg-[#0C1E36]/85 backdrop-blur-md hidden flex items-center justify-center p-4 no-print">
