@@ -1115,19 +1115,8 @@
   }
 
   window.startPaymentSimulationProcess = function () {
-    state.checkoutState.step = 'processing';
-    renderCheckoutModal();
-
-    setTimeout(() => {
-      const titleEl = document.getElementById('checkout-proc-title');
-      const subEl = document.getElementById('checkout-proc-sub');
-      if (titleEl) titleEl.textContent = 'Menerima verifikasi webhook dari Bank Indonesia...';
-      if (subEl) subEl.textContent = 'Otorisasi pembayaran berhasil diterima oleh gateway LegalEase.';
-    }, 1200);
-
-    setTimeout(() => {
-      // Payment Successful!
-      state.checkoutState.step = 'success';
+    // Instant verification without any delay (tanpa delay sedikitpun)
+    state.checkoutState.step = 'success';
 
       // Upgrade active user's plan
       const user = state.currentUser;
@@ -1168,7 +1157,6 @@
       playSuccessChime();
       renderCheckoutModal();
       showToast(`Pembayaran berhasil! Paket ${user.planName} aktif untuk ${user.fullName}.`, 'success');
-    }, 2400);
   };
 
   window.printOfficialInvoice = function (invId) {
@@ -1723,10 +1711,8 @@
 
     renderChatMessages();
 
-    setTimeout(() => {
-      const input = document.getElementById('chat-input-text');
-      if (input) input.focus();
-    }, 150);
+    const input = document.getElementById('chat-input-text');
+    if (input) input.focus();
   };
 
   window.closeLiveChat = function () {
@@ -1782,41 +1768,28 @@
     saveState();
     renderChatMessages();
 
-    // Show typing indicator
+    // Instant response without any delay (tanpa delay sedikitpun)
+    const replyText = generateNotaryLegalResponse(text, notary, state.currentUser, attachment ? attachment.name : null);
+    const replyTime = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB';
+
+    state.chatHistory[notaryId].push({
+      id: 'msg_not_' + (Date.now() + 1),
+      sender: 'notary',
+      senderName: notary.name,
+      senderAvatar: notary.avatar,
+      text: replyText,
+      timestamp: replyTime
+    });
+
+    saveState();
+    renderChatMessages();
+    playMessageNotificationSound();
+
     const typingIndicator = document.getElementById('chat-typing-indicator');
-    const typingLabel = document.getElementById('chat-typing-label');
-    const typingAvatar = document.getElementById('chat-typing-avatar');
-    if (typingIndicator) {
-      if (typingLabel) typingLabel.textContent = `${notary.name} sedang menyusun telaah hukum...`;
-      if (typingAvatar) typingAvatar.src = notary.avatar;
-      typingIndicator.classList.remove('hidden');
-      const container = document.getElementById('chat-messages-stream');
-      if (container) container.scrollTop = container.scrollHeight;
-    }
+    if (typingIndicator) typingIndicator.classList.add('hidden');
 
-    // Simulate notary composing legal opinion
-    setTimeout(() => {
-      if (typingIndicator) typingIndicator.classList.add('hidden');
-
-      const replyText = generateNotaryLegalResponse(text, notary, state.currentUser, attachment ? attachment.name : null);
-      const replyTime = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB';
-
-      state.chatHistory[notaryId].push({
-        id: 'msg_not_' + Date.now(),
-        sender: 'notary',
-        senderName: notary.name,
-        senderAvatar: notary.avatar,
-        text: replyText,
-        timestamp: replyTime
-      });
-
-      saveState();
-      renderChatMessages();
-      playMessageNotificationSound();
-
-      // Synchronize with persistent storage
-      // State is securely persisted to localStorage under STORAGE_KEY
-    }, 1100);
+    const container = document.getElementById('chat-messages-stream');
+    if (container) container.scrollTop = container.scrollHeight;
   };
 
   window.handleSendChatForm = function (e) {
