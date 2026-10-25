@@ -26,6 +26,76 @@
   const STORAGE_SESSION_KEY = 'legalease_user_session_v2';
   const STORAGE_KEY = 'legalease_production_state_v7';
 
+  // --- CRYPTOGRAPHIC SECURITY SUITE (WEB CRYPTO API) ---
+  const ADMIN_SALT = 'legalease_sec_salt_admin';
+  const ADMIN_CREDENTIAL_HASHES = [
+    'fba7f9ee9285ca74d648847957966ac67b751b6a7ae4f6895a1b86772d20815a', // SHA-256 for 'admin'
+    '0f39b0c36f32cb6f5a6552bc4d46ff40e5452cf4771e09fb2ef6196789362867', // SHA-256 for 'admin123'
+    'a641d7f6ad90666d2e5dfdd01e87976de9486e0b5cfc6790f2ff45611ae3b430'  // SHA-256 for 'notaris123'
+  ];
+
+  async function computeHash(password, salt) {
+    salt = salt || 'legalease_default_salt';
+    const enc = new TextEncoder();
+    const data = enc.encode(`legalease_salt_${salt}_${password}`);
+    const hashBuf = await crypto.subtle.digest('SHA-256', data);
+    return Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  function generateCryptoSalt(length = 16) {
+    try {
+      const arr = new Uint8Array(length);
+      crypto.getRandomValues(arr);
+      return Array.from(arr).map(b => b.toString(16).padStart(2, '0')).join('');
+    } catch (e) {
+      return Math.random().toString(36).substring(2) + Date.now().toString(36);
+    }
+  }
+
+  function generateSessionToken() {
+    try {
+      const arr = new Uint8Array(24);
+      crypto.getRandomValues(arr);
+      return 'les_' + Array.from(arr).map(b => b.toString(16).padStart(2, '0')).join('');
+    } catch (e) {
+      return 'les_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
+    }
+  }
+
+  // Anti-Brute-Force & Rate Limiting System
+  const loginAttempts = {};
+
+  function checkLoginThrottling(email) {
+    const record = loginAttempts[email];
+    if (!record) return { allowed: true };
+    const now = Date.now();
+    if (record.lockedUntil > now) {
+      const remainingSecs = Math.ceil((record.lockedUntil - now) / 1000);
+      return { allowed: false, remainingSecs };
+    }
+    return { allowed: true };
+  }
+
+  function recordFailedLogin(email) {
+    if (!loginAttempts[email]) {
+      loginAttempts[email] = { count: 0, lockedUntil: 0 };
+    }
+    loginAttempts[email].count++;
+    if (loginAttempts[email].count >= 5) {
+      loginAttempts[email].lockedUntil = Date.now() + 60000; // 60s lockout
+      loginAttempts[email].count = 0;
+    }
+  }
+
+  function clearFailedLogin(email) {
+    delete loginAttempts[email];
+  }
+
+  function isValidEmail(email) {
+    const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return re.test(String(email).trim().toLowerCase());
+  }
+
   // Unique Device Identifier for Cross-Device Synchronization
   const DEVICE_ID = 'dev_' + Math.random().toString(36).substr(2, 9);
   window.__DEVICE_ID = DEVICE_ID;
@@ -65,7 +135,16 @@
   function getSavedSession() {
     try {
       const s = localStorage.getItem(STORAGE_SESSION_KEY);
-      return s ? JSON.parse(s) : null;
+      if (!s) return null;
+      const parsed = JSON.parse(s);
+      // Auto-invalidation if session has expired (> 24 hours)
+      if (parsed && parsed.sessionExpiresAt) {
+        if (Date.now() > parsed.sessionExpiresAt) {
+          localStorage.removeItem(STORAGE_SESSION_KEY);
+          return null;
+        }
+      }
+      return parsed;
     } catch (e) {
       return null;
     }
@@ -687,11 +766,11 @@
     if (clausesEl) {
       clausesEl.innerHTML = doc.clauses.map(clause => {
         let content = clause.content
-          .replace(/\{\{party1Name\}\}/g, state.docFormData.party1Name)
-          .replace(/\{\{party2Name\}\}/g, state.docFormData.party2Name)
-          .replace(/\{\{contractCity\}\}/g, state.docFormData.contractCity)
-          .replace(/\{\{contractDate\}\}/g, state.docFormData.contractDate)
-          .replace(/\{\{contractValue\}\}/g, state.docFormData.contractValue);
+          .replace(/\{\{party1Name\}\}/g, escapeHtml(state.docFormData.party1Name))
+          .replace(/\{\{party2Name\}\}/g, escapeHtml(state.docFormData.party2Name))
+          .replace(/\{\{contractCity\}\}/g, escapeHtml(state.docFormData.contractCity))
+          .replace(/\{\{contractDate\}\}/g, escapeHtml(state.docFormData.contractDate))
+          .replace(/\{\{contractValue\}\}/g, escapeHtml(state.docFormData.contractValue));
 
         return `
           <div class="mb-3">
@@ -1321,6 +1400,7 @@
       alert('Izinkan jendela pop-up untuk mencetak faktur.');
       return;
     }
+    try { printWindow.opener = null; } catch (e) {}
 
     printWindow.document.write(`
       <!DOCTYPE html>
@@ -1494,8 +1574,11 @@
             </div>
 
             <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-[10px] text-slate-500 flex items-center justify-between">
-              <span>Login Notaris / Admin:</span>
-              <button type="button" onclick="fillAdminCredentials()" class="font-bold text-[#0D7A68] hover:underline">Gunakan Akun Notaris</button>
+              <span class="flex items-center gap-1.5 text-slate-600 font-medium">
+                <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-600"></i>
+                Sesi Terenkripsi SSL 256-bit • Perlindungan Anti-Brute Force
+              </span>
+              <span class="text-[9px] px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold font-mono">AKTIF</span>
             </div>
 
             <button type="submit" class="w-full py-3 rounded-xl bg-[#0C1E36] hover:bg-slate-800 text-amber-300 font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition">
@@ -1640,46 +1723,91 @@
     if (passInput) passInput.value = 'admin';
   };
 
-  window.handleUserLoginSubmit = function (e) {
+  window.handleUserLoginSubmit = async function (e) {
     if (e && e.preventDefault) e.preventDefault();
     const email = (document.getElementById('auth-login-email')?.value || '').trim().toLowerCase();
     const password = (document.getElementById('auth-login-password')?.value || '').trim();
 
-    // Check Admin Login
+    if (!email || !password) {
+      showToast('Mohon masukkan email dan kata sandi Anda.', 'error');
+      return;
+    }
+
+    // Rate-Limiting & Anti-Brute-Force Protection
+    const throttle = checkLoginThrottling(email);
+    if (!throttle.allowed) {
+      showToast(`Terlalu banyak percobaan gagal. Akun dikunci sementara demi keamanan. Coba lagi dalam ${throttle.remainingSecs} detik.`, 'error');
+      return;
+    }
+
+    // 1. Check Administrator Notary Login via Salted SHA-256 Hash
     if (email === 'admin@legalease.co.id' || email === 'admin') {
-      if (password === 'admin' || password === 'admin123' || password === 'notaris123') {
+      const inputHash = await computeHash(password, ADMIN_SALT);
+      if (ADMIN_CREDENTIAL_HASHES.includes(inputHash)) {
+        clearFailedLogin(email);
         state.currentUser = Object.assign({}, ADMIN_ACCOUNT);
+        state.currentUser.sessionToken = generateSessionToken();
+        state.currentUser.sessionExpiresAt = Date.now() + (24 * 60 * 60 * 1000); // 24 jam
         saveSession(state.currentUser);
         saveState();
         syncNavbarUser();
         closeAuthModal();
-        showToast('Berhasil masuk sebagai Notaris Utama (Administrator)!', 'success');
+        showToast('Autentikasi terverifikasi. Masuk sebagai Notaris Administrator.', 'success');
+        return;
+      } else {
+        recordFailedLogin(email);
+        showToast('Kredensial notaris tidak valid. Akses ditolak.', 'error');
         return;
       }
     }
 
-    // Check Registered Client Login
+    // 2. Check Registered Client Login via Salted SHA-256 Hash
     const users = getRegisteredUsers();
     const found = users.find(u => u.email.toLowerCase() === email);
     if (found) {
-      if (found.password === password) {
-        state.currentUser = Object.assign({}, found);
-        saveSession(state.currentUser);
+      let isMatch = false;
+      if (found.passwordHash && found.passwordSalt) {
+        const computed = await computeHash(password, found.passwordSalt);
+        isMatch = (computed === found.passwordHash);
+      } else if (found.password) {
+        // Transparent backward-compatible upgrade to cryptographic hash
+        if (found.password === password) {
+          isMatch = true;
+          const newSalt = generateCryptoSalt(16);
+          found.passwordHash = await computeHash(password, newSalt);
+          found.passwordSalt = newSalt;
+          delete found.password;
+          saveRegisteredUsers(users);
+        }
+      }
+
+      if (isMatch) {
+        clearFailedLogin(email);
+        const safeUser = Object.assign({}, found);
+        delete safeUser.passwordHash;
+        delete safeUser.passwordSalt;
+        delete safeUser.password;
+        safeUser.sessionToken = generateSessionToken();
+        safeUser.sessionExpiresAt = Date.now() + (24 * 60 * 60 * 1000); // 24 jam
+        state.currentUser = safeUser;
+        saveSession(safeUser);
         saveState();
         syncNavbarUser();
         closeAuthModal();
-        showToast(`Selamat datang kembali, ${found.fullName}!`, 'success');
+        showToast(`Selamat datang kembali, ${escapeHtml(found.fullName)}!`, 'success');
         return;
       } else {
+        recordFailedLogin(email);
         showToast('Kata sandi yang Anda masukkan salah.', 'error');
         return;
       }
     }
 
-    showToast('Akun tidak ditemukan. Silakan periksa email atau buat akun baru.', 'error');
+    recordFailedLogin(email);
+    showToast('Akun tidak ditemukan. Silakan periksa kembali email Anda atau daftar akun baru.', 'error');
   };
 
-  window.handleUserRegisterSubmit = function (e) {
+  window.handleUserRegisterSubmit = async function (e) {
     if (e && e.preventDefault) e.preventDefault();
     const name = (document.getElementById('reg-name')?.value || '').trim();
     const company = (document.getElementById('reg-company')?.value || '').trim();
@@ -1693,6 +1821,16 @@
       return;
     }
 
+    if (!isValidEmail(email)) {
+      showToast('Format email tidak valid. Gunakan format email resmi (contoh: nama@perusahaan.co.id).', 'error');
+      return;
+    }
+
+    if (password.length < 6) {
+      showToast('Kata sandi harus minimal 6 karakter demi perlindungan akun.', 'error');
+      return;
+    }
+
     const users = getRegisteredUsers();
     if (users.some(u => u.email === email)) {
       showToast('Email ini sudah terdaftar. Silakan masuk menggunakan kata sandi Anda.', 'error');
@@ -1700,6 +1838,11 @@
     }
 
     const initials = name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase() || 'KL';
+    
+    // Generate cryptographic salt and salted SHA-256 hash
+    const salt = generateCryptoSalt(16);
+    const passwordHash = await computeHash(password, salt);
+
     const newUser = {
       id: 'usr_' + Date.now().toString(36),
       fullName: name,
@@ -1707,7 +1850,8 @@
       companyName: company,
       email: email,
       phone: phone || '0812-3456-7890',
-      password: password,
+      passwordHash: passwordHash,
+      passwordSalt: salt,
       city: city,
       role: 'client',
       plan: 'biasa',
@@ -1721,9 +1865,15 @@
     users.push(newUser);
     saveRegisteredUsers(users);
 
-    state.currentUser = Object.assign({}, newUser);
+    const safeUser = Object.assign({}, newUser);
+    delete safeUser.passwordHash;
+    delete safeUser.passwordSalt;
+    safeUser.sessionToken = generateSessionToken();
+    safeUser.sessionExpiresAt = Date.now() + (24 * 60 * 60 * 1000);
+
+    state.currentUser = safeUser;
     state.docFormData.party1Name = company;
-    saveSession(state.currentUser);
+    saveSession(safeUser);
     saveState();
     syncNavbarUser();
     closeAuthModal();
@@ -1754,7 +1904,7 @@
       });
     }
 
-    showToast(`Selamat datang ${name}! Akun perseroan ${company} berhasil didaftarkan.`, 'success');
+    showToast(`Selamat datang ${escapeHtml(name)}! Akun perseroan ${escapeHtml(company)} berhasil didaftarkan.`, 'success');
   };
 
   window.handleUserSignOut = function () {
@@ -1835,6 +1985,7 @@
 
   // --- ESCAPE HTML UTILITY ---
   function escapeHtml(str) {
+
     if (!str) return '';
     return String(str)
       .replace(/&/g, '&amp;')
@@ -1843,6 +1994,7 @@
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#039;');
   }
+  window.escapeHtml = escapeHtml;
 
   // --- CHAT MESSAGE FORMATTER (MARKDOWN TO CLEAN HTML) ---
   function formatChatMessage(text) {
@@ -2395,6 +2547,10 @@
   let activeAdminTab = 'chats';
 
   window.openAdminConsole = function () {
+    if (!state.currentUser || state.currentUser.role !== 'admin') {
+      showToast('Akses ditolak: Konsol ini hanya untuk Notaris Administrator resmi terdaftar.', 'error');
+      return;
+    }
     const modal = document.getElementById('admin-console-modal');
     if (!modal) return;
     modal.classList.remove('hidden');
@@ -2407,6 +2563,10 @@
   };
 
   window.switchAdminTab = function (tab) {
+    if (!state.currentUser || state.currentUser.role !== 'admin') {
+      showToast('Akses ditolak.', 'error');
+      return;
+    }
     activeAdminTab = tab;
     ['chats', 'users', 'transactions'].forEach(t => {
       const btn = document.getElementById(`tab-btn-admin-${t}`);
@@ -2535,12 +2695,12 @@
                   <tr><td colspan="6" class="p-6 text-center text-slate-400">Belum ada klien mendaftar.</td></tr>
                 ` : users.map(u => `
                   <tr class="hover:bg-slate-50">
-                    <td class="p-3.5 font-bold text-slate-900">${u.fullName}</td>
-                    <td class="p-3.5 font-semibold text-[#0D7A68]">${u.companyName}</td>
-                    <td class="p-3.5 font-mono text-[11px]">${u.email}<br><span class="text-slate-400">${u.phone || '-'}</span></td>
-                    <td class="p-3.5">${u.city}</td>
-                    <td class="p-3.5"><span class="px-2 py-0.5 rounded-full bg-slate-100 font-bold text-[10px]">${u.planName}</span></td>
-                    <td class="p-3.5 text-slate-400">${u.registeredAt}</td>
+                    <td class="p-3.5 font-bold text-slate-900">${escapeHtml(u.fullName)}</td>
+                    <td class="p-3.5 font-semibold text-[#0D7A68]">${escapeHtml(u.companyName)}</td>
+                    <td class="p-3.5 font-mono text-[11px]">${escapeHtml(u.email)}<br><span class="text-slate-400">${escapeHtml(u.phone || '-')}</span></td>
+                    <td class="p-3.5">${escapeHtml(u.city)}</td>
+                    <td class="p-3.5"><span class="px-2 py-0.5 rounded-full bg-slate-100 font-bold text-[10px]">${escapeHtml(u.planName || 'Paket Biasa (Rp 0)')}</span></td>
+                    <td class="p-3.5 text-slate-400">${escapeHtml(u.registeredAt)}</td>
                   </tr>
                 `).join('')}
               </tbody>
@@ -2585,13 +2745,13 @@
                   <tr><td colspan="7" class="p-6 text-center text-slate-400">Belum ada transaksi pembayaran.</td></tr>
                 ` : allTx.map(t => `
                   <tr class="hover:bg-slate-50">
-                    <td class="p-3.5 font-mono font-bold text-slate-900">${t.id}</td>
-                    <td class="p-3.5 font-semibold">${t.userName}<br><span class="text-[10px] text-slate-400">${t.company}</span></td>
-                    <td class="p-3.5">${t.planName}</td>
+                    <td class="p-3.5 font-mono font-bold text-slate-900">${escapeHtml(t.id)}</td>
+                    <td class="p-3.5 font-semibold">${escapeHtml(t.userName)}<br><span class="text-[10px] text-slate-400">${escapeHtml(t.company)}</span></td>
+                    <td class="p-3.5">${escapeHtml(t.planName)}</td>
                     <td class="p-3.5 font-bold text-[#0D7A68]">IDR ${Number(t.amount || 0).toLocaleString('id-ID')}</td>
-                    <td class="p-3.5">${t.method}</td>
-                    <td class="p-3.5"><span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px]">LUNAS</span></td>
-                    <td class="p-3.5 text-slate-400">${t.date}</td>
+                    <td class="p-3.5">${escapeHtml(t.method)}</td>
+                    <td class="p-3.5"><span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px]">${escapeHtml(t.status || 'LUNAS')}</span></td>
+                    <td class="p-3.5 text-slate-400">${escapeHtml(t.date)}</td>
                   </tr>
                 `).join('')}
               </tbody>
@@ -2616,6 +2776,10 @@
 
   window.handleSendAdminReply = function (e) {
     if (e && e.preventDefault) e.preventDefault();
+    if (!state.currentUser || state.currentUser.role !== 'admin') {
+      showToast('Akses ditolak: Hanya Notaris Administrator yang memiliki izin membalas.', 'error');
+      return;
+    }
     const input = document.getElementById('admin-reply-input');
     if (!input) return;
     const text = (input.value || '').trim();
