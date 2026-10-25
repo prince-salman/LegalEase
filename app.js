@@ -522,6 +522,7 @@
 
   // --- TOAST NOTIFICATIONS ---
   function showToast(message, type) {
+    window.showToast = showToast;
     type = type || 'success';
     const container = document.getElementById('toast-container');
     if (!container) return;
@@ -3414,23 +3415,27 @@
         </div>
 
         <!-- 2. Admin Workspace Tabs -->
-        <div class="bg-[#0C1E36] rounded-2xl border border-slate-800 p-1.5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1.5 shadow-xs">
-          <button onclick="switchAdminPortalTab('chats')" id="btn-admin-portal-tab-chats" class="flex-1 py-3 px-4 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${activeAdminTab === 'chats' ? 'bg-amber-400 text-slate-950 font-extrabold shadow-xs' : 'text-slate-300 hover:text-white'}">
+        <div class="bg-[#0C1E36] rounded-2xl border border-slate-800 p-1.5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-1.5 shadow-xs">
+          <button onclick="switchAdminPortalTab('chats')" id="btn-admin-portal-tab-chats" class="flex-1 py-3 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${activeAdminTab === 'chats' ? 'bg-amber-400 text-slate-950 font-extrabold shadow-xs' : 'text-slate-300 hover:text-white'}">
             <i data-lucide="messages-square" class="w-4 h-4"></i>
-            <span>Studio Konsultasi Klien Real-Time</span>
+            <span>Konsultasi Live</span>
             <span class="px-1.5 py-0.2 rounded-full bg-rose-500 text-white text-[10px] font-mono">${clients.length}</span>
           </button>
-          <button onclick="switchAdminPortalTab('users')" id="btn-admin-portal-tab-users" class="flex-1 py-3 px-4 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${activeAdminTab === 'users' ? 'bg-amber-400 text-slate-950 font-extrabold shadow-xs' : 'text-slate-300 hover:text-white'}">
+          <button onclick="switchAdminPortalTab('notaries')" id="btn-admin-portal-tab-notaries" class="flex-1 py-3 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${activeAdminTab === 'notaries' ? 'bg-amber-400 text-slate-950 font-extrabold shadow-xs' : 'text-slate-300 hover:text-white'}">
+            <i data-lucide="award" class="w-4 h-4"></i>
+            <span>Direktori Notaris (${NOTARIES.length})</span>
+          </button>
+          <button onclick="switchAdminPortalTab('users')" id="btn-admin-portal-tab-users" class="flex-1 py-3 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${activeAdminTab === 'users' ? 'bg-amber-400 text-slate-950 font-extrabold shadow-xs' : 'text-slate-300 hover:text-white'}">
             <i data-lucide="users" class="w-4 h-4"></i>
-            <span>Database Klien Terdaftar (${users.length})</span>
+            <span>Database Klien (${users.length})</span>
           </button>
-          <button onclick="switchAdminPortalTab('transactions')" id="btn-admin-portal-tab-transactions" class="flex-1 py-3 px-4 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${activeAdminTab === 'transactions' ? 'bg-amber-400 text-slate-950 font-extrabold shadow-xs' : 'text-slate-300 hover:text-white'}">
+          <button onclick="switchAdminPortalTab('transactions')" id="btn-admin-portal-tab-transactions" class="flex-1 py-3 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${activeAdminTab === 'transactions' ? 'bg-amber-400 text-slate-950 font-extrabold shadow-xs' : 'text-slate-300 hover:text-white'}">
             <i data-lucide="receipt" class="w-4 h-4"></i>
-            <span>Buku Kas Transaksi Finansial</span>
+            <span>Buku Kas</span>
           </button>
-          <button onclick="switchAdminPortalTab('deeds')" id="btn-admin-portal-tab-deeds" class="flex-1 py-3 px-4 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${activeAdminTab === 'deeds' ? 'bg-amber-400 text-slate-950 font-extrabold shadow-xs' : 'text-slate-300 hover:text-white'}">
+          <button onclick="switchAdminPortalTab('deeds')" id="btn-admin-portal-tab-deeds" class="flex-1 py-3 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${activeAdminTab === 'deeds' ? 'bg-amber-400 text-slate-950 font-extrabold shadow-xs' : 'text-slate-300 hover:text-white'}">
             <i data-lucide="stamp" class="w-4 h-4"></i>
-            <span>Antrean Verifikasi Akta AHU</span>
+            <span>Verifikasi Akta</span>
           </button>
         </div>
 
@@ -3669,6 +3674,84 @@
               </tbody>
               </table>
             </div>
+          </div>
+        </div>
+      `;
+    } else if (activeAdminTab === 'notaries') {
+      contentHtml = `
+        <div class="p-6 sm:p-8 space-y-6">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-100">
+            <div>
+              <div class="flex items-center gap-2">
+                <h3 class="text-lg font-bold text-[#0C1E36]">Direktori & Pengawasan Dewan Notaris Rekanan</h3>
+                <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-mono font-bold">${NOTARIES.length} Notaris Berizin Resmi</span>
+              </div>
+              <p class="text-xs text-slate-500 mt-1">Konsol pengawasan Majelis Kehormatan: Memantau seluruh Pejabat Notaris & PPAT berlisensi resmi Ditjen AHU Kemenkumham RI yang berpraktik di LegalEase.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold flex items-center gap-1.5">
+                <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i> Pengawasan Majelis Pengawas Daerah (MPD)
+              </span>
+            </div>
+          </div>
+
+          <!-- Notaries Directory Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            ${NOTARIES.map((notary, idx) => `
+              <div class="p-5 rounded-2xl border border-slate-200 hover:border-amber-400 transition bg-slate-50/50 hover:bg-white shadow-2xs space-y-4">
+                <div class="flex items-start justify-between gap-3">
+                  <div class="flex items-center gap-3">
+                    <img src="${notary.avatar}" alt="${escapeHtml(notary.name)}" class="w-14 h-14 rounded-2xl object-cover border-2 border-slate-200 shrink-0">
+                    <div>
+                      <div class="flex items-center gap-2">
+                        <h4 class="font-bold text-sm text-[#0C1E36]">${escapeHtml(notary.name)}</h4>
+                        <span class="text-[9px] px-2 py-0.5 rounded-full ${idx === 0 ? 'bg-emerald-100 text-emerald-800 font-bold border border-emerald-300' : 'bg-slate-200 text-slate-700 font-medium'} font-mono">
+                          ${idx === 0 ? 'Notaris Aktif (Akun Demo)' : 'Notaris Rekanan'}
+                        </span>
+                      </div>
+                      <p class="text-[11px] text-slate-500 font-semibold">${escapeHtml(notary.title)}</p>
+                      <p class="text-[10px] text-emerald-700 font-mono font-bold mt-0.5">${escapeHtml(notary.skNumber)}</p>
+                    </div>
+                  </div>
+                  <div class="text-right shrink-0">
+                    <div class="flex items-center gap-1 text-amber-500 font-bold text-xs">
+                      <i data-lucide="star" class="w-3.5 h-3.5 fill-amber-400"></i> ${notary.rating}
+                    </div>
+                    <div class="text-[10px] text-slate-400">${notary.reviewsCount} Ulasan Klien</div>
+                  </div>
+                </div>
+
+                <div class="p-3 bg-white rounded-xl border border-slate-100 space-y-2 text-xs">
+                  <div class="flex items-center justify-between text-[11px]">
+                    <span class="text-slate-500 font-medium">Wilayah Yurisdiksi:</span>
+                    <span class="text-[#0C1E36] font-bold">${escapeHtml(notary.office)}</span>
+                  </div>
+                  <div class="flex items-center justify-between text-[11px]">
+                    <span class="text-slate-500 font-medium">Alamat Kantor:</span>
+                    <span class="text-slate-700 truncate max-w-[220px]">${escapeHtml(notary.address)}</span>
+                  </div>
+                  <div class="flex items-center justify-between text-[11px]">
+                    <span class="text-slate-500 font-medium">Email Akun Dinas:</span>
+                    <span class="text-indigo-700 font-mono font-bold">${idx === 0 ? 'notaris@legalease.co.id' : (notary.name.split(' ')[0].toLowerCase().replace(/[^a-z]/g, '') + '@legalease.co.id')}</span>
+                  </div>
+                </div>
+
+                <div class="flex flex-wrap gap-1.5 pt-1">
+                  ${notary.specialties.map(s => `
+                    <span class="text-[10px] px-2 py-0.5 rounded-lg bg-slate-100 text-slate-600 font-medium border border-slate-200/60">${escapeHtml(s)}</span>
+                  `).join('')}
+                </div>
+
+                <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-[11px]">
+                  <span class="text-emerald-600 font-bold flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> ${escapeHtml(notary.status)}
+                  </span>
+                  <button onclick="showToast('Audit integritas berkas ${escapeHtml(notary.name)}: Status Bersih, tidak ada catatan pelanggaran etik.', 'success')" class="text-xs font-bold text-amber-600 hover:text-amber-700">
+                    Audit Kepatuhan &rarr;
+                  </button>
+                </div>
+              </div>
+            `).join('')}
           </div>
         </div>
       `;
