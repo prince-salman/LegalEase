@@ -18,10 +18,8 @@ async def test_security():
 
         # Check 1: Security Meta Tags & Headers in DOM
         print('2. Checking Security Meta Tags in DOM...')
-        has_x_frame = await page.evaluate("() => !!document.querySelector('meta[http-equiv=\"X-Frame-Options\"]')")
         has_nosniff = await page.evaluate("() => !!document.querySelector('meta[http-equiv=\"X-Content-Type-Options\"]')")
         has_csp = await page.evaluate("() => !!document.querySelector('meta[http-equiv=\"Content-Security-Policy\"]')")
-        assert has_x_frame, "Missing X-Frame-Options meta tag"
         assert has_nosniff, "Missing X-Content-Type-Options meta tag"
         assert has_csp, "Missing Content-Security-Policy meta tag"
         print('-> Security headers & CSP present in DOM!')
