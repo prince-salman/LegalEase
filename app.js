@@ -1684,6 +1684,30 @@
   };
 
   // --- APK GUIDE MODAL & SHA CHECKSUM ---
+  // --- APK VIEW LIVE MOBILE WEBVIEW SIMULATOR (BASIC TO WEB) ---
+  window.openApkViewModal = function () {
+    const modal = document.getElementById('apk-view-modal');
+    if (modal) {
+      modal.classList.remove('hidden');
+      const clock = document.getElementById('apk-view-clock');
+      if (clock) {
+        const now = new Date();
+        clock.textContent = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+      }
+      if (window.lucide) window.lucide.createIcons();
+    }
+  };
+
+  window.closeApkViewModal = function () {
+    const modal = document.getElementById('apk-view-modal');
+    if (modal) modal.classList.add('hidden');
+  };
+
+  window.reloadApkViewFrame = function () {
+    const iframe = document.getElementById('apk-view-iframe');
+    if (iframe) iframe.src = './index.html';
+  };
+
   window.openApkGuideModal = function () {
     const modal = document.getElementById('apk-guide-modal');
     if (modal) modal.classList.remove('hidden');
@@ -1696,7 +1720,7 @@
   };
 
   window.copySha256Checksum = function () {
-    const sha = "a8f9c2d14e05b3879a6d41829e924bc102573fbc6d9a1845e0321a947df32890";
+    const sha = "3adcd4ab63310f915c58f4081c65dab945a269d24f4e1a99375c9f86133c74e1";
     if (navigator.clipboard) {
       navigator.clipboard.writeText(sha).then(() => {
         showToast(`SHA-256 Checksum disalin: ${sha.slice(0, 16)}...`, 'success');
@@ -4046,6 +4070,7 @@
       if (typeof window.closeApkGuideModal === 'function') window.closeApkGuideModal();
       if (typeof window.closeDocumentPreview === 'function') window.closeDocumentPreview();
       if (typeof window.closePlanPickerModal === 'function') window.closePlanPickerModal();
+      if (typeof window.closeApkViewModal === 'function') window.closeApkViewModal();
       if (typeof window.closeCheckoutModal === 'function') window.closeCheckoutModal();
     }
   });
