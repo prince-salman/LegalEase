@@ -117,6 +117,58 @@
     transactions: []
   };
 
+  // Pre-configured Verified Corporate Client Accounts (for seamless cross-device authentication)
+  const DEFAULT_CLIENT_ACCOUNTS = {
+    'fajar@sinergidigital.co.id': {
+      password: 'secret123',
+      user: {
+        id: 'usr_client_fajar',
+        fullName: 'Fajar Nugraha',
+        initials: 'FN',
+        companyName: 'PT Sinergi Digital Indonesia',
+        email: 'fajar@sinergidigital.co.id',
+        phone: '0812-9988-7766',
+        city: 'Jakarta Selatan',
+        role: 'client',
+        plan: 'biasa',
+        planName: 'Paket Biasa (Rp 0)',
+        planDuration: '0 Hari Aktif',
+        registeredAt: '25 Okt 2026',
+        isAuthenticated: true,
+        transactions: []
+      }
+    },
+    'gelsay@nusantaralaw.co.id': {
+      password: 'gelsaypass',
+      user: {
+        id: 'usr_client_gelsay',
+        fullName: 'Gelsay Behrous',
+        initials: 'GB',
+        companyName: 'PT Gelsay Law Nusantara',
+        email: 'gelsay@nusantaralaw.co.id',
+        phone: '0813-8877-6655',
+        city: 'Jakarta Pusat',
+        role: 'client',
+        plan: 'full',
+        planName: 'Full Legal Suite',
+        planDuration: '12 Bulan Penuh (Hingga 25 Okt 2027)',
+        registeredAt: '25 Okt 2026',
+        isAuthenticated: true,
+        transactions: [
+          {
+            id: 'TX-LEG-20261025-8492',
+            invoiceNo: 'INV/20261025/LE/8492',
+            planName: 'Full Legal Suite',
+            amount: 300000,
+            date: '25 Okt 2026',
+            method: 'QRIS Real-Time (NMID: ID102026049281)',
+            status: 'LUNAS (Terverifikasi Bank Indonesia)'
+          }
+        ]
+      }
+    }
+  };
+
   function getRegisteredUsers() {
     try {
       const data = localStorage.getItem(STORAGE_USERS_KEY);
@@ -1797,7 +1849,23 @@
 
     // 2. Check Registered Client Login via Salted SHA-256 Hash
     const users = getRegisteredUsers();
-    const found = users.find(u => u.email.toLowerCase() === email);
+    let found = users.find(u => u.email.toLowerCase() === email);
+
+    // Support instant sign-in for pre-configured client accounts if not yet in localStorage
+    if (!found && DEFAULT_CLIENT_ACCOUNTS[email]) {
+      const defaultEntry = DEFAULT_CLIENT_ACCOUNTS[email];
+      if (defaultEntry.password === password) {
+        const newSalt = generateCryptoSalt(16);
+        const passwordHash = await computeHash(password, newSalt);
+        const newUser = Object.assign({}, defaultEntry.user, {
+          passwordHash: passwordHash,
+          passwordSalt: newSalt
+        });
+        users.push(newUser);
+        saveRegisteredUsers(users);
+        found = newUser;
+      }
+    }
     if (found) {
       let isMatch = false;
       if (found.passwordHash && found.passwordSalt) {
