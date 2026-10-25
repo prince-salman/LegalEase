@@ -117,6 +117,26 @@
     transactions: []
   };
 
+  // Official Regular Partner Notary Account (Notaris Rekanan Biasa - Bukan Admin Besar)
+  const NOTARY_ACCOUNT = {
+    id: 'usr_notary_hendra_01',
+    fullName: 'Dr. Hendra Wijaya, S.H., M.Kn.',
+    initials: 'HW',
+    companyName: 'Kantor Notaris & PPAT Dr. Hendra Wijaya (Jakarta Selatan)',
+    email: 'notaris@legalease.co.id',
+    phone: '0812-7788-9900',
+    city: 'Jakarta Selatan',
+    role: 'notary',
+    notaryId: 'notary-1',
+    plan: 'notary_partner',
+    planName: 'Notaris Rekanan Berlisensi',
+    planDuration: 'Lisensi AHU Aktif (Hingga 2030)',
+    skNumber: 'SK Kemenkumham RI: AHU-0019284.AH.02.01.Tahun 2017',
+    office: 'Sudirman Central Business District (SCBD), Jakarta Selatan',
+    isAuthenticated: true,
+    transactions: []
+  };
+
   // Pre-configured Verified Corporate Client Accounts (for seamless cross-device authentication)
   const DEFAULT_CLIENT_ACCOUNTS = {
     'fajar@sinergidigital.co.id': {
@@ -592,7 +612,59 @@
       return;
     }
 
-    // 2. ADMINISTRATOR / NOTARY ACCOUNT
+    // 2. REGULAR PARTNER NOTARY ACCOUNT (Dr. Hendra Wijaya, S.H., M.Kn. - Bukan Admin Besar)
+    if (user.role === 'notary') {
+      const isNotaryDashboard = (state.currentView === 'notary_dashboard');
+      if (desktopContainer) {
+        desktopContainer.innerHTML = `
+          ${isNotaryDashboard ? `
+            <button type="button" onclick="switchView('public')" class="px-3.5 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition flex items-center gap-1.5 shadow-2xs" title="Lihat Beranda Publik">
+              <i data-lucide="globe" class="w-3.5 h-3.5 text-slate-600"></i>
+              <span>Beranda Publik</span>
+            </button>
+          ` : `
+            <button type="button" onclick="switchView('notary_dashboard')" class="px-3.5 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-xs" title="Buka Meja Kerja Notaris">
+              <i data-lucide="briefcase" class="w-3.5 h-3.5 text-amber-300"></i>
+              <span>Meja Kerja Notaris</span>
+            </button>
+          `}
+          <button type="button" onclick="openAuthModal('profile')" class="w-8 h-8 rounded-full bg-emerald-800 text-amber-300 font-extrabold text-xs flex items-center justify-center border border-emerald-500 shadow-2xs" title="Profil Notaris Rekanan">
+            HW
+          </button>
+        `;
+      }
+      if (mobileContainer) {
+        mobileContainer.innerHTML = `
+          <div class="p-3 bg-emerald-50 rounded-2xl border border-emerald-200 flex items-center justify-between">
+            <div>
+              <div class="font-bold text-xs text-[#0C1E36] flex items-center gap-1">
+                <span>Dr. Hendra Wijaya (Notaris Rekanan)</span>
+              </div>
+              <div class="text-[10px] text-emerald-800 font-mono">notaris@legalease.co.id</div>
+            </div>
+            <div class="flex items-center gap-1.5">
+              ${isNotaryDashboard ? `
+                <button onclick="switchView('public'); toggleMobileMenu();" class="px-2.5 py-1 rounded-lg bg-white border border-slate-300 text-slate-700 text-[10px] font-bold">Beranda</button>
+              ` : `
+                <button onclick="switchView('notary_dashboard'); toggleMobileMenu();" class="px-2.5 py-1 rounded-lg bg-emerald-600 text-white text-[10px] font-bold">Meja Kerja</button>
+              `}
+              <button onclick="handleUserSignOut()" class="text-xs font-bold text-rose-600">Keluar</button>
+            </div>
+          </div>
+        `;
+      }
+      if (mobileAvatarBtn) {
+        mobileAvatarBtn.innerHTML = `
+          <button onclick="switchView('notary_dashboard')" class="p-1.5 rounded-full bg-emerald-600 text-white font-bold text-xs" title="Meja Kerja Notaris">
+            HW
+          </button>
+        `;
+      }
+      if (window.lucide) window.lucide.createIcons();
+      return;
+    }
+
+    // 3. ADMINISTRATOR (ADMIN BESAR) ACCOUNT
     if (user.role === 'admin') {
       const isDashboard = (state.currentView === 'admin_dashboard');
       if (desktopContainer) {
@@ -1825,8 +1897,50 @@
       return;
     }
 
-    // 1. Check Administrator Notary Login via Salted SHA-256 Hash
+    // 1. Check Administrator Notary Login (Admin Besar) via Salted SHA-256 Hash
     if (email === 'admin@legalease.co.id' || email === 'admin') {
+      const inputHash = await computeHash(password, ADMIN_SALT);
+      if (ADMIN_CREDENTIAL_HASHES.includes(inputHash)) {
+        clearFailedLogin(email);
+        state.currentUser = Object.assign({}, ADMIN_ACCOUNT);
+        state.currentUser.sessionToken = generateSessionToken();
+        state.currentUser.sessionExpiresAt = Date.now() + (24 * 60 * 60 * 1000); // 24 jam
+        saveSession(state.currentUser);
+        saveState();
+        syncNavbarUser();
+        closeAuthModal();
+        switchView('admin_dashboard');
+        showToast('Autentikasi terverifikasi. Masuk sebagai Notaris Administrator (Admin Besar).', 'success');
+        return;
+      } else {
+        recordFailedLogin(email);
+        showToast('Kredensial admin besar tidak valid. Akses ditolak.', 'error');
+        return;
+      }
+    }
+
+    // 2. Check Regular Partner Notary Login (Notaris Rekanan Biasa - Bukan Admin Besar)
+    if (email === 'notaris@legalease.co.id' || email === 'notaris' || email === 'hendra.wijaya@notaris-legalease.id') {
+      if (password === 'notaris123' || password === 'notaris' || password === 'admin') {
+        clearFailedLogin(email);
+        state.currentUser = Object.assign({}, NOTARY_ACCOUNT);
+        state.currentUser.sessionToken = generateSessionToken();
+        state.currentUser.sessionExpiresAt = Date.now() + (24 * 60 * 60 * 1000); // 24 jam
+        saveSession(state.currentUser);
+        saveState();
+        syncNavbarUser();
+        closeAuthModal();
+        switchView('notary_dashboard');
+        showToast('Autentikasi terverifikasi. Masuk ke Meja Kerja Notaris Rekanan.', 'success');
+        return;
+      } else {
+        recordFailedLogin(email);
+        showToast('Kata sandi notaris rekanan tidak valid.', 'error');
+        return;
+      }
+    }
+
+    if (false) {
       const inputHash = await computeHash(password, ADMIN_SALT);
       if (ADMIN_CREDENTIAL_HASHES.includes(inputHash)) {
         clearFailedLogin(email);
@@ -2058,7 +2172,11 @@
   };
   window.deselectAdminChat = function () {
     state.activeAdminChatEmail = null;
-    renderAdminContent();
+    if (state.currentView === 'notary_dashboard') {
+      renderNotaryPortal();
+    } else {
+      renderAdminContent();
+    }
   };
 
   function initMobileMenu() {
@@ -2693,6 +2811,7 @@
     state.currentView = viewName;
     const publicView = document.getElementById('public-landing-view');
     const clientView = document.getElementById('client-portal-view');
+    const notaryView = document.getElementById('notary-portal-view');
     const adminView = document.getElementById('admin-portal-view');
 
     if (viewName === 'client_dashboard') {
@@ -2701,10 +2820,23 @@
         return;
       }
       if (publicView) publicView.classList.add('hidden');
+      if (notaryView) notaryView.classList.add('hidden');
       if (adminView) adminView.classList.add('hidden');
       if (clientView) {
         clientView.classList.remove('hidden');
         renderClientPortal();
+      }
+    } else if (viewName === 'notary_dashboard') {
+      if (!state.currentUser || (state.currentUser.role !== 'notary' && state.currentUser.role !== 'admin')) {
+        showToast('Akses ditolak: Dasbor ini khusus Notaris Rekanan.', 'error');
+        return;
+      }
+      if (publicView) publicView.classList.add('hidden');
+      if (clientView) clientView.classList.add('hidden');
+      if (adminView) adminView.classList.add('hidden');
+      if (notaryView) {
+        notaryView.classList.remove('hidden');
+        renderNotaryPortal();
       }
     } else if (viewName === 'admin_dashboard') {
       if (!state.currentUser || state.currentUser.role !== 'admin') {
@@ -2713,13 +2845,15 @@
       }
       if (publicView) publicView.classList.add('hidden');
       if (clientView) clientView.classList.add('hidden');
+      if (notaryView) notaryView.classList.add('hidden');
       if (adminView) {
         adminView.classList.remove('hidden');
         renderAdminPortal();
       }
     } else {
-      // viewName === 'public'
+      // 'public'
       if (clientView) clientView.classList.add('hidden');
+      if (notaryView) notaryView.classList.add('hidden');
       if (adminView) adminView.classList.add('hidden');
       if (publicView) publicView.classList.remove('hidden');
     }
@@ -3622,9 +3756,15 @@
     if (state.adminClientChats[email]) {
       state.adminClientChats[email].unreadCount = 0;
     }
-    renderAdminContent();
-    const stream = document.getElementById('admin-chat-messages');
-    if (stream) stream.scrollTop = stream.scrollHeight;
+    if (state.currentView === 'notary_dashboard') {
+      renderNotaryPortal();
+      const stream = document.getElementById('notary-workstation-messages');
+      if (stream) stream.scrollTop = stream.scrollHeight;
+    } else {
+      renderAdminContent();
+      const stream = document.getElementById('admin-chat-messages');
+      if (stream) stream.scrollTop = stream.scrollHeight;
+    }
   };
 
   window.handleSendAdminReply = function (e) {
@@ -3690,6 +3830,419 @@
     }
   });
 
+  
+
+// =========================================================================
+  // DEDICATED NOTARY WORKSTATION SYSTEM (ROLE: NOTARY / NOTARIS REKANAN BIASA)
+  // =========================================================================
+
+  let activeNotaryTab = 'deeds'; // 'deeds', 'chat', 'schedule'
+
+  window.switchNotaryPortalTab = function (tab) {
+    activeNotaryTab = tab;
+    renderNotaryPortal();
+  };
+
+  window.handleSendNotaryWorkstationReply = function (e) {
+    if (e && e.preventDefault) e.preventDefault();
+    const input = document.getElementById('notary-workstation-reply-input');
+    if (!input) return;
+    const text = (input.value || '').trim();
+    if (!text) return;
+
+    const notary = NOTARIES[0];
+    const targetEmail = state.activeAdminChatEmail || 'fajar@sinergidigital.co.id';
+    const now = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB';
+
+    if (!state.adminClientChats[targetEmail]) {
+      state.adminClientChats[targetEmail] = {
+        clientEmail: targetEmail,
+        clientName: 'Fajar Nugraha',
+        clientCompany: 'PT Sinergi Digital Indonesia',
+        messages: []
+      };
+    }
+
+    const replyMsg = {
+      id: 'msg_not_ws_' + Date.now(),
+      sender: 'notary',
+      senderName: notary.name,
+      senderAvatar: notary.avatar,
+      text: text,
+      timestamp: now
+    };
+
+    state.adminClientChats[targetEmail].messages.push(replyMsg);
+
+    // Also sync to notary-1 chatHistory
+    if (!state.chatHistory['notary-1']) state.chatHistory['notary-1'] = [];
+    state.chatHistory['notary-1'].push(replyMsg);
+
+    input.value = '';
+    saveState();
+    renderNotaryPortal();
+    playMessageNotificationSound();
+
+    if (realtimeChannel) {
+      realtimeChannel.send({
+        type: 'broadcast',
+        event: 'notary-reply',
+        payload: Object.assign({}, replyMsg, { targetEmail: targetEmail, notaryId: 'notary-1' })
+      });
+    }
+
+    showToast('Tanggapan notaris rekanan terkirim langsung ke layar klien.', 'success');
+  };
+
+  window.renderNotaryPortal = function () {
+    const portal = document.getElementById('notary-portal-view');
+    if (!portal) return;
+
+    const user = state.currentUser;
+    if (!user || (user.role !== 'notary' && user.role !== 'admin')) {
+      portal.innerHTML = `
+        <div class="max-w-md mx-auto p-8 text-center bg-[#071F19] rounded-3xl border border-emerald-900/60 text-white">
+          <p class="text-sm font-bold mb-3">Akses ditolak: Dasbor ini khusus Meja Kerja Notaris Rekanan.</p>
+          <button onclick="openAuthModal('login')" class="px-5 py-2.5 rounded-xl bg-emerald-500 text-slate-950 font-bold text-xs">Masuk Notaris Rekanan</button>
+        </div>
+      `;
+      return;
+    }
+
+    if (!state.adminClientChats || Object.keys(state.adminClientChats).length === 0) {
+      state.adminClientChats = {
+        'fajar@sinergidigital.co.id': {
+          clientEmail: 'fajar@sinergidigital.co.id',
+          clientName: 'Fajar Nugraha',
+          clientCompany: 'PT Sinergi Digital Indonesia',
+          unreadCount: 1,
+          messages: [
+            {
+              id: 'msg_client_init_01',
+              sender: 'client',
+              senderName: 'Fajar Nugraha',
+              senderAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
+              text: 'Selamat siang Bapak Notaris Dr. Hendra Wijaya. Kami dari PT Sinergi Digital Indonesia sedang mereview draf Perjanjian Kerja Sama (PKS) B2B. Mohon arahan terkait klausul kerahasiaan dan domisili hukum penyelesaian sengketa.',
+              timestamp: '10:15 WIB'
+            }
+          ]
+        }
+      };
+      state.activeAdminChatEmail = 'fajar@sinergidigital.co.id';
+    }
+
+    const clients = Object.values(state.adminClientChats || {});
+    const activeEmail = state.activeAdminChatEmail || (clients.length > 0 ? clients[0].clientEmail : 'fajar@sinergidigital.co.id');
+    const activeChat = clients.find(c => c.clientEmail === activeEmail) || (clients.length > 0 ? clients[0] : null);
+
+    portal.innerHTML = `
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+        <!-- 1. Notary Partner Workstation Banner -->
+        <div class="bg-gradient-to-r from-[#0A2920] to-[#0E3A2E] rounded-3xl p-6 sm:p-8 border border-emerald-800/60 shadow-2xl">
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            <div class="flex items-center gap-4">
+              <div class="relative shrink-0">
+                <img src="assets/team/team_1.jpeg" alt="Dr. Hendra Wijaya" class="w-16 h-16 rounded-2xl object-cover border-2 border-emerald-400 shadow-md">
+                <span class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-400 rounded-full border-2 border-[#0A2920]"></span>
+              </div>
+              <div>
+                <div class="flex flex-wrap items-center gap-2 mb-1">
+                  <span class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 font-mono">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    NOTARIS REKANAN RESMI KEMENKUMHAM RI
+                  </span>
+                  <span class="text-[10px] text-slate-300 font-mono">SK: AHU-0019284.AH.02.01.Tahun 2017</span>
+                </div>
+                <h1 class="text-xl sm:text-2xl font-serif-editorial font-bold text-white">
+                  Dr. Hendra Wijaya, S.H., M.Kn.
+                </h1>
+                <p class="text-xs text-slate-200 mt-0.5">
+                  Notaris & PPAT Wilayah Kerja Jakarta Selatan • Spesialisasi Pendirian PT, PMA, dan Kontrak Bisnis
+                </p>
+              </div>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2.5">
+              <button onclick="switchView('public')" class="px-4 py-2.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs transition flex items-center gap-2 border border-white/10" title="Buka Beranda Publik">
+                <i data-lucide="globe" class="w-4 h-4 text-slate-300"></i>
+                <span>Beranda Publik</span>
+              </button>
+              <button onclick="handleUserSignOut()" class="px-4 py-2.5 rounded-2xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 font-bold text-xs transition flex items-center gap-2" title="Keluar">
+                <i data-lucide="log-out" class="w-4 h-4"></i>
+                <span>Keluar</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 4 Notary Partner KPI Cards -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-6 pt-6 border-t border-white/10">
+            <div class="p-4 rounded-2xl bg-black/30 border border-white/5">
+              <div class="text-[10px] font-bold uppercase text-emerald-300 font-mono">Draf Akta Masuk</div>
+              <div class="text-2xl font-bold text-white mt-1">3 Berkas</div>
+              <div class="text-[10px] text-amber-300 mt-1 flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> 2 Perlu Telaah Klausul
+              </div>
+            </div>
+            <div class="p-4 rounded-2xl bg-black/30 border border-white/5">
+              <div class="text-[10px] font-bold uppercase text-emerald-300 font-mono">Konsultasi Klien Siaga</div>
+              <div class="text-2xl font-bold text-emerald-300 mt-1">Online Aktif</div>
+              <div class="text-[10px] text-slate-300 mt-1">Rating 4.95 ⭐ (342 Klien)</div>
+            </div>
+            <div class="p-4 rounded-2xl bg-black/30 border border-white/5">
+              <div class="text-[10px] font-bold uppercase text-emerald-300 font-mono">Agenda Janji Temu</div>
+              <div class="text-2xl font-bold text-white mt-1">2 Sesi Hari Ini</div>
+              <div class="text-[10px] text-teal-300 mt-1">1 Tatap Muka • 1 Video Call</div>
+            </div>
+            <div class="p-4 rounded-2xl bg-black/30 border border-white/5">
+              <div class="text-[10px] font-bold uppercase text-emerald-300 font-mono">Sertifikat Elektronik</div>
+              <div class="text-2xl font-bold text-emerald-400 mt-1">BSrE Aktif</div>
+              <div class="text-[10px] text-slate-300 mt-1">Tanda Tangan Digital Terverifikasi</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Workstation Navigation Tabs -->
+        <div class="bg-[#09241C] rounded-2xl border border-emerald-900/60 p-1.5 grid grid-cols-1 sm:grid-cols-3 gap-1.5 shadow-xs">
+          <button onclick="switchNotaryPortalTab('deeds')" id="btn-notary-tab-deeds" class="py-3 px-4 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${activeNotaryTab === 'deeds' ? 'bg-emerald-500 text-slate-950 font-extrabold shadow-xs' : 'text-emerald-200 hover:text-white'}">
+            <i data-lucide="file-check-2" class="w-4 h-4"></i>
+            <span>Meja Telaah Minuta Akta (3)</span>
+          </button>
+          <button onclick="switchNotaryPortalTab('chat')" id="btn-notary-tab-chat" class="py-3 px-4 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${activeNotaryTab === 'chat' ? 'bg-emerald-500 text-slate-950 font-extrabold shadow-xs' : 'text-emerald-200 hover:text-white'}">
+            <i data-lucide="messages-square" class="w-4 h-4"></i>
+            <span>Konsultasi Klien Notaris</span>
+            <span class="px-1.5 py-0.2 rounded-full bg-emerald-900 text-emerald-200 text-[10px] font-mono">${clients.length}</span>
+          </button>
+          <button onclick="switchNotaryPortalTab('schedule')" id="btn-notary-tab-schedule" class="py-3 px-4 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${activeNotaryTab === 'schedule' ? 'bg-emerald-500 text-slate-950 font-extrabold shadow-xs' : 'text-emerald-200 hover:text-white'}">
+            <i data-lucide="calendar" class="w-4 h-4"></i>
+            <span>Buku Agenda Temu & Video Call (2)</span>
+          </button>
+        </div>
+
+        <!-- 3. Workstation Content Area -->
+        <div class="bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-2xl text-slate-800 min-h-[560px] flex flex-col">
+          ${renderNotaryWorkstationTabContent(activeNotaryTab, clients, activeChat)}
+        </div>
+      </div>
+    `;
+
+    if (window.lucide) window.lucide.createIcons();
+  };
+
+  function renderNotaryWorkstationTabContent(tab, clients, activeChat) {
+    if (tab === 'chat') {
+      return `
+        <div class="flex-1 flex flex-col md:flex-row overflow-hidden">
+          <!-- Left: Client Threads -->
+          <div class="${activeChat ? 'hidden md:flex' : 'flex'} w-full md:w-80 border-b md:border-b-0 md:border-r border-slate-200 bg-slate-50 flex-col shrink-0">
+            <div class="p-3 border-b border-slate-200 flex items-center justify-between">
+              <span class="text-xs font-bold text-slate-800">Klien Binaan Dr. Hendra</span>
+              <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold">${clients.length} Percakapan</span>
+            </div>
+            <div class="flex-1 overflow-y-auto divide-y divide-slate-200">
+              ${clients.length === 0 ? `
+                <div class="p-6 text-center text-xs text-slate-400">
+                  <i data-lucide="messages-square" class="w-8 h-8 text-slate-300 mx-auto mb-2"></i>
+                  Belum ada pesan masuk dari klien Anda.
+                </div>
+              ` : clients.map(c => `
+                <div onclick="selectAdminClientChat('${c.clientEmail}')" class="p-3.5 hover:bg-slate-100 cursor-pointer transition ${c.clientEmail === (activeChat ? activeChat.clientEmail : '') ? 'bg-white border-l-4 border-emerald-600 shadow-2xs' : ''}">
+                  <div class="flex items-center justify-between mb-1">
+                    <span class="font-bold text-xs text-[#0C1E36] truncate">${escapeHtml(c.clientName)}</span>
+                    <span class="text-[9px] text-slate-400 font-mono">${c.messages.length > 0 ? c.messages[c.messages.length - 1].timestamp : ''}</span>
+                  </div>
+                  <div class="text-[10px] text-emerald-700 font-semibold truncate mb-1">${escapeHtml(c.clientCompany)}</div>
+                  <div class="text-[11px] text-slate-500 truncate">${c.messages.length > 0 ? escapeHtml(c.messages[c.messages.length - 1].text) : 'Belum ada pesan'}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <!-- Right: Chat Stream -->
+          <div class="${activeChat ? 'flex' : 'hidden md:flex'} flex-1 flex-col bg-white">
+            ${activeChat ? `
+              <div class="p-3.5 px-4 sm:px-5 bg-slate-50 border-b border-slate-200 flex items-center justify-between shrink-0">
+                <div class="flex items-center gap-2">
+                  <button type="button" onclick="deselectAdminChat()" class="md:hidden p-1.5 rounded-lg bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 transition shadow-2xs" title="Kembali ke Daftar Klien">
+                    <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                  </button>
+                  <div>
+                    <h4 class="font-bold text-xs text-[#0C1E36]">${escapeHtml(activeChat.clientName)}</h4>
+                    <p class="text-[10px] text-slate-500">${escapeHtml(activeChat.clientCompany)} • ${escapeHtml(activeChat.clientEmail)}</p>
+                  </div>
+                </div>
+                <span class="text-[9px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-mono font-bold flex items-center gap-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Sesi Konsultasi Notaris Aktif
+                </span>
+              </div>
+
+              <div id="notary-workstation-messages" class="flex-1 overflow-y-auto p-4 space-y-3 bg-[#FAF9F5] text-xs">
+                ${activeChat.messages.map(m => `
+                  <div class="flex items-start gap-2.5 ${m.sender === 'notary' ? 'justify-end ml-auto' : ''} max-w-[85%]">
+                    <div class="p-3 rounded-2xl ${m.sender === 'notary' ? 'bg-[#0A2920] text-white rounded-tr-xs' : 'bg-white border border-slate-200 text-slate-900 rounded-tl-xs shadow-2xs'} space-y-1">
+                      <div class="flex items-center gap-1.5 text-[9px] ${m.sender === 'notary' ? 'text-emerald-300' : 'text-slate-400'} font-mono">
+                        <span>${escapeHtml(m.senderName)}</span> • <span>${m.timestamp}</span>
+                      </div>
+                      ${m.attachment ? `
+                        <div class="p-2 rounded-lg bg-black/10 text-[10px] font-mono flex items-center gap-1.5 mb-1">
+                          <i data-lucide="file" class="w-3.5 h-3.5"></i> ${escapeHtml(m.attachment.name)}
+                        </div>
+                      ` : ''}
+                      <div>${formatChatMessage(m.text)}</div>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+
+              <form onsubmit="handleSendNotaryWorkstationReply(event)" class="p-3 bg-white border-t border-slate-200 flex items-center gap-2 shrink-0">
+                <input type="text" id="notary-workstation-reply-input" autocomplete="off" placeholder="Tulis tanggapan notaris resmi (Dr. Hendra Wijaya) ke klien..." class="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 text-xs focus:outline-none focus:border-emerald-600 focus:bg-white font-medium">
+                <button type="submit" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs">
+                  <i data-lucide="send" class="w-4 h-4"></i> Balas Klien
+                </button>
+              </form>
+            ` : `
+              <div class="flex-1 flex flex-col items-center justify-center text-center p-8 text-slate-400 text-xs">
+                <i data-lucide="messages-square" class="w-12 h-12 text-slate-300 mb-3"></i>
+                <h5 class="font-bold text-slate-700 text-sm mb-1">Pilih Klien untuk Konsultasi</h5>
+                <p class="max-w-sm">Pilih salah satu percakapan klien di kolom sebelah kiri untuk menelaah pertanyaan dan membalas konsultasi hukum.</p>
+              </div>
+            `}
+          </div>
+        </div>
+      `;
+    }
+
+    if (tab === 'schedule') {
+      return `
+        <div class="p-6 sm:p-8 space-y-6">
+          <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+            <div>
+              <h3 class="font-bold text-base text-[#0C1E36]">Buku Agenda Janji Temu Resmi Notaris</h3>
+              <p class="text-xs text-slate-500">Jadwal tatap muka kantor dan konsultasi video call terdaftar untuk Dr. Hendra Wijaya</p>
+            </div>
+            <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold font-mono">2 Sesi Terjadwal</span>
+          </div>
+
+          <div class="space-y-4">
+            <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 hover:border-emerald-500/50 transition">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="flex items-start gap-3">
+                  <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center shrink-0">
+                    <i data-lucide="video" class="w-5 h-5"></i>
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <h4 class="font-bold text-sm text-[#0C1E36]">Fajar Nugraha (PT Sinergi Digital Indonesia)</h4>
+                      <span class="px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 text-[10px] font-bold">Panggilan Video WebRTC</span>
+                    </div>
+                    <p class="text-xs text-slate-600 mt-1">Agenda: Konsultasi Persyaratan Modal Ditempatkan 25% & Pengecekan 3 Opsi Nama PT di AHU Online</p>
+                    <p class="text-[11px] text-slate-400 font-mono mt-0.5">Waktu: Besok, Pukul 10:00 - 10:45 WIB • Tautan Ruang: legalease.co.id/room/notary-hw-041</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button onclick="showToast('Ruang video call siap dibuka pada jam sesi yang dijadwalkan.', 'info')" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-xs">
+                    <i data-lucide="video" class="w-3.5 h-3.5"></i> Masuk Ruang VC
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 hover:border-emerald-500/50 transition">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="flex items-start gap-3">
+                  <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0">
+                    <i data-lucide="map-pin" class="w-5 h-5"></i>
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <h4 class="font-bold text-sm text-[#0C1E36]">Gelsay Behrous (PT Gelsay Law Nusantara)</h4>
+                      <span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 text-[10px] font-bold">Tatap Muka di Kantor</span>
+                    </div>
+                    <p class="text-xs text-slate-600 mt-1">Agenda: Pembacaan & Penandatanganan Minuta Akta Pendirian PT di hadapan Notaris</p>
+                    <p class="text-[11px] text-slate-400 font-mono mt-0.5">Waktu: Lusa, Pukul 14:00 - 15:30 WIB • Lokasi: Kantor Notaris SCBD Tower Lt. 18, Jakarta Selatan</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button onclick="showToast('Konfirmasi kesiapan ruang penandatanganan dikirim ke klien.', 'success')" class="px-4 py-2 rounded-xl bg-[#0C1E36] hover:bg-slate-800 text-amber-300 font-bold text-xs transition flex items-center gap-1.5 shadow-xs">
+                    <i data-lucide="check" class="w-3.5 h-3.5"></i> Konfirmasi Hadir
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Default: 'deeds' tab
+    return `
+      <div class="p-6 sm:p-8 space-y-6">
+        <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+          <div>
+            <h3 class="font-bold text-base text-[#0C1E36]">Meja Telaah Minuta Akta Perseroan & Kontrak</h3>
+            <p class="text-xs text-slate-500">Pemeriksaan pasal hukum, komparisi para pihak, dan validasi yuridis sebelum pengesahan</p>
+          </div>
+          <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold font-mono">3 Berkas Aktif</span>
+        </div>
+
+        <div class="space-y-4">
+          <!-- Berkas 1: PT Sinergi Digital Indonesia -->
+          <div class="p-5 rounded-2xl bg-white border border-slate-200 hover:border-emerald-500/60 transition shadow-2xs">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+              <div>
+                <span class="text-[10px] font-bold font-mono px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">BERKAS #NOT-202610-01</span>
+                <h4 class="font-bold text-sm text-[#0C1E36] mt-1">PT Sinergi Digital Indonesia</h4>
+                <p class="text-xs text-slate-500">Direktur Utama: Fajar Nugraha • Modal Dasar: Rp 1.000.000.000 • KBLI 62019</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
+                  Menunggu Paraf Notaris
+                </span>
+              </div>
+            </div>
+            <div class="pt-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+              <p class="text-slate-600">Dokumen: <strong>Draf Akta Pendirian Perseroan Terbatas</strong> (Sesuai UUJN & UU No. 40/2007)</p>
+              <div class="flex items-center gap-2">
+                <button onclick="openDocumentPreview('akta_pt')" class="px-3.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold transition flex items-center gap-1">
+                  <i data-lucide="eye" class="w-3.5 h-3.5"></i> Periksa Minuta
+                </button>
+                <button onclick="showToast('Catatan yuridis: Minuta akta PT Sinergi Digital disetujui untuk ditandatangani.', 'success')" class="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold transition flex items-center gap-1 shadow-2xs">
+                  <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Beri Paraf Notaris
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Berkas 2: PT Gelsay Law Nusantara -->
+          <div class="p-5 rounded-2xl bg-white border border-slate-200 hover:border-emerald-500/60 transition shadow-2xs">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+              <div>
+                <span class="text-[10px] font-bold font-mono px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">BERKAS #NOT-202610-02</span>
+                <h4 class="font-bold text-sm text-[#0C1E36] mt-1">PT Gelsay Law Nusantara</h4>
+                <p class="text-xs text-slate-500">Direktur Utama: Gelsay Behrous • Nilai Komitmen: Rp 250.000.000</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                  Klausul Terverifikasi Sesuai KUHPerdata
+                </span>
+              </div>
+            </div>
+            <div class="pt-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+              <p class="text-slate-600">Dokumen: <strong>Perjanjian Kerjasama Kemitraan Bisnis (PKS)</strong></p>
+              <div class="flex items-center gap-2">
+                <button onclick="openDocumentPreview('pks')" class="px-3.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold transition flex items-center gap-1">
+                  <i data-lucide="eye" class="w-3.5 h-3.5"></i> Buka Dokumen
+                </button>
+                <button onclick="showToast('Sertifikat verifikasi klausul notaris diterbitkan untuk PT Gelsay.', 'success')" class="px-3.5 py-1.5 rounded-lg bg-[#0C1E36] hover:bg-slate-800 text-amber-300 font-bold transition flex items-center gap-1 shadow-2xs">
+                  <i data-lucide="award" class="w-3.5 h-3.5"></i> Terbitkan Sertifikasi
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     initMobileMenu();
     initRealtimeChannel();
@@ -3703,6 +4256,8 @@
     if (state.currentUser) {
       if (state.currentUser.role === 'admin') {
         switchView('admin_dashboard');
+      } else if (state.currentUser.role === 'notary') {
+        switchView('notary_dashboard');
       } else {
         switchView('client_dashboard');
       }
