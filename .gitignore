@@ -6,3 +6,8 @@ dist/
 .vscode/
 .idea/
 extracted_assets/
+android_build/assets/
+android_build/bin/
+android_build/obj/
+android_build/gen/
+*.idsig
