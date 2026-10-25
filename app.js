@@ -1,7 +1,6 @@
 /**
- * LegalEase - Interactive Application Script
- * Prototype & Showcase Website
- * Group 4 - Economic Survival
+ * LegalEase - Official Client Portal & Application Script
+ * Indonesia's Premier On-Demand Legal & Notary Platform
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -13,12 +12,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- STATE MANAGEMENT ---
   const state = {
     currentScreen: 1, // 1 to 7, 8: Video Call
-    screenViewMode: 'interactive', // 'interactive' or 'screenshot'
     activeNotaryFilter: 'all',
     videoCallNotary: 'Notary A, S.H., M.Kn.',
     isCallMuted: false,
     callSeconds: 0,
     callTimerInterval: null,
+    activePlan: 'full', // 'trial', 'chat', 'full'
     checklist: [
       { id: 1, text: "Prepare founders' ID & tax no. (KTP & NPWP Pendiri)", completed: true },
       { id: 2, text: "Set name & business activities (Nama PT & KBLI)", completed: true },
@@ -28,50 +27,35 @@ document.addEventListener('DOMContentLoaded', () => {
       { id: 6, text: "Get NIB via OSS (Penerbitan NIB & Izin Berusaha)", completed: false }
     ],
     cart: [
-      { id: 'video-consult', title: 'Video consultation - Notary A', price: 150000, qty: 1 },
-      { id: 'coop-template', title: 'Coop. Agreement Template', price: 149000, qty: 1 }
+      { id: 'plan-full', title: 'Monthly Full Legal Suite (Call + Chat + Templates)', price: 300000, qty: 1 }
     ],
     selectedPaymentMethod: 'va',
     chatMessages: [
       { sender: 'user', text: 'I want to set up a PT for my startup. What documents do I need to prepare?', time: '10:14 AM' },
-      { sender: 'notary', text: "Hello! We'll start with the founders' data and business capital. I'll send you the checklist.", time: '10:15 AM' },
+      { sender: 'notary', text: "Hello! We will start with the founders' identification and business capital. I am sending you our official checklist.", time: '10:15 AM' },
       { 
         sender: 'notary', 
         isAttachment: true, 
         attachmentTitle: 'PT Setup Checklist', 
-        attachmentSubtitle: 'Automated guide & checklist (PDF)',
+        attachmentSubtitle: 'Official verified guide & checklist (PDF)',
         actionTarget: 5,
         docKey: 'checklist',
         time: '10:15 AM' 
       },
-      { sender: 'user', text: 'Okay, thank you! How long does the deed signing usually take?', time: '10:16 AM' }
-    ],
-    currentSlide: 1,
-    totalSlides: 7,
-    lang: 'id' // 'id' or 'en'
+      { sender: 'user', text: 'Thank you! How long does the deed signing usually take once requirements are complete?', time: '10:16 AM' }
+    ]
   };
 
-  // Screen Names & Meta
+  // Screen Names & Meta for Portal Header
   const screenMeta = {
-    1: { title: "1. Home Dashboard", subtitle: "Instant access to notaries and four main services on one screen (Value Propositions)." },
-    2: { title: "2. Choose a Notary", subtitle: "Licensed notaries & PPAT with specialties and per-session consultation rates." },
-    3: { title: "3. Consultation Room", subtitle: "Live chat and video consultation with secure and confidential data, plus automatic checklist delivery." },
-    4: { title: "4. Document Templates", subtitle: "Ready-to-use legal templates for startups and growing businesses." },
-    5: { title: "5. Guides & Checklists", subtitle: "Step-by-step guides, checklists, and follow-up reminders keep users on track." },
-    6: { title: "6. Payment Gateway", subtitle: "Secure checkout via bank transfer, e-wallet, QRIS, or card." },
-    7: { title: "7. Business Dashboard (B2B)", subtitle: "Monthly B2B subscription (from Rp 1.500.000/month) + corporate document service." },
+    1: { title: "1. Home Dashboard", subtitle: "Instant access to verified notaries, contract templates, and company setup on one screen." },
+    2: { title: "2. Choose a Notary", subtitle: "Licensed Notaries & PPAT with verified credentials and transparent consultation fees." },
+    3: { title: "3. Consultation Room", subtitle: "Live encrypted chat and video meeting protected by legal professional secrecy." },
+    4: { title: "4. Document Templates", subtitle: "Ready-to-use, legally vetted contract templates for startups and businesses." },
+    5: { title: "5. Guides & Checklists", subtitle: "Step-by-step company incorporation roadmap with automated milestone tracking." },
+    6: { title: "6. Payment Gateway", subtitle: "Secure multi-channel checkout via Bank Transfer, E-Wallet, QRIS, or Credit Card." },
+    7: { title: "7. Client Account & Retainer", subtitle: "Manage your LegalEase subscription (Trial, Chat Rp 150k, or Full Suite Rp 300k) and corporate filings." },
     8: { title: "Video Consultation", subtitle: "Live encrypted online meeting with licensed Notary & PPAT." }
-  };
-
-  const originalScreens = {
-    1: 'assets/screens/screen_1_home.png',
-    2: 'assets/screens/screen_2_choose_notary.png',
-    3: 'assets/screens/screen_3_consultation_room.png',
-    4: 'assets/screens/screen_4_document_templates.png',
-    5: 'assets/screens/screen_5_guides_checklists.png',
-    6: 'assets/screens/screen_6_payment.png',
-    7: 'assets/screens/screen_7_business_account.png',
-    8: 'assets/screens/screen_3_consultation_room.png'
   };
 
   // --- SCREEN NAVIGATION ---
@@ -89,25 +73,6 @@ document.addEventListener('DOMContentLoaded', () => {
     state.currentScreen = screenNum;
     renderScreen();
     updateScreenNavButtons();
-  };
-
-  window.toggleViewMode = function(mode) {
-    state.screenViewMode = mode;
-    const btnInteractive = document.getElementById('btn-mode-interactive');
-    const btnScreenshot = document.getElementById('btn-mode-screenshot');
-
-    if (mode === 'interactive') {
-      btnInteractive?.classList.add('bg-[#C29236]', 'text-[#0C1E36]', 'shadow-sm');
-      btnInteractive?.classList.remove('text-slate-300', 'hover:text-white');
-      btnScreenshot?.classList.remove('bg-[#C29236]', 'text-[#0C1E36]', 'shadow-sm');
-      btnScreenshot?.classList.add('text-slate-300', 'hover:text-white');
-    } else {
-      btnScreenshot?.classList.add('bg-[#C29236]', 'text-[#0C1E36]', 'shadow-sm');
-      btnScreenshot?.classList.remove('text-slate-300', 'hover:text-white');
-      btnInteractive?.classList.remove('bg-[#C29236]', 'text-[#0C1E36]', 'shadow-sm');
-      btnInteractive?.classList.add('text-slate-300', 'hover:text-white');
-    }
-    renderScreen();
   };
 
   function updateScreenNavButtons() {
@@ -135,20 +100,6 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderScreen() {
     const container = document.getElementById('phone-screen-content');
     if (!container) return;
-
-    // If Screenshot Mode: render original PDF screen image
-    if (state.screenViewMode === 'screenshot') {
-      const screenKey = state.currentScreen > 7 ? 3 : state.currentScreen;
-      container.innerHTML = `
-        <div class="h-full w-full overflow-y-auto bg-slate-900 flex flex-col items-center justify-start p-2">
-          <div class="w-full text-center py-2 text-xs font-semibold text-amber-300 uppercase tracking-wider bg-slate-800/90 rounded-lg mb-2">
-            Original Presentation Mockup (PDF Slide Deck)
-          </div>
-          <img src="${originalScreens[screenKey]}" alt="Screen ${screenKey}" class="w-full object-contain rounded-xl shadow-lg border border-slate-700" />
-        </div>
-      `;
-      return;
-    }
 
     // Interactive Mode
     switch (state.currentScreen) {
@@ -205,11 +156,11 @@ document.addEventListener('DOMContentLoaded', () => {
               JS
             </div>
           </div>
-          <p class="text-xs text-slate-300 mb-3">Hi! Need legal help today?</p>
+          <p class="text-xs text-slate-300 mb-3">Hi! Need on-demand legal counsel today?</p>
           
           <!-- Search Bar -->
           <div class="relative">
-            <input type="text" placeholder="Search notaries, documents, guides" 
+            <input type="text" placeholder="Search notaries, templates, guides..." 
               class="w-full pl-9 pr-4 py-2 bg-slate-800/90 text-xs text-white placeholder-slate-400 rounded-xl border border-slate-700 focus:outline-none focus:border-amber-400">
             <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
           </div>
@@ -225,7 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
               </div>
               <div>
                 <h4 class="font-bold text-xs text-slate-900 group-hover:text-amber-600 transition-colors">Templates</h4>
-                <p class="text-[10px] text-slate-500">Ready to use</p>
+                <p class="text-[10px] text-slate-500">Verified contracts</p>
               </div>
             </button>
 
@@ -236,18 +187,18 @@ document.addEventListener('DOMContentLoaded', () => {
               </div>
               <div>
                 <h4 class="font-bold text-xs text-slate-900 group-hover:text-teal-600 transition-colors">Notary Chat</h4>
-                <p class="text-[10px] text-slate-500">Quick consult</p>
+                <p class="text-[10px] text-slate-500">Direct consultation</p>
               </div>
             </button>
 
-            <!-- Business -->
+            <!-- Business & Retainer -->
             <button onclick="goToScreen(7)" class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-sm text-left hover:border-blue-500 transition-all group flex flex-col justify-between h-28">
               <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors">
                 <i data-lucide="briefcase" class="w-5 h-5"></i>
               </div>
               <div>
-                <h4 class="font-bold text-xs text-slate-900 group-hover:text-blue-600 transition-colors">Business</h4>
-                <p class="text-[10px] text-slate-500">For companies</p>
+                <h4 class="font-bold text-xs text-slate-900 group-hover:text-blue-600 transition-colors">Retainers</h4>
+                <p class="text-[10px] text-slate-500">From 150k/mo</p>
               </div>
             </button>
 
@@ -258,7 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
               </div>
               <div>
                 <h4 class="font-bold text-xs text-slate-900 group-hover:text-purple-600 transition-colors">Video Call</h4>
-                <p class="text-[10px] text-slate-500">Online meeting</p>
+                <p class="text-[10px] text-slate-500">Encrypted session</p>
               </div>
             </button>
           </div>
@@ -269,7 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
               <div>
                 <span class="text-[10px] font-bold uppercase tracking-wider text-amber-900">Legal Solutions, Made Easy.</span>
                 <p class="text-xs font-semibold text-slate-900 mt-0.5">Instant access to licensed notaries</p>
-                <p class="text-[10px] text-slate-600 mt-1">Popular guides: PT Setup, Partnership Agreement</p>
+                <p class="text-[10px] text-slate-600 mt-1">Popular services: PT Setup, PKS Agreement</p>
               </div>
               <button onclick="goToScreen(5)" class="px-2.5 py-1 bg-amber-600 text-white rounded-lg text-[10px] font-bold hover:bg-amber-700 transition">
                 Explore
@@ -280,7 +231,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <!-- Fast Notary Quick List -->
           <div class="mb-2">
             <div class="flex items-center justify-between mb-2">
-              <h3 class="text-xs font-bold text-slate-800">Nearby Online Notaries</h3>
+              <h3 class="text-xs font-bold text-slate-800">Online Notaries On-Duty</h3>
               <button onclick="goToScreen(2)" class="text-[10px] text-amber-600 font-semibold hover:underline">View All</button>
             </div>
             
@@ -292,7 +243,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
                 <div>
                   <h4 class="text-xs font-bold text-slate-900">Notary A, S.H., M.Kn.</h4>
-                  <p class="text-[10px] text-slate-500">PT/CV setup, business agreements</p>
+                  <p class="text-[10px] text-slate-500">PT/CV setup, partnership contracts</p>
                 </div>
               </div>
               <div class="text-right">
@@ -316,7 +267,7 @@ document.addEventListener('DOMContentLoaded', () => {
         id: 'A',
         name: 'Notary A, S.H., M.Kn.',
         tag: 'Notary & PPAT • Online',
-        specialty: 'PT/CV setup, business agreements',
+        specialty: 'PT/CV setup, corporate agreements',
         rate: 'Rp 150.000',
         rateNum: 150000,
         category: 'pt'
@@ -325,7 +276,7 @@ document.addEventListener('DOMContentLoaded', () => {
         id: 'B',
         name: 'Notary B, S.H., M.Kn.',
         tag: 'Notary & PPAT • Online',
-        specialty: 'Property law (PPAT)',
+        specialty: 'Property law & land titles (PPAT)',
         rate: 'Rp 200.000',
         rateNum: 200000,
         category: 'property'
@@ -334,7 +285,7 @@ document.addEventListener('DOMContentLoaded', () => {
         id: 'C',
         name: 'Notary C, S.H., M.Kn.',
         tag: 'Notary & PPAT • Online',
-        specialty: 'Startup contracts & legality',
+        specialty: 'Startup contracts & seed investments',
         rate: 'Rp 175.000',
         rateNum: 175000,
         category: 'contract'
@@ -353,7 +304,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <button onclick="goToScreen(1)" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-300 hover:text-white">
               <i data-lucide="chevron-left" class="w-4 h-4"></i>
             </button>
-            <h2 class="text-sm font-bold text-white">Choose a Notary</h2>
+            <h2 class="text-sm font-bold text-white">Find a Licensed Notary</h2>
           </div>
 
           <!-- Category Filter Tabs -->
@@ -368,14 +319,17 @@ document.addEventListener('DOMContentLoaded', () => {
               Property
             </button>
             <button onclick="filterNotaries('contract')" class="px-3 py-1 rounded-full text-[11px] font-semibold transition ${state.activeNotaryFilter === 'contract' ? 'bg-amber-600 text-white' : 'bg-slate-800 text-slate-300'}">
-              Contract
+              Contracts
             </button>
           </div>
         </div>
 
         <!-- Notary Cards List -->
         <div class="p-3.5 space-y-3 flex-1">
-          <p class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Names and rates are sample data</p>
+          <p class="text-[10px] text-emerald-700 uppercase tracking-wider font-bold flex items-center gap-1">
+            <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-600"></i>
+            Accredited by Ministry of Law (Kemenkumham) & BPN
+          </p>
 
           ${filtered.map(n => `
             <div class="bg-white rounded-2xl p-3.5 border border-slate-200/90 shadow-sm hover:border-amber-400 transition-all">
@@ -419,12 +373,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   window.filterNotaries = function(cat) {
     state.activeNotaryFilter = cat;
-    renderScreen();
+    renderNotaryListScreen(document.getElementById('phone-screen-content'));
   };
 
   window.startConsultation = function(notaryName, mode) {
+    state.videoCallNotary = notaryName;
     if (mode === 'video') {
-      state.videoCallNotary = notaryName || 'Notary A, S.H., M.Kn.';
+      state.isCallMuted = false;
       state.callSeconds = 0;
       if (state.callTimerInterval) clearInterval(state.callTimerInterval);
       
@@ -432,13 +387,13 @@ document.addEventListener('DOMContentLoaded', () => {
       state.currentScreen = 8;
       renderScreen();
 
-      // Start live timer
+      // Start timer
       state.callTimerInterval = setInterval(() => {
         state.callSeconds++;
+        const mins = String(Math.floor(state.callSeconds / 60)).padStart(2, '0');
+        const secs = String(state.callSeconds % 60).padStart(2, '0');
         const timerEl = document.getElementById('call-timer');
         if (timerEl) {
-          const mins = String(Math.floor(state.callSeconds / 60)).padStart(2, '0');
-          const secs = String(state.callSeconds % 60).padStart(2, '0');
           timerEl.textContent = `${mins}:${secs}`;
         }
       }, 1000);
@@ -471,7 +426,7 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
         </div>
 
-        <!-- Main Video Area (Simulated Notary Presence) -->
+        <!-- Main Video Area -->
         <div class="flex-1 flex flex-col items-center justify-center p-6 relative">
           
           <!-- PiP User Camera Feed -->
@@ -526,9 +481,9 @@ document.addEventListener('DOMContentLoaded', () => {
             <i data-lucide="camera-reverse" class="w-5 h-5"></i>
           </button>
 
-          <!-- End Call Button (Red) -->
-          <button onclick="endVideoCall()" class="w-12 h-12 rounded-full bg-red-600 text-white flex items-center justify-center shadow-lg shadow-red-600/40 hover:bg-red-700 transition">
-            <i data-lucide="phone-off" class="w-6 h-6"></i>
+          <!-- End Call Button -->
+          <button onclick="endVideoCall()" class="w-12 h-12 rounded-full bg-red-600 text-white flex items-center justify-center hover:bg-red-700 transition shadow-lg shadow-red-600/30">
+            <i data-lucide="phone-off" class="w-5 h-5"></i>
           </button>
         </div>
       </div>
@@ -546,7 +501,7 @@ document.addEventListener('DOMContentLoaded', () => {
       clearInterval(state.callTimerInterval);
       state.callTimerInterval = null;
     }
-    showToast('Video consultation ended. Session history saved.', 'success');
+    showToast('Video consultation ended. Session history saved securely.', 'success');
     goToScreen(3);
   };
 
@@ -633,7 +588,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <!-- Chat Input Form -->
         <div class="p-2.5 bg-white border-t border-slate-200">
           <form onsubmit="handleSendChat(event)" class="flex items-center gap-2">
-            <input type="text" id="chat-input" placeholder="Type a message..." 
+            <input type="text" id="chat-input" placeholder="Type a message to your notary..." 
               class="flex-1 bg-slate-100 text-xs text-slate-900 px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-teal-600">
             <button type="submit" class="w-9 h-9 rounded-xl bg-amber-600 text-white flex items-center justify-center hover:bg-amber-700 transition shadow-sm shrink-0">
               <i data-lucide="send" class="w-4 h-4"></i>
@@ -669,7 +624,7 @@ document.addEventListener('DOMContentLoaded', () => {
       let replyText = "Understood, I have noted your requirements. We will guide you through the initial legal paperwork step by step.";
       const lower = userText.toLowerCase();
       if (lower.includes('fee') || lower.includes('cost') || lower.includes('price') || lower.includes('rate') || lower.includes('biaya') || lower.includes('harga') || lower.includes('tarif')) {
-        replyText = "Our consultation rate is Rp 150,000 per session. For the complete PT establishment deed package with official Ministry approval (SK Kemenkumham), you can select the package under Documents for Rp 299,000.";
+        replyText = "Our single session rate is Rp 150,000. Alternatively, our Monthly Legal Chat subscription is Rp 150,000/month, and the Full Legal Suite (including video calls and document templates) is Rp 300,000/month.";
       } else if (lower.includes('how long') || lower.includes('time') || lower.includes('duration') || lower.includes('days') || lower.includes('lama') || lower.includes('waktu') || lower.includes('hari')) {
         replyText = "Drafting the establishment deed and obtaining Ministry approval typically takes 3-5 business days once all checklist items are signed.";
       } else if (lower.includes('requirement') || lower.includes('pt') || lower.includes('document') || lower.includes('need') || lower.includes('syarat') || lower.includes('dokumen')) {
@@ -687,15 +642,15 @@ document.addEventListener('DOMContentLoaded', () => {
       {
         id: 'coop',
         name: 'Business Cooperation Agreement',
-        desc: 'Partnership between businesses (PKS Kemitraan)',
+        desc: 'Standard commercial partnership (PKS Kemitraan)',
         price: 'Rp 149.000',
         priceNum: 149000,
         badge: 'Popular'
       },
       {
         id: 'setup',
-        name: 'Business Setup Documents',
-        desc: 'PT/CV for startups & SMEs (Paket Lengkap)',
+        name: 'Company Incorporation Package',
+        desc: 'Complete PT/CV setup documents & standard bylaws',
         price: 'Rp 299.000',
         priceNum: 299000,
         badge: 'Best Value'
@@ -703,15 +658,15 @@ document.addEventListener('DOMContentLoaded', () => {
       {
         id: 'investor',
         name: 'Investor & Shareholder Agreement',
-        desc: 'For investors and shareholders (Perjanjian Pemegang Saham)',
+        desc: 'Seed stage investment & equity governance',
         price: 'Rp 399.000',
         priceNum: 399000,
         badge: 'Corporate'
       },
       {
         id: 'employment',
-        name: 'Employment Contract',
-        desc: 'Standard for growing businesses (PKWT / PKWTT)',
+        name: 'Standard Employment Contract',
+        desc: 'Compliant with Omnibus & Manpower Law (PKWT/PKWTT)',
         price: 'Rp 99.000',
         priceNum: 99000,
         badge: 'Essential'
@@ -728,7 +683,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </button>
             <div>
               <h2 class="text-sm font-bold text-white">Document Templates</h2>
-              <p class="text-[10px] text-amber-400">Ready to use • Drafted by Notaries</p>
+              <p class="text-[10px] text-amber-400">Ready to use • Drafted by Licensed Notaries</p>
             </div>
           </div>
           <button onclick="goToScreen(6)" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-amber-400 relative">
@@ -742,7 +697,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <!-- Template Catalog -->
         <div class="p-3.5 space-y-3 flex-1">
           <div class="bg-amber-50 border border-amber-200/80 rounded-xl p-2.5 flex items-center justify-between text-[11px] text-amber-900">
-            <span class="font-medium">Prices are sample data (Revenue Stream)</span>
+            <span class="font-medium">Included free with Full Legal Suite (Rp 300k/mo)</span>
             <span class="text-[10px] font-bold text-amber-700">Verified by PPAT</span>
           </div>
 
@@ -785,8 +740,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   window.addToCartAndCheckout = function(title, price) {
     state.cart = [
-      { id: 'item-' + Date.now(), title: title, price: price, qty: 1 },
-      { id: 'video-consult', title: 'Video consultation - Notary A', price: 150000, qty: 1 }
+      { id: 'item-' + Date.now(), title: title, price: price, qty: 1 }
     ];
     showToast(`Template "${title}" added to cart!`, 'success');
     setTimeout(() => {
@@ -850,7 +804,7 @@ document.addEventListener('DOMContentLoaded', () => {
             `).join('')}
           </div>
 
-          <!-- Follow-up Reminder Card (from deck) -->
+          <!-- Follow-up Reminder Card -->
           <div class="bg-gradient-to-r from-amber-100 to-amber-50 border border-amber-200 rounded-2xl p-3.5 shadow-sm">
             <div class="flex items-start gap-2.5">
               <div class="w-8 h-8 rounded-full bg-amber-600 text-white flex items-center justify-center shrink-0">
@@ -891,12 +845,12 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="flex-1 flex flex-col bg-slate-50 overflow-y-auto">
         <!-- Top Bar -->
         <div class="bg-slate-900 text-white p-4 pt-10 sticky top-0 z-10 shadow-sm flex items-center gap-3">
-          <button onclick="goToScreen(4)" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-300 hover:text-white">
+          <button onclick="goToScreen(1)" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-300 hover:text-white">
             <i data-lucide="chevron-left" class="w-4 h-4"></i>
           </button>
           <div>
             <h2 class="text-sm font-bold text-white">Payment Checkout</h2>
-            <p class="text-[10px] text-amber-400">Integrated with payment gateway</p>
+            <p class="text-[10px] text-amber-400">Integrated with Bank & E-Wallet Gateway</p>
           </div>
         </div>
 
@@ -904,16 +858,16 @@ document.addEventListener('DOMContentLoaded', () => {
           <!-- ORDER SUMMARY -->
           <div class="bg-white rounded-2xl p-3.5 border border-slate-200/90 shadow-sm">
             <h3 class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">ORDER SUMMARY</h3>
-            <div class="space-y-1.5 text-xs text-slate-700">
+            <div class="space-y-2 text-xs text-slate-700">
               ${state.cart.map(item => `
-                <div class="flex justify-between">
-                  <span>${item.title}</span>
-                  <span class="font-semibold text-slate-900">${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(item.price)}</span>
+                <div class="flex justify-between items-start gap-2">
+                  <span class="font-medium text-slate-800">${item.title}</span>
+                  <span class="font-bold text-slate-900 whitespace-nowrap">${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(item.price)}</span>
                 </div>
               `).join('')}
             </div>
             <div class="border-t border-slate-100 mt-2.5 pt-2 flex justify-between items-center">
-              <span class="text-xs font-bold text-slate-900">Total</span>
+              <span class="text-xs font-bold text-slate-900">Total Due</span>
               <span class="text-sm font-extrabold text-amber-600">${formattedTotal}</span>
             </div>
           </div>
@@ -928,9 +882,9 @@ document.addEventListener('DOMContentLoaded', () => {
                   <div class="w-4 h-4 rounded-full border flex items-center justify-center ${state.selectedPaymentMethod === 'va' ? 'border-teal-600 bg-teal-600' : 'border-slate-300'}">
                     <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
                   </div>
-                  <span class="text-xs font-semibold text-slate-800">Bank Transfer (Virtual Account)</span>
+                  <span class="text-xs font-semibold text-slate-800">Bank Virtual Account</span>
                 </div>
-                <span class="text-[10px] text-slate-400 font-mono">BCA/Mandiri/BRI</span>
+                <span class="text-[10px] text-slate-400 font-mono">BCA / Mandiri / BRI</span>
               </label>
 
               <!-- E-Wallet -->
@@ -950,7 +904,7 @@ document.addEventListener('DOMContentLoaded', () => {
                   <div class="w-4 h-4 rounded-full border flex items-center justify-center ${state.selectedPaymentMethod === 'qris' ? 'border-teal-600 bg-teal-600' : 'border-slate-300'}">
                     <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
                   </div>
-                  <span class="text-xs font-semibold text-slate-800">QRIS</span>
+                  <span class="text-xs font-semibold text-slate-800">QRIS Standard</span>
                 </div>
                 <span class="text-[10px] bg-red-100 text-red-700 px-1.5 py-0.5 rounded font-bold">Instant</span>
               </label>
@@ -971,12 +925,12 @@ document.addEventListener('DOMContentLoaded', () => {
           <!-- PAY NOW BUTTON -->
           <button onclick="handleProcessPayment()" class="w-full py-3 bg-slate-900 text-amber-400 font-bold text-xs rounded-xl shadow-md hover:bg-slate-800 transition flex items-center justify-center gap-1.5">
             <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i>
-            Pay Now (${formattedTotal})
+            ${totalAmount === 0 ? 'Activate 3-Day Free Trial (Rp 0)' : `Confirm & Pay (${formattedTotal})`}
           </button>
 
           <p class="text-[9px] text-center text-slate-400 flex items-center justify-center gap-1">
             <i data-lucide="lock" class="w-3 h-3 text-slate-400"></i>
-            Processed securely via partner payment gateway
+            Encrypted payment processing via certified payment gateway
           </p>
         </div>
 
@@ -992,15 +946,48 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   window.handleProcessPayment = function() {
-    showToast('Processing payment transaction...', 'info');
+    showToast('Processing transaction with Payment Gateway...', 'info');
     setTimeout(() => {
-      alert('🎉 Payment Successful! Your transaction has been verified by the Payment Gateway. The assigned notary has received your session booking.');
-      goToScreen(5); // Go back to checklist or consult
+      alert('🎉 Payment Confirmed! Your LegalEase subscription/booking has been activated. The assigned notary and legal team are ready.');
+      state.activePlan = 'full';
+      goToScreen(7); // View active subscription account
     }, 700);
   };
 
-  // --- SCREEN 7: BUSINESS ACCOUNT (B2B) ---
+  // --- SCREEN 7: CLIENT ACCOUNT & RETAINER SUBSCRIPTIONS ---
   function renderB2BDashboardScreen(container) {
+    const plans = {
+      trial: { 
+        name: '3-Day Free Trial', 
+        price: 'IDR 0 (Free)', 
+        badge: 'Trial Active', 
+        call: false, 
+        chat: true, 
+        templates: false,
+        desc: '3-day exploration with notary chat consultation.'
+      },
+      chat: { 
+        name: 'Legal Chat Essential', 
+        price: 'IDR 150,000 / mo', 
+        badge: 'Active Subscription', 
+        call: false, 
+        chat: true, 
+        templates: false,
+        desc: 'Unlimited legal consultation via Chat (No templates/calls).'
+      },
+      full: { 
+        name: 'Full Legal Suite', 
+        price: 'IDR 300,000 / mo', 
+        badge: 'Active Subscription', 
+        call: true, 
+        chat: true, 
+        templates: true,
+        desc: 'Complete Retainer: Video Calls + Chat + Document Templates.'
+      }
+    };
+
+    const current = plans[state.activePlan || 'full'];
+
     container.innerHTML = `
       <div class="flex-1 flex flex-col bg-slate-50 overflow-y-auto">
         <!-- Top Bar -->
@@ -1010,52 +997,70 @@ document.addEventListener('DOMContentLoaded', () => {
               <i data-lucide="chevron-left" class="w-4 h-4"></i>
             </button>
             <div>
-              <h2 class="text-sm font-bold text-white">Business Account</h2>
-              <p class="text-[10px] text-slate-400">PT Contoh Maju (sample data)</p>
+              <h2 class="text-sm font-bold text-white">Client Account</h2>
+              <p class="text-[10px] text-slate-400">PT Solusi Maju Bersama • ID: LE-9281</p>
             </div>
           </div>
           <span class="px-2 py-0.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full text-[9px] font-bold">
-            Active
+            ${current.badge}
           </span>
         </div>
 
         <div class="p-3.5 space-y-3 flex-1">
-          <!-- Monthly B2B Plan Card -->
+          <!-- Active Subscription Plan Card -->
           <div class="bg-gradient-to-br from-amber-50 to-orange-50/60 rounded-2xl p-4 border border-amber-200/90 shadow-sm">
             <div class="flex justify-between items-start mb-2">
               <div>
-                <span class="text-[9px] font-bold uppercase tracking-wider text-amber-800">Corporate Retainer</span>
-                <h3 class="text-xs font-bold text-slate-900">Monthly B2B Plan</h3>
+                <span class="text-[9px] font-bold uppercase tracking-wider text-amber-800">Current Retainer Plan</span>
+                <h3 class="text-xs font-bold text-slate-900 mt-0.5">${current.name}</h3>
               </div>
               <span class="px-2 py-0.5 bg-emerald-600 text-white text-[9px] font-bold rounded-full">
-                Active
+                ${current.price}
               </span>
             </div>
 
+            <p class="text-[10px] text-slate-600 mb-2 leading-relaxed">${current.desc}</p>
+
             <div class="space-y-1.5 text-[11px] text-slate-700 mt-2">
               <div class="flex items-center gap-2">
-                <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-teal-600"></i>
-                <span>Regular legal consultation</span>
+                <i data-lucide="${current.chat ? 'check-circle-2' : 'x-circle'}" class="w-3.5 h-3.5 ${current.chat ? 'text-teal-600' : 'text-slate-400'}"></i>
+                <span class="${current.chat ? 'font-medium' : 'line-through text-slate-400'}">Legal Consultation via Chat</span>
               </div>
               <div class="flex items-center gap-2">
-                <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-teal-600"></i>
-                <span>Document drafting & review</span>
+                <i data-lucide="${current.call ? 'check-circle-2' : 'x-circle'}" class="w-3.5 h-3.5 ${current.call ? 'text-teal-600' : 'text-slate-400'}"></i>
+                <span class="${current.call ? 'font-medium' : 'line-through text-slate-400'}">Encrypted 1-on-1 Video Call Consultations</span>
               </div>
               <div class="flex items-center gap-2">
-                <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-teal-600"></i>
-                <span>Corporate document services</span>
+                <i data-lucide="${current.templates ? 'check-circle-2' : 'x-circle'}" class="w-3.5 h-3.5 ${current.templates ? 'text-teal-600' : 'text-slate-400'}"></i>
+                <span class="${current.templates ? 'font-medium' : 'line-through text-slate-400'}">Verified Legal Document Templates (DOCX/PDF)</span>
               </div>
             </div>
 
-            <div class="mt-3 pt-2 border-t border-amber-200/60 flex justify-between items-center text-[10px]">
-              <span class="text-slate-500">From Rp 1,500,000 / mo</span>
-              <span class="text-amber-800 font-semibold">Renews: Oct 28</span>
+            <!-- Quick Plan Selector Pill Tabs -->
+            <div class="mt-3 pt-2.5 border-t border-amber-200/60">
+              <span class="text-[9px] text-slate-600 font-bold uppercase block mb-1.5">Switch Active Tier:</span>
+              <div class="grid grid-cols-3 gap-1">
+                <button onclick="switchActivePlan('trial')" class="py-1 text-[9px] font-bold rounded-lg transition ${state.activePlan === 'trial' ? 'bg-[#0C1E36] text-amber-300' : 'bg-white text-slate-700 border border-amber-200 hover:bg-slate-50'}">
+                  Free Trial
+                </button>
+                <button onclick="switchActivePlan('chat')" class="py-1 text-[9px] font-bold rounded-lg transition ${state.activePlan === 'chat' ? 'bg-[#0C1E36] text-amber-300' : 'bg-white text-slate-700 border border-amber-200 hover:bg-slate-50'}">
+                  Chat (150k)
+                </button>
+                <button onclick="switchActivePlan('full')" class="py-1 text-[9px] font-bold rounded-lg transition ${state.activePlan === 'full' ? 'bg-[#0C1E36] text-amber-300' : 'bg-white text-slate-700 border border-amber-200 hover:bg-slate-50'}">
+                  Full (300k)
+                </button>
+              </div>
+            </div>
+
+            <div class="mt-2.5 pt-2 border-t border-amber-200/60 flex justify-between items-center text-[10px]">
+              <span class="text-slate-500">Auto-renews monthly</span>
+              <span class="text-amber-800 font-semibold">Next billing: Nov 28</span>
             </div>
           </div>
 
           <!-- CORPORATE DOCUMENT REQUESTS -->
           <div class="bg-white rounded-2xl p-3.5 border border-slate-200/90 shadow-sm">
-            <h3 class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2.5">CORPORATE DOCUMENT REQUESTS</h3>
+            <h3 class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2.5">ACTIVE CORPORATE FILINGS</h3>
             
             <div class="space-y-2.5">
               <!-- Item 1 -->
@@ -1065,12 +1070,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     <i data-lucide="file-edit" class="w-4 h-4"></i>
                   </div>
                   <div>
-                    <h4 class="text-xs font-bold text-slate-900">Articles of association change</h4>
-                    <span class="text-[9px] text-slate-400">Articles of Incorporation & Capital Amendment</span>
+                    <h4 class="text-xs font-bold text-slate-900">Articles of Association Amendment</h4>
+                    <span class="text-[9px] text-slate-400">Capital increase deed filing</span>
                   </div>
                 </div>
                 <span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[9px] font-bold">
-                  In process
+                  In review
                 </span>
               </div>
 
@@ -1081,12 +1086,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     <i data-lucide="file-check-2" class="w-4 h-4"></i>
                   </div>
                   <div>
-                    <h4 class="text-xs font-bold text-slate-900">Investor agreement</h4>
-                    <span class="text-[9px] text-slate-400">Seed round legal docs</span>
+                    <h4 class="text-xs font-bold text-slate-900">Investor Agreement (PKS)</h4>
+                    <span class="text-[9px] text-slate-400">Seed round legal documentation</span>
                   </div>
                 </div>
                 <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[9px] font-bold">
-                  Done
+                  Completed
                 </span>
               </div>
 
@@ -1097,18 +1102,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     <i data-lucide="clock" class="w-4 h-4"></i>
                   </div>
                   <div>
-                    <h4 class="text-xs font-bold text-slate-900">Shareholder resolution</h4>
-                    <span class="text-[9px] text-slate-400">EGMS Circular Resolution</span>
+                    <h4 class="text-xs font-bold text-slate-900">EGMS Circular Resolution</h4>
+                    <span class="text-[9px] text-slate-400">Keputusan Sirkuler Pemegang Saham</span>
                   </div>
                 </div>
                 <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[9px] font-bold">
-                  Awaiting data
+                  Awaiting sign
                 </span>
               </div>
             </div>
 
-            <button onclick="showToast('Corporate document request form opened.', 'info')" class="w-full mt-3 py-2 border border-dashed border-slate-300 rounded-xl text-xs text-slate-600 font-semibold hover:border-amber-500 hover:text-amber-700 transition flex items-center justify-center gap-1">
-              <i data-lucide="plus" class="w-3.5 h-3.5"></i> Request Corporate Document
+            <button onclick="showToast('Corporate filing request initiated with on-duty Notary.', 'info')" class="w-full mt-3 py-2 border border-dashed border-slate-300 rounded-xl text-xs text-slate-600 font-semibold hover:border-amber-500 hover:text-amber-700 transition flex items-center justify-center gap-1">
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i> Request New Corporate Filing
             </button>
           </div>
         </div>
@@ -1118,6 +1123,12 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
     `;
   }
+
+  window.switchActivePlan = function(planKey) {
+    state.activePlan = planKey;
+    showToast(`Switched active tier to: ${planKey === 'trial' ? '3-Day Free Trial' : planKey === 'chat' ? 'Legal Chat (150k)' : 'Full Suite (300k)'}`, 'success');
+    renderB2BDashboardScreen(document.getElementById('phone-screen-content'));
+  };
 
   // --- REUSABLE PHONE BOTTOM NAVIGATION BAR ---
   function renderBottomNav(activeTab) {
@@ -1141,26 +1152,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
         <button onclick="goToScreen(7)" class="flex flex-col items-center gap-0.5 ${activeTab === 4 ? 'text-teal-700 font-bold' : 'text-slate-400 hover:text-slate-600'}">
           <i data-lucide="user" class="w-4 h-4"></i>
-          <span class="text-[9px]">Profile</span>
+          <span class="text-[9px]">Account</span>
         </button>
       </div>
     `;
   }
 
-  // --- FORMAL LEGAL DOCUMENT VIEWER MODAL ---
+  // --- FORMAL LEGAL DOCUMENT VIEWER MODAL (PARCHMENT AESTHETIC) ---
   const legalDocs = {
     coop: {
       title: "PERJANJIAN KERJASAMA KEMITRAAN BISNIS (PKS)",
       sub: "Nomor Dokumen: 042/PKS-LE/X/2026",
-      parties: "Pihak Pertama: PT Contoh Maju | Pihak Kedua: Rekanan Mitra Usaha",
+      parties: "Pihak Pertama: PT Solusi Maju Bersama | Pihak Kedua: Rekanan Mitra Usaha",
       clauses: [
         {
           pasal: "Pasal 1 — Ruang Lingkup Kerjasama",
-          isi: "Para Pihak sepakat untuk menjalin kemitraan strategis dalam pengembangan teknologi hukum terintegrasi serta distribusi layanan bantuan hukum digital bagi pelaku UMKM di seluruh Indonesia."
+          isi: "Para Pihak sepakat untuk menjalin kemitraan strategis dalam pengembangan teknologi hukum terintegrasi serta distribusi layanan bantuan hukum digital bagi pelaku usaha di seluruh Indonesia."
         },
         {
           pasal: "Pasal 2 — Hak dan Kewajiban",
-          isi: "Pihak Pertama berkewajiban menyediakan infrastruktur platform LegalEase, sedangkan Pihak Kedua menyediakan tenaga keahlian hukum dan verifikasi legalitas dokumen secara berkala dan tepat waktu."
+          isi: "Pihak Pertama berkewajiban menyediakan infrastruktur platform LegalEase, sedangkan Pihak Kedua menyediakan keahlian hukum dan verifikasi legalitas dokumen secara berkala dan tepat waktu."
         },
         {
           pasal: "Pasal 3 — Kerahasiaan Informasi (Non-Disclosure)",
@@ -1235,7 +1246,7 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     checklist: {
       title: "CHECKLIST VERIFIKASI RESMI PENDIRIAN PT",
-      sub: "Panduan Terpadu Verifikasi Notaris & PPAT Rekanan",
+      sub: "Panduan Terpadu Verifikasi Notaris & PPAT Rekanan LegalEase",
       parties: "Dikeluarkan oleh: Kantor Notaris & PPAT Rekanan LegalEase",
       clauses: [
         {
@@ -1291,111 +1302,49 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.style.overflow = '';
   };
 
-  // --- PRESENTATION SLIDE VIEWER MODAL & IN-PAGE INSPECTOR ---
-  const slideDeckData = {
-    1: {
-      title: "Cover & Team Collage: Group 4 - Economic Survival",
-      desc: "Original title slide and handmade team collage of the 8 student creators of LegalEase: Legal Solutions, Made Easy."
-    },
-    2: {
-      title: "Slide 2: App Concept & Notary Selection Flow",
-      desc: "Concept map of user flow, value proposition, and finding accredited notaries based on location and needs."
-    },
-    3: {
-      title: "Slide 3: Consultation Room (Encrypted Chat & Video)",
-      desc: "Live online consultation and confidential direct chat with notaries to address legal and business compliance."
-    },
-    4: {
-      title: "Slide 4: Document Templates & Company Setup Checklist",
-      desc: "Ready-to-use legal contract repository and structured step-by-step company incorporation roadmap."
-    },
-    5: {
-      title: "Slide 5: Integrated Payment Gateway & Checkout Flow",
-      desc: "Transparent checkout with Virtual Account, E-Wallet, QRIS, and credit card payment options."
-    },
-    6: {
-      title: "Slide 6: Business Services (B2B Retainer Model)",
-      desc: "Monthly retainer packages (from IDR 1,500,000/month) for startups, SMEs, and investor governance."
-    },
-    7: {
-      title: "Slide 7: Prototype Notes, Trust, Security & Team Roster",
-      desc: "7-screen prototype scope, legal confidentiality guarantees, suggested next steps, and project credits."
+  // --- PLAN CHECKOUT HELPER ---
+  window.selectPlanAndCheckout = function(planKey) {
+    if (planKey === 'trial') {
+      state.cart = [
+        { id: 'plan-trial', title: '3-Day Free Trial (Platform Access)', price: 0, qty: 1 }
+      ];
+      state.activePlan = 'trial';
+      showToast('🎉 3-Day Free Trial selected! No credit card required.', 'success');
+      goToScreen(6);
+    } else if (planKey === 'chat') {
+      state.cart = [
+        { id: 'plan-chat', title: 'Monthly Legal Chat Plan (1 Month)', price: 150000, qty: 1 }
+      ];
+      state.activePlan = 'chat';
+      showToast('Monthly Legal Chat Plan (IDR 150,000) selected!', 'info');
+      goToScreen(6);
+    } else if (planKey === 'full') {
+      state.cart = [
+        { id: 'plan-full', title: 'Monthly Full Legal Suite (Call + Chat + Templates)', price: 300000, qty: 1 }
+      ];
+      state.activePlan = 'full';
+      showToast('Full Legal Suite (IDR 300,000) selected!', 'success');
+      goToScreen(6);
+    }
+    const simulatorEl = document.getElementById('simulator');
+    if (simulatorEl) {
+      simulatorEl.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
-  window.selectInPageSlide = function(slideIndex) {
-    state.currentSlide = slideIndex || 1;
-    updateInPageSlide();
-    if (window.lucide) window.lucide.createIcons();
+  // --- FAQ ACCORDION TOGGLE ---
+  window.toggleFaq = function(faqId) {
+    const content = document.getElementById('faq-content-' + faqId);
+    const icon = document.getElementById('faq-icon-' + faqId);
+    if (!content) return;
+    const isHidden = content.classList.contains('hidden');
+    document.querySelectorAll('.faq-answer').forEach(el => el.classList.add('hidden'));
+    document.querySelectorAll('.faq-chevron').forEach(el => el.classList.remove('rotate-180'));
+    if (isHidden) {
+      content.classList.remove('hidden');
+      icon?.classList.add('rotate-180');
+    }
   };
-
-  window.stepInPageSlide = function(delta) {
-    let next = state.currentSlide + delta;
-    if (next < 1) next = state.totalSlides;
-    if (next > state.totalSlides) next = 1;
-    state.currentSlide = next;
-    updateInPageSlide();
-    if (window.lucide) window.lucide.createIcons();
-  };
-
-  function updateInPageSlide() {
-    const imgEl = document.getElementById('inpage-slide-img');
-    const badgeEl = document.getElementById('inpage-slide-badge');
-    const titleEl = document.getElementById('inpage-slide-title');
-    const descEl = document.getElementById('inpage-slide-desc');
-
-    const cur = slideDeckData[state.currentSlide] || slideDeckData[1];
-    if (imgEl) imgEl.src = `assets/slides/slide_${state.currentSlide}.png`;
-    if (badgeEl) badgeEl.textContent = `Slide ${state.currentSlide} of ${state.totalSlides}`;
-    if (titleEl) titleEl.textContent = cur.title;
-    if (descEl) descEl.textContent = cur.desc;
-
-    document.querySelectorAll('.inpage-slide-btn').forEach(btn => {
-      const idx = parseInt(btn.getAttribute('data-slide'));
-      if (idx === state.currentSlide) {
-        btn.classList.add('bg-[#0C1E36]', 'text-white', 'shadow-sm');
-        btn.classList.remove('bg-white', 'text-slate-700', 'hover:bg-slate-100');
-      } else {
-        btn.classList.remove('bg-[#0C1E36]', 'text-white', 'shadow-sm');
-        btn.classList.add('bg-white', 'text-slate-700', 'hover:bg-slate-100');
-      }
-    });
-  }
-
-  window.openSlideModal = function(slideIndex) {
-    state.currentSlide = slideIndex || 1;
-    renderSlideModal();
-    updateInPageSlide();
-    const modal = document.getElementById('slide-modal');
-    if (modal) modal.classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-  };
-
-  window.closeSlideModal = function() {
-    const modal = document.getElementById('slide-modal');
-    if (modal) modal.classList.add('hidden');
-    document.body.style.overflow = '';
-  };
-
-  window.changeSlide = function(delta) {
-    let next = state.currentSlide + delta;
-    if (next < 1) next = state.totalSlides;
-    if (next > state.totalSlides) next = 1;
-    state.currentSlide = next;
-    renderSlideModal();
-    updateInPageSlide();
-  };
-
-  function renderSlideModal() {
-    const imgEl = document.getElementById('modal-slide-img');
-    const counterEl = document.getElementById('modal-slide-counter');
-    const titleEl = document.getElementById('modal-slide-title');
-
-    const cur = slideDeckData[state.currentSlide] || slideDeckData[1];
-    if (imgEl) imgEl.src = `assets/slides/slide_${state.currentSlide}.png`;
-    if (counterEl) counterEl.textContent = `Slide ${state.currentSlide} / ${state.totalSlides}`;
-    if (titleEl) titleEl.textContent = cur.title;
-  }
 
   // --- TOAST NOTIFICATIONS ---
   window.showToast = function(message, type = 'info') {
@@ -1437,8 +1386,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Initialize Simulator & In-Page Slide Inspector
+  // Initialize Screen
   renderScreen();
   updateScreenNavButtons();
-  updateInPageSlide();
 });
