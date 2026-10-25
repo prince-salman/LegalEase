@@ -21,54 +21,70 @@
     console.warn('Supabase initialization notice:', err);
   }
 
-  // --- DUAL PRESET ACCOUNTS (2 AKUN PENGGUNA) ---
-  // Akun 1: Klien Baru (Paket Biasa, Benar-benar 0 / Belum Berlangganan)
-  const ACCOUNT_1_SALMAN = {
-    id: 'usr_salman_01',
-    fullName: 'Pratama Salman',
-    initials: 'PS',
-    companyName: 'PT Solusi Maju Bersama',
-    email: 'salman@solusimaju.co.id',
-    phone: '0812-9876-5432',
-    city: 'Jakarta Selatan',
-    plan: 'biasa', // 'biasa' = Paket Biasa (Rp 0 / Belum Berlangganan)
-    planName: 'Paket Biasa (Rp 0)',
-    planDuration: '0 Hari Aktif',
-    isAuthenticated: true,
-    transactions: [] // Benar-benar 0 transaksi awal!
-  };
+  // --- PRODUCTION AUTHENTICATION & MULTI-DEVICE CLOUD REALTIME ---
+  const STORAGE_USERS_KEY = 'legalease_registered_users_v2';
+  const STORAGE_SESSION_KEY = 'legalease_user_session_v2';
+  const STORAGE_KEY = 'legalease_production_state_v7';
 
-  // Akun 2: Klien Korporasi (Full Legal Suite Rp 300.000 / Aktif)
-  const ACCOUNT_2_GELSAY = {
-    id: 'usr_gelsay_02',
-    fullName: 'Gelsay Behrous',
-    initials: 'GB',
-    companyName: 'PT Nusantara Digital Mandiri',
-    email: 'gelsay@nusantaradigital.id',
-    phone: '0811-2345-6789',
+  // Unique Device Identifier for Cross-Device Synchronization
+  const DEVICE_ID = 'dev_' + Math.random().toString(36).substr(2, 9);
+  window.__DEVICE_ID = DEVICE_ID;
+
+  // Official Administrator & Senior Notary Account
+  const ADMIN_ACCOUNT = {
+    id: 'usr_admin_01',
+    fullName: 'Prof. Dr. Hendra Gunawan, S.H., M.Kn.',
+    initials: 'AD',
+    companyName: 'Dewan Notaris & Manajemen LegalEase',
+    email: 'admin@legalease.co.id',
+    phone: '0811-9876-0001',
     city: 'Jakarta Pusat',
-    plan: 'full', // 'full' = Full Legal Suite (Rp 300.000)
-    planName: 'Full Legal Suite (Rp 300.000)',
-    planDuration: 'Aktif s/d 24 Nov 2026',
+    role: 'admin',
+    plan: 'full',
+    planName: 'Notaris Utama / Administrator',
+    planDuration: 'Akses Permanen',
     isAuthenticated: true,
-    transactions: [
-      {
-        id: 'INV-2026-3001',
-        planName: 'Full Legal Suite (1 Bulan)',
-        amount: 300000,
-        method: 'QRIS Real-Time',
-        date: '24 Okt 2026',
-        status: 'PAID'
-      }
-    ]
+    transactions: []
   };
 
-  // --- PERSISTENT STATE ---
-  const STORAGE_KEY = 'legalease_production_state_v6';
+  function getRegisteredUsers() {
+    try {
+      const data = localStorage.getItem(STORAGE_USERS_KEY);
+      return data ? JSON.parse(data) : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function saveRegisteredUsers(users) {
+    try {
+      localStorage.setItem(STORAGE_USERS_KEY, JSON.stringify(users));
+    } catch (e) {}
+  }
+
+  function getSavedSession() {
+    try {
+      const s = localStorage.getItem(STORAGE_SESSION_KEY);
+      return s ? JSON.parse(s) : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function saveSession(user) {
+    try {
+      if (user) {
+        localStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(user));
+      } else {
+        localStorage.removeItem(STORAGE_SESSION_KEY);
+      }
+    } catch (e) {}
+  }
 
   const defaultState = {
-    activeAccountKey: 'salman', // 'salman' or 'gelsay'
-    currentUser: Object.assign({}, ACCOUNT_1_SALMAN),
+    currentUser: getSavedSession(), // null if not logged in
+    adminClientChats: {}, // multi-device client chats received by admin
+    activeAdminChatEmail: null,
     checkoutState: {
       step: 'input', // 'input', 'processing', 'success'
       planId: 'full', // 'trial', 'chat', 'full'
@@ -401,71 +417,136 @@
     }, 4500);
   }
 
-  // --- SYNC NAVBAR WITH ACTIVE USER PROFILE ---
+  // --- DYNAMIC PRODUCTION NAVBAR (GUEST vs CLIENT vs ADMIN) ---
   function syncNavbarUser() {
     const user = state.currentUser;
-    const nameEl = document.getElementById('nav-auth-name');
-    const badgeEl = document.getElementById('nav-auth-badge');
-    const avatarEl = document.getElementById('nav-user-avatar');
-    const avatarMobile = document.getElementById('nav-user-avatar-mobile');
-    const mobileName = document.getElementById('mobile-auth-name');
-    const mobileBadge = document.getElementById('mobile-auth-badge');
+    const desktopContainer = document.getElementById('nav-auth-container');
+    const mobileContainer = document.getElementById('mobile-auth-container');
+    const mobileAvatarBtn = document.getElementById('mobile-user-avatar-btn');
 
-    if (nameEl) nameEl.textContent = user.fullName;
-    if (avatarEl) avatarEl.textContent = user.initials || 'LE';
-    if (avatarMobile) avatarMobile.textContent = user.initials || 'LE';
-    if (mobileName) mobileName.textContent = user.fullName;
+    // 1. GUEST VISITOR (NOT LOGGED IN)
+    if (!user) {
+      if (desktopContainer) {
+        desktopContainer.innerHTML = `
+          <button type="button" onclick="openAuthModal('login')" class="px-3.5 py-1.5 rounded-full text-xs font-bold text-[#0C1E36] hover:bg-slate-100 transition">
+            Masuk
+          </button>
+          <button type="button" onclick="openAuthModal('register')" class="px-4 py-2 rounded-full bg-[#0C1E36] text-amber-300 hover:bg-slate-800 text-xs font-bold transition shadow-xs">
+            Daftar Akun
+          </button>
+        `;
+      }
+      if (mobileContainer) {
+        mobileContainer.innerHTML = `
+          <div class="flex items-center gap-2 p-1">
+            <button type="button" onclick="openAuthModal('login'); toggleMobileMenu();" class="flex-1 py-2 rounded-xl text-center bg-white border border-slate-200 text-xs font-bold text-[#0C1E36]">
+              Masuk
+            </button>
+            <button type="button" onclick="openAuthModal('register'); toggleMobileMenu();" class="flex-1 py-2 rounded-xl text-center bg-[#0C1E36] text-amber-300 text-xs font-bold shadow-xs">
+              Daftar Akun
+            </button>
+          </div>
+        `;
+      }
+      if (mobileAvatarBtn) {
+        mobileAvatarBtn.innerHTML = `
+          <button onclick="openAuthModal('login')" class="p-2 rounded-full border border-slate-300 bg-white text-slate-700" title="Masuk">
+            <i data-lucide="user" class="w-4 h-4"></i>
+          </button>
+        `;
+      }
+      if (window.lucide) window.lucide.createIcons();
+      return;
+    }
 
-    let badgeText = 'Paket Biasa (Rp 0)';
+    // 2. ADMINISTRATOR / NOTARY ACCOUNT
+    if (user.role === 'admin') {
+      if (desktopContainer) {
+        desktopContainer.innerHTML = `
+          <button type="button" onclick="openAdminConsole()" class="px-3.5 py-1.5 rounded-full bg-amber-400 hover:bg-amber-500 text-slate-950 text-xs font-bold transition flex items-center gap-1.5 shadow-xs" title="Buka Konsol Realtime Notaris">
+            <i data-lucide="shield" class="w-3.5 h-3.5"></i>
+            <span>Konsol Notaris</span>
+          </button>
+          <button type="button" onclick="openAuthModal('profile')" class="w-8 h-8 rounded-full bg-[#0C1E36] text-amber-300 font-extrabold text-xs flex items-center justify-center border border-amber-400 shadow-2xs" title="Profil Admin">
+            AD
+          </button>
+        `;
+      }
+      if (mobileContainer) {
+        mobileContainer.innerHTML = `
+          <div class="p-3 bg-amber-50 rounded-2xl border border-amber-200 flex items-center justify-between">
+            <div>
+              <div class="font-bold text-xs text-[#0C1E36] flex items-center gap-1">
+                <span>Notaris Utama (Admin)</span>
+              </div>
+              <div class="text-[10px] text-amber-800 font-mono">admin@legalease.co.id</div>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <button onclick="openAdminConsole(); toggleMobileMenu();" class="px-2.5 py-1 rounded-lg bg-[#0C1E36] text-amber-300 text-[10px] font-bold">Konsol</button>
+              <button onclick="handleUserSignOut()" class="text-xs font-bold text-rose-600">Keluar</button>
+            </div>
+          </div>
+        `;
+      }
+      if (mobileAvatarBtn) {
+        mobileAvatarBtn.innerHTML = `
+          <button onclick="openAdminConsole()" class="p-1.5 rounded-full bg-amber-400 text-slate-950 font-bold text-xs" title="Konsol Notaris">
+            AD
+          </button>
+        `;
+      }
+      if (window.lucide) window.lucide.createIcons();
+      return;
+    }
+
+    // 3. AUTHENTICATED CLIENT ACCOUNT
     let badgeClass = 'text-[9px] text-slate-500 font-semibold';
+    if (user.plan === 'full') badgeClass = 'text-[9px] text-amber-600 font-bold';
+    else if (user.plan === 'chat') badgeClass = 'text-[9px] text-teal-600 font-bold';
 
-    if (user.plan === 'full') {
-      badgeText = 'Full Suite (Aktif • 300k)';
-      badgeClass = 'text-[9px] text-amber-600 font-bold';
-    } else if (user.plan === 'chat') {
-      badgeText = 'Chat Essential (150k)';
-      badgeClass = 'text-[9px] text-teal-600 font-bold';
-    } else if (user.plan === 'trial') {
-      badgeText = 'Free Trial (3 Hari)';
-      badgeClass = 'text-[9px] text-emerald-600 font-bold';
+    if (desktopContainer) {
+      desktopContainer.innerHTML = `
+        <button id="nav-auth-btn" onclick="openAuthModal('profile')" class="px-3 py-1.5 rounded-full bg-white hover:bg-slate-50 text-[#0C1E36] border border-slate-300 text-xs font-bold transition flex items-center gap-2 shadow-2xs">
+          <div class="w-6 h-6 rounded-full bg-[#0C1E36] text-amber-300 text-[10px] font-extrabold flex items-center justify-center">
+            ${user.initials || user.fullName.substring(0, 2).toUpperCase()}
+          </div>
+          <div class="text-left leading-tight hidden md:block max-w-[130px]">
+            <div class="font-bold text-slate-900 text-[11px] truncate">${user.fullName}</div>
+            <div class="${badgeClass} truncate">${user.planName || 'Paket Biasa (Rp 0)'}</div>
+          </div>
+          <i data-lucide="chevron-down" class="w-3 h-3 text-slate-400"></i>
+        </button>
+      `;
     }
 
-    if (badgeEl) {
-      badgeEl.textContent = badgeText;
-      badgeEl.className = badgeClass;
+    if (mobileContainer) {
+      mobileContainer.innerHTML = `
+        <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between">
+          <div class="truncate mr-2">
+            <div class="font-bold text-xs text-slate-900 truncate">${user.fullName}</div>
+            <div class="text-[10px] text-slate-500 font-semibold truncate">${user.companyName || user.email}</div>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <button onclick="openAuthModal('profile')" class="text-xs font-bold text-[#0D7A68]">Profil</button>
+            <span class="text-slate-300">|</span>
+            <button onclick="handleUserSignOut()" class="text-xs font-bold text-rose-600">Keluar</button>
+          </div>
+        </div>
+      `;
     }
-    if (mobileBadge) {
-      mobileBadge.textContent = badgeText;
+
+    if (mobileAvatarBtn) {
+      mobileAvatarBtn.innerHTML = `
+        <button onclick="openAuthModal('profile')" class="p-1.5 rounded-full border border-slate-300 bg-white text-slate-700" title="Akun Klien">
+          <div class="w-6 h-6 rounded-full bg-[#0C1E36] text-amber-300 text-[10px] font-extrabold flex items-center justify-center">
+            ${user.initials || user.fullName.substring(0, 2).toUpperCase()}
+          </div>
+        </button>
+      `;
     }
+
+    if (window.lucide) window.lucide.createIcons();
   }
-
-  // --- 2-ACCOUNT SWITCHER FUNCTION ---
-  window.switchAccount = function (accountKey) {
-    if (accountKey === 'salman') {
-      state.activeAccountKey = 'salman';
-      state.currentUser = Object.assign({}, ACCOUNT_1_SALMAN);
-      state.docFormData.party1Name = ACCOUNT_1_SALMAN.companyName;
-      showToast('Beralih ke Akun 1: Pratama Salman (Paket Biasa Rp 0 / Belum Berlangganan)', 'info');
-    } else if (accountKey === 'gelsay') {
-      state.activeAccountKey = 'gelsay';
-      state.currentUser = Object.assign({}, ACCOUNT_2_GELSAY);
-      state.docFormData.party1Name = ACCOUNT_2_GELSAY.companyName;
-      showToast('Beralih ke Akun 2: Gelsay Behrous (Full Legal Suite Rp 300k / Aktif)', 'success');
-    }
-
-    // Refresh chat greeting for active notary with new user identity
-    const currentNotaryId = state.activeChatNotaryId || 'notary-1';
-    if (!state.chatHistory) state.chatHistory = {};
-    state.chatHistory[currentNotaryId] = generateInitialGreeting(currentNotaryId, state.currentUser);
-
-    const clientPill = document.getElementById('chat-client-pill');
-    if (clientPill) clientPill.textContent = `${state.currentUser.fullName} (${state.currentUser.companyName})`;
-
-    saveState();
-    syncNavbarUser();
-    renderLandingDocPreview();
-    closeAuthModal();
-  };
 
   // --- RENDER NOTARIES DIRECTORY ---
   function renderNotaries() {
@@ -825,16 +906,22 @@
   let checkoutCountdownTimer = null;
 
   window.openCheckoutModal = function (planId) {
+    if (!state.currentUser) {
+      showToast('Silakan masuk atau buat akun perseroan terlebih dahulu untuk memilih paket berlangganan.', 'info');
+      openAuthModal('register');
+      return;
+    }
+
     planId = planId || 'full';
     state.checkoutState.planId = planId;
     state.checkoutState.step = 'input';
     state.checkoutState.countdownSeconds = 899; // 14:59
 
     const user = state.currentUser;
-    state.checkoutState.customerName = user.fullName;
-    state.checkoutState.customerEmail = user.email;
-    state.checkoutState.customerPhone = user.phone || '0812-9876-5432';
-    state.checkoutState.customerCompany = user.companyName;
+    state.checkoutState.customerName = user ? user.fullName : '';
+    state.checkoutState.customerEmail = user ? user.email : '';
+    state.checkoutState.customerPhone = user ? (user.phone || '0812-9876-5432') : '';
+    state.checkoutState.customerCompany = user ? user.companyName : '';
     state.checkoutState.invoiceNo = 'INV/20261025/LE/' + Math.floor(1000 + Math.random() * 9000);
 
     if (planId === 'trial') {
@@ -1118,45 +1205,105 @@
     // Instant verification without any delay (tanpa delay sedikitpun)
     state.checkoutState.step = 'success';
 
-      // Upgrade active user's plan
-      const user = state.currentUser;
-      user.plan = state.checkoutState.planId;
-      if (state.checkoutState.planId === 'full') {
-        user.planName = 'Full Legal Suite (Rp 300.000)';
-        user.planDuration = 'Aktif s/d 30 Hari ke Depan';
-      } else if (state.checkoutState.planId === 'chat') {
-        user.planName = 'Legal Chat Essential (Rp 150.000)';
-        user.planDuration = 'Aktif s/d 30 Hari ke Depan';
-      } else {
-        user.planName = '3-Day Free Trial (Rp 0)';
-        user.planDuration = 'Aktif 3 Hari';
-      }
+    let user = state.currentUser;
+    if (!user) {
+      user = {
+        id: 'usr_' + Date.now().toString(36),
+        fullName: state.checkoutState.customerName || 'Klien LegalEase',
+        initials: 'KL',
+        companyName: state.checkoutState.customerCompany || 'PT Legal Klien',
+        email: state.checkoutState.customerEmail || 'klien@legalease.co.id',
+        phone: state.checkoutState.customerPhone || '0812-3456-7890',
+        city: 'Jakarta',
+        role: 'client',
+        plan: 'biasa',
+        planName: 'Paket Biasa (Rp 0)',
+        planDuration: '0 Hari Aktif',
+        registeredAt: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
+        isAuthenticated: true,
+        transactions: []
+      };
+      state.currentUser = user;
+    }
 
-      // Record transaction
-      user.transactions.unshift({
-        id: state.checkoutState.invoiceNo,
-        planName: state.checkoutState.planName,
-        amount: state.checkoutState.planPrice,
-        method: state.checkoutState.planPrice > 0 ? (state.checkoutState.method === 'qris' ? 'QRIS Real-Time' : 'BCA Virtual Account') : 'Free Trial Activation',
-        date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
-        status: 'PAID'
+    user.plan = state.checkoutState.planId;
+    if (state.checkoutState.planId === 'full') {
+      user.planName = 'Full Legal Suite (Rp 300.000)';
+      user.planDuration = 'Aktif s/d 30 Hari ke Depan';
+    } else if (state.checkoutState.planId === 'chat') {
+      user.planName = 'Legal Chat Essential (Rp 150.000)';
+      user.planDuration = 'Aktif s/d 30 Hari ke Depan';
+    } else {
+      user.planName = '3-Day Free Trial (Rp 0)';
+      user.planDuration = 'Aktif 3 Hari';
+    }
+
+    const txRecord = {
+      id: state.checkoutState.invoiceNo,
+      planName: state.checkoutState.planName,
+      amount: state.checkoutState.planPrice,
+      method: state.checkoutState.planPrice > 0 ? (state.checkoutState.method === 'qris' ? 'QRIS Real-Time' : 'BCA Virtual Account') : 'Free Trial Activation',
+      date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
+      status: 'PAID'
+    };
+
+    if (!user.transactions) user.transactions = [];
+    user.transactions.unshift(txRecord);
+
+    if (state.checkoutState.customerCompany) {
+      user.companyName = state.checkoutState.customerCompany;
+      state.docFormData.party1Name = state.checkoutState.customerCompany;
+    }
+    if (state.checkoutState.customerName) {
+      user.fullName = state.checkoutState.customerName;
+    }
+
+    // Persist to registered users store
+    const users = getRegisteredUsers();
+    const uIdx = users.findIndex(u => u.email.toLowerCase() === user.email.toLowerCase());
+    if (uIdx >= 0) {
+      users[uIdx].plan = user.plan;
+      users[uIdx].planName = user.planName;
+      users[uIdx].planDuration = user.planDuration;
+      users[uIdx].companyName = user.companyName;
+      users[uIdx].fullName = user.fullName;
+      if (!users[uIdx].transactions) users[uIdx].transactions = [];
+      users[uIdx].transactions.unshift(txRecord);
+      saveRegisteredUsers(users);
+    } else {
+      users.push(Object.assign({}, user));
+      saveRegisteredUsers(users);
+    }
+
+    saveSession(user);
+    saveState();
+    syncNavbarUser();
+    renderLandingDocPreview();
+    playSuccessChime();
+    renderCheckoutModal();
+
+    // Broadcast subscription upgrade across all connected devices in real time
+    if (realtimeChannel) {
+      realtimeChannel.send({
+        type: 'broadcast',
+        event: 'sync-user-upgrade',
+        payload: {
+          user: {
+            id: user.id,
+            email: user.email,
+            fullName: user.fullName,
+            companyName: user.companyName,
+            plan: user.plan,
+            planName: user.planName,
+            planDuration: user.planDuration,
+            transaction: txRecord
+          },
+          deviceId: DEVICE_ID
+        }
       });
+    }
 
-      // Update company name if filled
-      if (state.checkoutState.customerCompany) {
-        user.companyName = state.checkoutState.customerCompany;
-        state.docFormData.party1Name = state.checkoutState.customerCompany;
-      }
-      if (state.checkoutState.customerName) {
-        user.fullName = state.checkoutState.customerName;
-      }
-
-      saveState();
-      syncNavbarUser();
-      renderLandingDocPreview();
-      playSuccessChime();
-      renderCheckoutModal();
-      showToast(`Pembayaran berhasil! Paket ${user.planName} aktif untuk ${user.fullName}.`, 'success');
+    showToast(`Pembayaran berhasil! Paket ${user.planName} aktif untuk ${user.fullName}.`, 'success');
   };
 
   window.printOfficialInvoice = function (invId) {
@@ -1319,91 +1466,163 @@
     }
   };
 
-  // --- AUTH MODAL & DUAL PROFILE SWITCHER ---
+  // --- PRODUCTION AUTH MODAL (LOGIN, REGISTER, PROFILE) ---
   window.openAuthModal = function (mode) {
+    mode = mode || (state.currentUser ? 'profile' : 'login');
     const modal = document.getElementById('auth-modal');
     const body = document.getElementById('auth-modal-body');
     if (!modal || !body) return;
 
     const user = state.currentUser;
 
-    body.innerHTML = `
-      <div class="space-y-5 text-xs">
-        
-        <!-- Active User Profile Card -->
-        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200">
-          <div class="flex items-center justify-between mb-3">
-            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Profil Klien Aktif</span>
-            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${user.plan === 'full' ? 'bg-amber-100 text-amber-800' : 'bg-slate-200 text-slate-700'}">
-              ${user.planName}
-            </span>
+    if (mode === 'login') {
+      body.innerHTML = `
+        <div class="space-y-4 text-xs">
+          <div class="text-center pb-2 border-b border-slate-100">
+            <h4 class="font-serif-editorial font-bold text-xl text-[#0C1E36]">Masuk ke Akun Klien</h4>
+            <p class="text-[11px] text-slate-500 mt-0.5">Akses layanan notaris, konsultasi terenkripsi, dan pembuatan dokumen hukum</p>
           </div>
 
-          <div class="flex items-center gap-3">
-            <div class="w-12 h-12 rounded-2xl bg-[#0C1E36] text-amber-300 font-extrabold text-sm flex items-center justify-center">
-              ${user.initials || 'LE'}
+          <form onsubmit="handleUserLoginSubmit(event)" class="space-y-3 pt-1">
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Email Resmi</label>
+              <input type="email" id="auth-login-email" required placeholder="nama@perusahaan.co.id" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 focus:outline-none focus:border-[#0C1E36] focus:bg-white text-xs font-medium">
             </div>
             <div>
-              <div class="font-bold text-sm text-[#0C1E36]">${user.fullName}</div>
-              <div class="text-slate-600 font-medium">${user.companyName}</div>
-              <div class="text-[10px] text-slate-400">${user.email} • ${user.city}</div>
+              <label class="block font-bold text-slate-700 mb-1">Kata Sandi</label>
+              <input type="password" id="auth-login-password" required placeholder="••••••••" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 focus:outline-none focus:border-[#0C1E36] focus:bg-white text-xs font-medium">
+            </div>
+
+            <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-[10px] text-slate-500 flex items-center justify-between">
+              <span>Login Notaris / Admin:</span>
+              <button type="button" onclick="fillAdminCredentials()" class="font-bold text-[#0D7A68] hover:underline">Gunakan Akun Notaris</button>
+            </div>
+
+            <button type="submit" class="w-full py-3 rounded-xl bg-[#0C1E36] hover:bg-slate-800 text-amber-300 font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition">
+              <i data-lucide="log-in" class="w-4 h-4"></i> Masuk Sekarang
+            </button>
+          </form>
+
+          <div class="pt-3 border-t border-slate-100 text-center">
+            <p class="text-slate-600">
+              Belum memiliki akun perusahaan? 
+              <button type="button" onclick="openAuthModal('register')" class="font-bold text-[#0D7A68] hover:underline">Daftar Akun Baru (Gratis)</button>
+            </p>
+          </div>
+        </div>
+      `;
+    } else if (mode === 'register') {
+      body.innerHTML = `
+        <div class="space-y-4 text-xs">
+          <div class="text-center pb-2 border-b border-slate-100">
+            <h4 class="font-serif-editorial font-bold text-xl text-[#0C1E36]">Registrasi Akun Klien Baru</h4>
+            <p class="text-[11px] text-slate-500 mt-0.5">Daftarkan perusahaan Anda untuk konsultasi langsung dengan Notaris berlisensi</p>
+          </div>
+
+          <form onsubmit="handleUserRegisterSubmit(event)" class="space-y-3 pt-1">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block font-bold text-slate-700 mb-1">Nama Lengkap</label>
+                <input type="text" id="reg-name" required placeholder="Budi Santoso" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 focus:outline-none focus:border-[#0C1E36] focus:bg-white text-xs font-medium">
+              </div>
+              <div>
+                <label class="block font-bold text-slate-700 mb-1">Nama Perusahaan / PT</label>
+                <input type="text" id="reg-company" required placeholder="PT Cahaya Mandiri" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 focus:outline-none focus:border-[#0C1E36] focus:bg-white text-xs font-medium">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block font-bold text-slate-700 mb-1">Email Resmi</label>
+                <input type="email" id="reg-email" required placeholder="budi@cahaya.co.id" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 focus:outline-none focus:border-[#0C1E36] focus:bg-white text-xs font-medium">
+              </div>
+              <div>
+                <label class="block font-bold text-slate-700 mb-1">No. WhatsApp / HP</label>
+                <input type="tel" id="reg-phone" required placeholder="0812-3456-7890" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 focus:outline-none focus:border-[#0C1E36] focus:bg-white text-xs font-medium">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block font-bold text-slate-700 mb-1">Kata Sandi</label>
+                <input type="password" id="reg-password" required placeholder="Minimal 6 karakter" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 focus:outline-none focus:border-[#0C1E36] focus:bg-white text-xs font-medium">
+              </div>
+              <div>
+                <label class="block font-bold text-slate-700 mb-1">Kota Kedudukan</label>
+                <input type="text" id="reg-city" placeholder="Jakarta Selatan" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 focus:outline-none focus:border-[#0C1E36] focus:bg-white text-xs font-medium">
+              </div>
+            </div>
+
+            <button type="submit" class="w-full py-3 rounded-xl bg-[#0D7A68] hover:bg-teal-800 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition mt-2">
+              <i data-lucide="user-plus" class="w-4 h-4"></i> Buat Akun Klien Sekarang
+            </button>
+          </form>
+
+          <div class="pt-3 border-t border-slate-100 text-center">
+            <p class="text-slate-600">
+              Sudah memiliki akun terdaftar? 
+              <button type="button" onclick="openAuthModal('login')" class="font-bold text-[#0D7A68] hover:underline">Masuk di sini</button>
+            </p>
+          </div>
+        </div>
+      `;
+    } else {
+      // mode === 'profile'
+      if (!user) {
+        openAuthModal('login');
+        return;
+      }
+
+      body.innerHTML = `
+        <div class="space-y-4 text-xs">
+          <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Profil Pengguna Aktif</span>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${user.role === 'admin' ? 'bg-amber-100 text-amber-900 border border-amber-300' : 'bg-slate-200 text-slate-700'}">
+                ${user.role === 'admin' ? 'Administrator / Notaris' : user.planName}
+              </span>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-2xl bg-[#0C1E36] text-amber-300 font-extrabold text-sm flex items-center justify-center">
+                ${user.initials || user.fullName.substring(0, 2).toUpperCase()}
+              </div>
+              <div class="truncate">
+                <div class="font-bold text-sm text-[#0C1E36] truncate">${user.fullName}</div>
+                <div class="text-slate-600 font-medium truncate">${user.companyName}</div>
+                <div class="text-[10px] text-slate-400 truncate">${user.email} • ${user.phone || '-'}</div>
+              </div>
+            </div>
+
+            <div class="mt-3 pt-3 border-t border-slate-200/80 flex items-center justify-between text-[11px]">
+              <span class="text-slate-500">Status Keanggotaan:</span>
+              <span class="font-bold text-slate-900">${user.planName}</span>
             </div>
           </div>
 
-          <div class="mt-3 pt-3 border-t border-slate-200/80 flex items-center justify-between text-[11px]">
-            <span class="text-slate-500">Status Langganan:</span>
-            <span class="font-bold ${user.plan === 'full' ? 'text-amber-600' : 'text-slate-700'}">
-              ${user.plan === 'full' ? 'Full Legal Suite (Aktif)' : (user.plan === 'chat' ? 'Chat Essential (Aktif)' : 'Paket Biasa (0 / Belum Bayar)')}
-            </span>
+          ${user.role === 'admin' ? `
+            <div class="p-3 bg-amber-50 border border-amber-200 rounded-2xl flex items-center justify-between">
+              <div>
+                <span class="font-bold text-amber-950 block text-xs">Konsol Notaris Real-Time</span>
+                <span class="text-[10px] text-amber-800">Kelola chat klien multi-perangkat dan verifikasi berkas</span>
+              </div>
+              <button onclick="closeAuthModal(); openAdminConsole();" class="px-3.5 py-2 rounded-xl bg-[#0C1E36] text-amber-300 font-bold text-xs">
+                Buka Konsol
+              </button>
+            </div>
+          ` : ''}
+
+          <div class="pt-2 flex items-center gap-2">
+            <button type="button" onclick="handleUserSignOut()" class="flex-1 py-2.5 rounded-xl border border-rose-200 hover:bg-rose-50 text-rose-600 font-bold text-xs flex items-center justify-center gap-1.5 transition">
+              <i data-lucide="log-out" class="w-4 h-4"></i> Keluar dari Akun
+            </button>
+            <button type="button" onclick="closeAuthModal()" class="px-5 py-2.5 rounded-xl bg-[#0C1E36] hover:bg-slate-800 text-white font-bold text-xs transition">
+              Tutup
+            </button>
           </div>
         </div>
-
-        <!-- 2 Accounts Quick Switcher (Permintaan Pengguna) -->
-        <div>
-          <label class="block font-bold text-slate-800 mb-2">Pilih Akun Cepat (Tersedia 2 Akun Pengguna):</label>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            
-            <!-- Akun 1: Salman (Paket Biasa Rp 0) -->
-            <div onclick="switchAccount('salman')" class="p-3.5 rounded-2xl border ${state.activeAccountKey === 'salman' ? 'border-[#0D7A68] bg-teal-50/60 ring-2 ring-[#0D7A68]/20' : 'border-slate-200 bg-white hover:border-slate-300'} cursor-pointer transition shadow-2xs">
-              <div class="flex items-center justify-between mb-1">
-                <span class="text-[10px] font-bold text-slate-500 uppercase">Akun 1 (Default)</span>
-                ${state.activeAccountKey === 'salman' ? '<span class="text-[9px] font-extrabold text-emerald-600">✓ Aktif</span>' : ''}
-              </div>
-              <div class="font-bold text-xs text-[#0C1E36]">Pratama Salman</div>
-              <div class="text-[10px] text-slate-500 truncate">PT Solusi Maju Bersama</div>
-              <div class="mt-2 text-[10px] font-bold text-slate-600 bg-slate-100 py-1 px-2 rounded-md inline-block">
-                Paket Biasa (Rp 0)
-              </div>
-              <p class="text-[9px] text-slate-400 mt-1 leading-tight">Mulai dari 0 untuk simulasi alur pembayaran asli.</p>
-            </div>
-
-            <!-- Akun 2: Gelsay (Full Suite Rp 300k) -->
-            <div onclick="switchAccount('gelsay')" class="p-3.5 rounded-2xl border ${state.activeAccountKey === 'gelsay' ? 'border-[#C29236] bg-amber-50/60 ring-2 ring-[#C29236]/30' : 'border-slate-200 bg-white hover:border-slate-300'} cursor-pointer transition shadow-2xs">
-              <div class="flex items-center justify-between mb-1">
-                <span class="text-[10px] font-bold text-amber-700 uppercase">Akun 2 (Enterprise)</span>
-                ${state.activeAccountKey === 'gelsay' ? '<span class="text-[9px] font-extrabold text-[#C29236]">✓ Aktif</span>' : ''}
-              </div>
-              <div class="font-bold text-xs text-[#0C1E36]">Gelsay Behrous</div>
-              <div class="text-[10px] text-slate-500 truncate">PT Nusantara Digital Mandiri</div>
-              <div class="mt-2 text-[10px] font-bold text-amber-800 bg-amber-100 py-1 px-2 rounded-md inline-block">
-                Full Suite (Rp 300.000)
-              </div>
-              <p class="text-[9px] text-slate-400 mt-1 leading-tight">Sudah lunas dengan riwayat faktur resmi.</p>
-            </div>
-
-          </div>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="pt-2 flex items-center justify-between">
-          <span class="text-[10px] text-slate-400">Sinkronisasi Cloud Aktif</span>
-          <button type="button" onclick="closeAuthModal()" class="px-5 py-2.5 rounded-xl bg-[#0C1E36] hover:bg-slate-800 text-white font-bold text-xs shadow-2xs">
-            Tutup
-          </button>
-        </div>
-
-      </div>
-    `;
+      `;
+    }
 
     modal.classList.remove('hidden');
     if (window.lucide) window.lucide.createIcons();
@@ -1412,6 +1631,139 @@
   window.closeAuthModal = function () {
     const modal = document.getElementById('auth-modal');
     if (modal) modal.classList.add('hidden');
+  };
+
+  window.fillAdminCredentials = function () {
+    const emailInput = document.getElementById('auth-login-email');
+    const passInput = document.getElementById('auth-login-password');
+    if (emailInput) emailInput.value = 'admin@legalease.co.id';
+    if (passInput) passInput.value = 'admin';
+  };
+
+  window.handleUserLoginSubmit = function (e) {
+    if (e && e.preventDefault) e.preventDefault();
+    const email = (document.getElementById('auth-login-email')?.value || '').trim().toLowerCase();
+    const password = (document.getElementById('auth-login-password')?.value || '').trim();
+
+    // Check Admin Login
+    if (email === 'admin@legalease.co.id' || email === 'admin') {
+      if (password === 'admin' || password === 'admin123' || password === 'notaris123') {
+        state.currentUser = Object.assign({}, ADMIN_ACCOUNT);
+        saveSession(state.currentUser);
+        saveState();
+        syncNavbarUser();
+        closeAuthModal();
+        showToast('Berhasil masuk sebagai Notaris Utama (Administrator)!', 'success');
+        return;
+      }
+    }
+
+    // Check Registered Client Login
+    const users = getRegisteredUsers();
+    const found = users.find(u => u.email.toLowerCase() === email);
+    if (found) {
+      if (found.password === password) {
+        state.currentUser = Object.assign({}, found);
+        saveSession(state.currentUser);
+        saveState();
+        syncNavbarUser();
+        closeAuthModal();
+        showToast(`Selamat datang kembali, ${found.fullName}!`, 'success');
+        return;
+      } else {
+        showToast('Kata sandi yang Anda masukkan salah.', 'error');
+        return;
+      }
+    }
+
+    showToast('Akun tidak ditemukan. Silakan periksa email atau buat akun baru.', 'error');
+  };
+
+  window.handleUserRegisterSubmit = function (e) {
+    if (e && e.preventDefault) e.preventDefault();
+    const name = (document.getElementById('reg-name')?.value || '').trim();
+    const company = (document.getElementById('reg-company')?.value || '').trim();
+    const email = (document.getElementById('reg-email')?.value || '').trim().toLowerCase();
+    const phone = (document.getElementById('reg-phone')?.value || '').trim();
+    const password = (document.getElementById('reg-password')?.value || '').trim();
+    const city = (document.getElementById('reg-city')?.value || '').trim() || 'Jakarta Selatan';
+
+    if (!name || !company || !email || !password) {
+      showToast('Mohon lengkapi semua kolom yang wajib diisi.', 'error');
+      return;
+    }
+
+    const users = getRegisteredUsers();
+    if (users.some(u => u.email === email)) {
+      showToast('Email ini sudah terdaftar. Silakan masuk menggunakan kata sandi Anda.', 'error');
+      return;
+    }
+
+    const initials = name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase() || 'KL';
+    const newUser = {
+      id: 'usr_' + Date.now().toString(36),
+      fullName: name,
+      initials: initials,
+      companyName: company,
+      email: email,
+      phone: phone || '0812-3456-7890',
+      password: password,
+      city: city,
+      role: 'client',
+      plan: 'biasa',
+      planName: 'Paket Biasa (Rp 0)',
+      planDuration: '0 Hari Aktif',
+      registeredAt: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
+      isAuthenticated: true,
+      transactions: []
+    };
+
+    users.push(newUser);
+    saveRegisteredUsers(users);
+
+    state.currentUser = Object.assign({}, newUser);
+    state.docFormData.party1Name = company;
+    saveSession(state.currentUser);
+    saveState();
+    syncNavbarUser();
+    closeAuthModal();
+
+    // Broadcast new registration to Realtime channel for cross-device awareness
+    if (realtimeChannel) {
+      realtimeChannel.send({
+        type: 'broadcast',
+        event: 'sync-user-register',
+        payload: {
+          user: {
+            id: newUser.id,
+            fullName: newUser.fullName,
+            initials: newUser.initials,
+            companyName: newUser.companyName,
+            email: newUser.email,
+            phone: newUser.phone,
+            city: newUser.city,
+            role: newUser.role,
+            plan: newUser.plan,
+            planName: newUser.planName,
+            planDuration: newUser.planDuration,
+            registeredAt: newUser.registeredAt,
+            transactions: []
+          },
+          deviceId: DEVICE_ID
+        }
+      });
+    }
+
+    showToast(`Selamat datang ${name}! Akun perseroan ${company} berhasil didaftarkan.`, 'success');
+  };
+
+  window.handleUserSignOut = function () {
+    state.currentUser = null;
+    saveSession(null);
+    saveState();
+    syncNavbarUser();
+    closeAuthModal();
+    showToast('Anda telah keluar dari akun LegalEase.', 'info');
   };
 
   // --- FAQ ACCORDION ---
@@ -1790,6 +2142,42 @@
 
     const container = document.getElementById('chat-messages-stream');
     if (container) container.scrollTop = container.scrollHeight;
+
+    // BROADCAST TO ALL CONNECTED DEVICES VIA SUPABASE REALTIME
+    if (realtimeChannel) {
+      realtimeChannel.send({
+        type: 'broadcast',
+        event: 'client-message',
+        payload: {
+          id: 'msg_usr_' + Date.now(),
+          notaryId: notaryId,
+          sender: 'user',
+          senderName: state.currentUser ? state.currentUser.fullName : 'Klien Tamu',
+          userEmail: state.currentUser ? state.currentUser.email : 'guest@klien.id',
+          userCompany: state.currentUser ? state.currentUser.companyName : 'Perusahaan Klien',
+          text: text,
+          attachment: attachment || null,
+          timestamp: now,
+          deviceId: DEVICE_ID
+        }
+      });
+
+      realtimeChannel.send({
+        type: 'broadcast',
+        event: 'notary-reply',
+        payload: {
+          id: 'msg_not_' + (Date.now() + 1),
+          notaryId: notaryId,
+          sender: 'notary',
+          senderName: notary.name,
+          senderAvatar: notary.avatar,
+          userEmail: state.currentUser ? state.currentUser.email : 'guest@klien.id',
+          text: replyText,
+          timestamp: replyTime,
+          deviceId: DEVICE_ID
+        }
+      });
+    }
   };
 
   window.handleSendChatForm = function (e) {
@@ -1840,8 +2228,441 @@
     showToast('Percakapan telah direset ke salam awal.', 'info');
   };
 
+  
+  // --- CROSS-DEVICE SUPABASE REALTIME INITIALIZATION ---
+  const REALTIME_ROOM = 'legalease-production-consultation';
+  let realtimeChannel = null;
+
+  function initRealtimeChannel() {
+    if (!window.supabase || typeof window.supabase.createClient !== 'function') return;
+    try {
+      if (!supabaseClient) {
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      }
+      realtimeChannel = supabaseClient.channel(REALTIME_ROOM, {
+        config: { broadcast: { self: false } }
+      });
+
+      realtimeChannel.on('broadcast', { event: 'client-message' }, (payload) => {
+        handleIncomingRealtimeMessage(payload.payload);
+      });
+
+      realtimeChannel.on('broadcast', { event: 'notary-reply' }, (payload) => {
+        handleIncomingRealtimeMessage(payload.payload);
+      });
+
+      realtimeChannel.on('broadcast', { event: 'sync-user-register' }, (payload) => {
+        if (payload && payload.payload && payload.payload.user) {
+          const u = payload.payload.user;
+          const users = getRegisteredUsers();
+          const existingIdx = users.findIndex(item => item.email.toLowerCase() === u.email.toLowerCase());
+          const mappedUser = {
+            id: u.id || ('usr_' + Date.now().toString(36)),
+            fullName: u.fullName,
+            initials: u.initials || (u.fullName ? u.fullName.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase() : 'KL'),
+            companyName: u.companyName,
+            email: u.email,
+            phone: u.phone || '-',
+            city: u.city || 'Indonesia',
+            role: u.role || 'client',
+            plan: u.plan || 'biasa',
+            planName: u.planName || 'Paket Biasa (Rp 0)',
+            planDuration: u.planDuration || '0 Hari Aktif',
+            registeredAt: u.registeredAt || new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
+            transactions: u.transactions || []
+          };
+          if (existingIdx >= 0) {
+            users[existingIdx] = Object.assign(users[existingIdx], mappedUser);
+          } else {
+            users.push(mappedUser);
+          }
+          saveRegisteredUsers(users);
+        }
+        if (state.currentUser && state.currentUser.role === 'admin') {
+          showToast(`Klien baru terdaftar: ${payload.payload.user.fullName} (${payload.payload.user.companyName})`, 'info');
+          renderAdminContent();
+        }
+      });
+
+      realtimeChannel.on('broadcast', { event: 'sync-user-upgrade' }, (payload) => {
+        if (payload && payload.payload && payload.payload.user) {
+          const up = payload.payload.user;
+          const users = getRegisteredUsers();
+          const uIdx = users.findIndex(u => u.email.toLowerCase() === up.email.toLowerCase());
+          if (uIdx >= 0) {
+            users[uIdx].plan = up.plan;
+            users[uIdx].planName = up.planName;
+            users[uIdx].planDuration = up.planDuration;
+            if (!users[uIdx].transactions) users[uIdx].transactions = [];
+            if (up.transaction && !users[uIdx].transactions.some(t => t.id === up.transaction.id)) {
+              users[uIdx].transactions.unshift(up.transaction);
+            }
+            saveRegisteredUsers(users);
+          }
+          if (state.currentUser && state.currentUser.role === 'admin') {
+            showToast(`Upgrade Langganan: ${up.fullName} mengaktifkan ${up.planName}`, 'success');
+            renderAdminContent();
+          }
+        }
+      });
+
+      realtimeChannel.subscribe((status) => {
+        console.log('📡 Supabase Realtime Cross-Device Status:', status);
+      });
+    } catch (e) {
+      console.warn('Realtime channel error:', e);
+    }
+  }
+
+  function handleIncomingRealtimeMessage(data) {
+    if (!data) return;
+
+    // Track in Admin thread
+    const email = data.userEmail || 'guest@klien.id';
+    if (!state.adminClientChats[email]) {
+      state.adminClientChats[email] = {
+        clientName: data.senderName || 'Klien',
+        clientCompany: data.userCompany || 'Perusahaan Klien',
+        clientEmail: email,
+        unreadCount: 0,
+        messages: []
+      };
+    }
+
+    // Auto-record client in registered users store if sent by user
+    if (data.sender === 'user' && data.userEmail) {
+      const users = getRegisteredUsers();
+      if (!users.some(item => item.email.toLowerCase() === data.userEmail.toLowerCase())) {
+        users.push({
+          id: 'usr_' + Date.now().toString(36),
+          fullName: data.senderName || 'Klien',
+          initials: (data.senderName || 'KL').split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase(),
+          companyName: data.userCompany || 'Perusahaan Klien',
+          email: data.userEmail,
+          phone: '-',
+          city: 'Indonesia',
+          role: 'client',
+          plan: 'biasa',
+          planName: 'Paket Biasa (Rp 0)',
+          planDuration: '0 Hari Aktif',
+          registeredAt: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
+          transactions: []
+        });
+        saveRegisteredUsers(users);
+      }
+    }
+
+    state.adminClientChats[email].messages.push({
+      id: data.id,
+      sender: data.sender,
+      senderName: data.senderName,
+      senderAvatar: data.senderAvatar,
+      text: data.text,
+      attachment: data.attachment,
+      timestamp: data.timestamp
+    });
+
+    if (data.sender === 'user') {
+      state.adminClientChats[email].unreadCount++;
+    }
+
+    // If active user is client and matches conversation, add to local stream
+    if (state.currentUser && state.currentUser.email === email) {
+      const notId = data.notaryId || state.activeChatNotaryId || 'notary-1';
+      if (!state.chatHistory[notId]) state.chatHistory[notId] = [];
+      state.chatHistory[notId].push({
+        id: data.id,
+        sender: data.sender,
+        senderName: data.senderName,
+        senderAvatar: data.senderAvatar,
+        text: data.text,
+        attachment: data.attachment,
+        timestamp: data.timestamp
+      });
+      renderChatMessages();
+      playMessageNotificationSound();
+    }
+
+    // If Admin Console is currently open, re-render
+    const adminModal = document.getElementById('admin-console-modal');
+    if (adminModal && !adminModal.classList.contains('hidden')) {
+      renderAdminContent();
+      playMessageNotificationSound();
+    }
+  }
+
+  // --- ADMIN CONSOLE CONTROLLER ---
+  let activeAdminTab = 'chats';
+
+  window.openAdminConsole = function () {
+    const modal = document.getElementById('admin-console-modal');
+    if (!modal) return;
+    modal.classList.remove('hidden');
+    renderAdminContent();
+  };
+
+  window.closeAdminConsole = function () {
+    const modal = document.getElementById('admin-console-modal');
+    if (modal) modal.classList.add('hidden');
+  };
+
+  window.switchAdminTab = function (tab) {
+    activeAdminTab = tab;
+    ['chats', 'users', 'transactions'].forEach(t => {
+      const btn = document.getElementById(`tab-btn-admin-${t}`);
+      if (btn) {
+        if (t === tab) {
+          btn.className = 'py-3 px-3 text-xs font-bold border-b-2 border-[#0C1E36] text-[#0C1E36] flex items-center gap-2 transition';
+        } else {
+          btn.className = 'py-3 px-3 text-xs font-bold border-b-2 border-transparent text-slate-600 hover:text-slate-900 flex items-center gap-2 transition';
+        }
+      }
+    });
+    renderAdminContent();
+  };
+
+  function renderAdminContent() {
+    const container = document.getElementById('admin-tab-content');
+    if (!container) return;
+
+    if (activeAdminTab === 'chats') {
+      const clients = Object.values(state.adminClientChats);
+      const activeEmail = state.activeAdminChatEmail || (clients.length > 0 ? clients[0].clientEmail : null);
+      const activeChat = clients.find(c => c.clientEmail === activeEmail) || null;
+
+      container.innerHTML = `
+        <div class="flex-1 flex overflow-hidden">
+          <!-- Left Client Threads List -->
+          <div class="w-72 sm:w-80 border-r border-slate-200 bg-slate-50 flex flex-col shrink-0">
+            <div class="p-3 border-b border-slate-200 flex items-center justify-between">
+              <span class="text-xs font-bold text-slate-800">Sesi Klien Multi-Perangkat</span>
+              <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold">${clients.length} Percakapan</span>
+            </div>
+            <div class="flex-1 overflow-y-auto divide-y divide-slate-200">
+              ${clients.length === 0 ? `
+                <div class="p-6 text-center text-xs text-slate-400">
+                  <i data-lucide="message-square" class="w-8 h-8 text-slate-300 mx-auto mb-2"></i>
+                  Belum ada pesan masuk dari perangkat klien lain.<br>Kirim pesan dari perangkat klien untuk melihat sinkronisasi live.
+                </div>
+              ` : clients.map(c => `
+                <div onclick="selectAdminClientChat('${c.clientEmail}')" class="p-3.5 hover:bg-slate-100 cursor-pointer transition ${c.clientEmail === activeEmail ? 'bg-white border-l-4 border-[#0D7A68] shadow-2xs' : ''}">
+                  <div class="flex items-center justify-between mb-1">
+                    <span class="font-bold text-xs text-[#0C1E36] truncate">${c.clientName}</span>
+                    <span class="text-[9px] text-slate-400 font-mono">${c.messages.length > 0 ? c.messages[c.messages.length - 1].timestamp : ''}</span>
+                  </div>
+                  <div class="text-[10px] text-[#0D7A68] font-semibold truncate mb-1">${c.clientCompany}</div>
+                  <div class="text-[11px] text-slate-500 truncate">${c.messages.length > 0 ? c.messages[c.messages.length - 1].text : 'Belum ada pesan'}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <!-- Right Chat Stream -->
+          <div class="flex-1 flex flex-col bg-white">
+            ${activeChat ? `
+              <div class="p-3.5 px-5 bg-slate-50 border-b border-slate-200 flex items-center justify-between shrink-0">
+                <div>
+                  <h4 class="font-bold text-xs text-[#0C1E36]">${activeChat.clientName}</h4>
+                  <p class="text-[10px] text-slate-500">${activeChat.clientCompany} • ${activeChat.clientEmail}</p>
+                </div>
+                <span class="text-[9px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-mono font-bold flex items-center gap-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Terhubung Live
+                </span>
+              </div>
+
+              <!-- Stream -->
+              <div id="admin-chat-messages" class="flex-1 overflow-y-auto p-4 space-y-3 bg-[#FAF9F5] text-xs">
+                ${activeChat.messages.map(m => `
+                  <div class="flex items-start gap-2.5 ${m.sender === 'notary' ? 'justify-end ml-auto' : ''} max-w-[85%]">
+                    <div class="p-3 rounded-2xl ${m.sender === 'notary' ? 'bg-[#0C1E36] text-white rounded-tr-xs' : 'bg-white border border-slate-200 text-slate-900 rounded-tl-xs shadow-2xs'} space-y-1">
+                      <div class="flex items-center gap-1.5 text-[9px] ${m.sender === 'notary' ? 'text-amber-300' : 'text-slate-400'} font-mono">
+                        <span>${m.senderName}</span> • <span>${m.timestamp}</span>
+                      </div>
+                      ${m.attachment ? `
+                        <div class="p-2 rounded-lg bg-black/10 text-[10px] font-mono flex items-center gap-1.5 mb-1">
+                          <i data-lucide="file" class="w-3.5 h-3.5"></i> ${m.attachment.name}
+                        </div>
+                      ` : ''}
+                      <div>${formatChatMessage(m.text)}</div>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+
+              <!-- Admin Reply Form -->
+              <form onsubmit="handleSendAdminReply(event)" class="p-3 bg-white border-t border-slate-200 flex items-center gap-2 shrink-0">
+                <input type="text" id="admin-reply-input" autocomplete="off" placeholder="Tulis tanggapan notaris resmi ke perangkat klien..." class="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 text-xs focus:outline-none focus:border-[#0C1E36] focus:bg-white font-medium">
+                <button type="submit" class="px-4 py-2.5 rounded-xl bg-[#0D7A68] hover:bg-teal-800 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs">
+                  <i data-lucide="send" class="w-4 h-4"></i> Balas Klien
+                </button>
+              </form>
+            ` : `
+              <div class="flex-1 flex flex-col items-center justify-center text-center p-8 text-slate-400 text-xs">
+                <i data-lucide="messages-square" class="w-12 h-12 text-slate-300 mb-3"></i>
+                <h5 class="font-bold text-slate-700 text-sm mb-1">Pilih Sesi Konsultasi Klien</h5>
+                <p class="max-w-sm">Pilih salah satu percakapan di kolom kiri untuk menelaah dokumen dan menjawab konsultasi klien secara real-time.</p>
+              </div>
+            `}
+          </div>
+        </div>
+      `;
+    } else if (activeAdminTab === 'users') {
+      const users = getRegisteredUsers();
+      container.innerHTML = `
+        <div class="flex-1 overflow-y-auto p-6">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h4 class="font-bold text-sm text-[#0C1E36]">Database Klien Terdaftar</h4>
+              <p class="text-xs text-slate-500">Seluruh pengguna yang membuat akun mandiri di platform</p>
+            </div>
+            <span class="px-3 py-1 rounded-full bg-slate-100 text-slate-700 font-bold text-xs">${users.length} Akun Terdaftar</span>
+          </div>
+
+          <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-2xs">
+            <table class="w-full text-xs text-left">
+              <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase text-[10px] font-bold">
+                <tr>
+                  <th class="p-3.5">Nama Klien</th>
+                  <th class="p-3.5">Perusahaan / PT</th>
+                  <th class="p-3.5">Email & WhatsApp</th>
+                  <th class="p-3.5">Kota</th>
+                  <th class="p-3.5">Paket</th>
+                  <th class="p-3.5">Tgl Daftar</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 text-slate-700">
+                ${users.length === 0 ? `
+                  <tr><td colspan="6" class="p-6 text-center text-slate-400">Belum ada klien mendaftar.</td></tr>
+                ` : users.map(u => `
+                  <tr class="hover:bg-slate-50">
+                    <td class="p-3.5 font-bold text-slate-900">${u.fullName}</td>
+                    <td class="p-3.5 font-semibold text-[#0D7A68]">${u.companyName}</td>
+                    <td class="p-3.5 font-mono text-[11px]">${u.email}<br><span class="text-slate-400">${u.phone || '-'}</span></td>
+                    <td class="p-3.5">${u.city}</td>
+                    <td class="p-3.5"><span class="px-2 py-0.5 rounded-full bg-slate-100 font-bold text-[10px]">${u.planName}</span></td>
+                    <td class="p-3.5 text-slate-400">${u.registeredAt}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    } else if (activeAdminTab === 'transactions') {
+      const users = getRegisteredUsers();
+      const allTx = [];
+      users.forEach(u => {
+        if (u.transactions) {
+          u.transactions.forEach(t => allTx.push(Object.assign({ userName: u.fullName, company: u.companyName }, t)));
+        }
+      });
+
+      container.innerHTML = `
+        <div class="flex-1 overflow-y-auto p-6">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h4 class="font-bold text-sm text-[#0C1E36]">Riwayat Tagihan & Pembayaran</h4>
+              <p class="text-xs text-slate-500">Seluruh transaksi pelunasan paket hukum klien</p>
+            </div>
+            <span class="px-3 py-1 rounded-full bg-slate-100 text-slate-700 font-bold text-xs">${allTx.length} Transaksi</span>
+          </div>
+
+          <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-2xs">
+            <table class="w-full text-xs text-left">
+              <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase text-[10px] font-bold">
+                <tr>
+                  <th class="p-3.5">No. Faktur</th>
+                  <th class="p-3.5">Klien & Perusahaan</th>
+                  <th class="p-3.5">Paket</th>
+                  <th class="p-3.5">Jumlah (IDR)</th>
+                  <th class="p-3.5">Metode</th>
+                  <th class="p-3.5">Status</th>
+                  <th class="p-3.5">Waktu</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 text-slate-700">
+                ${allTx.length === 0 ? `
+                  <tr><td colspan="7" class="p-6 text-center text-slate-400">Belum ada transaksi pembayaran.</td></tr>
+                ` : allTx.map(t => `
+                  <tr class="hover:bg-slate-50">
+                    <td class="p-3.5 font-mono font-bold text-slate-900">${t.id}</td>
+                    <td class="p-3.5 font-semibold">${t.userName}<br><span class="text-[10px] text-slate-400">${t.company}</span></td>
+                    <td class="p-3.5">${t.planName}</td>
+                    <td class="p-3.5 font-bold text-[#0D7A68]">IDR ${Number(t.amount || 0).toLocaleString('id-ID')}</td>
+                    <td class="p-3.5">${t.method}</td>
+                    <td class="p-3.5"><span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px]">LUNAS</span></td>
+                    <td class="p-3.5 text-slate-400">${t.date}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    if (window.lucide) window.lucide.createIcons();
+  }
+
+  window.selectAdminClientChat = function (email) {
+    state.activeAdminChatEmail = email;
+    if (state.adminClientChats[email]) {
+      state.adminClientChats[email].unreadCount = 0;
+    }
+    renderAdminContent();
+    const stream = document.getElementById('admin-chat-messages');
+    if (stream) stream.scrollTop = stream.scrollHeight;
+  };
+
+  window.handleSendAdminReply = function (e) {
+    if (e && e.preventDefault) e.preventDefault();
+    const input = document.getElementById('admin-reply-input');
+    if (!input) return;
+    const text = (input.value || '').trim();
+    if (!text) return;
+    input.value = '';
+
+    const email = state.activeAdminChatEmail;
+    if (!email || !state.adminClientChats[email]) return;
+
+    const now = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB';
+    const notName = 'Dr. Hendra Wijaya, S.H., M.Kn.';
+
+    // Append to admin chat thread
+    state.adminClientChats[email].messages.push({
+      id: 'msg_adm_' + Date.now(),
+      sender: 'notary',
+      senderName: notName,
+      text: text,
+      timestamp: now
+    });
+
+    renderAdminContent();
+
+    // Broadcast reply back to client device via Supabase Realtime
+    if (realtimeChannel) {
+      realtimeChannel.send({
+        type: 'broadcast',
+        event: 'notary-reply',
+        payload: {
+          id: 'msg_adm_' + Date.now(),
+          notaryId: 'notary-1',
+          sender: 'notary',
+          senderName: notName,
+          userEmail: email,
+          text: text,
+          timestamp: now,
+          deviceId: DEVICE_ID
+        }
+      });
+    }
+
+    showToast('Balasan notaris berhasil dikirimkan ke perangkat klien.', 'success');
+  };
+
   document.addEventListener('DOMContentLoaded', () => {
     initMobileMenu();
+    initRealtimeChannel();
     syncNavbarUser();
     renderNotaries();
     renderTemplateTabs();
