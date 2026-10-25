@@ -1,7 +1,7 @@
 /**
  * LegalEase - Official Production Web Application
  * Indonesia's Premier On-Demand Legal & Notary Platform
- * Integrated with Supabase Cloud & Android Mobile Release
+ * Integrated with Supabase Cloud, Dual Client Profiles & Authentic Payment Gateway
  */
 
 (function () {
@@ -21,13 +21,68 @@
     console.warn('Supabase initialization notice:', err);
   }
 
-  // --- STATE MANAGEMENT ---
-  const STORAGE_KEY = 'legalease_production_state_v4';
+  // --- DUAL PRESET ACCOUNTS (2 AKUN PENGGUNA) ---
+  // Akun 1: Klien Baru (Paket Biasa, Benar-benar 0 / Belum Berlangganan)
+  const ACCOUNT_1_SALMAN = {
+    id: 'usr_salman_01',
+    fullName: 'Pratama Salman',
+    initials: 'PS',
+    companyName: 'PT Solusi Maju Bersama',
+    email: 'salman@solusimaju.co.id',
+    phone: '0812-9876-5432',
+    city: 'Jakarta Selatan',
+    plan: 'biasa', // 'biasa' = Paket Biasa (Rp 0 / Belum Berlangganan)
+    planName: 'Paket Biasa (Rp 0)',
+    planDuration: '0 Hari Aktif',
+    isAuthenticated: true,
+    transactions: [] // Benar-benar 0 transaksi awal!
+  };
+
+  // Akun 2: Klien Korporasi (Full Legal Suite Rp 300.000 / Aktif)
+  const ACCOUNT_2_GELSAY = {
+    id: 'usr_gelsay_02',
+    fullName: 'Gelsay Behrous',
+    initials: 'GB',
+    companyName: 'PT Nusantara Digital Mandiri',
+    email: 'gelsay@nusantaradigital.id',
+    phone: '0811-2345-6789',
+    city: 'Jakarta Pusat',
+    plan: 'full', // 'full' = Full Legal Suite (Rp 300.000)
+    planName: 'Full Legal Suite (Rp 300.000)',
+    planDuration: 'Aktif s/d 24 Nov 2026',
+    isAuthenticated: true,
+    transactions: [
+      {
+        id: 'INV-2026-3001',
+        planName: 'Full Legal Suite (1 Bulan)',
+        amount: 300000,
+        method: 'QRIS Real-Time',
+        date: '24 Okt 2026',
+        status: 'PAID'
+      }
+    ]
+  };
+
+  // --- PERSISTENT STATE ---
+  const STORAGE_KEY = 'legalease_production_state_v5';
 
   const defaultState = {
-    activePlan: 'full', // 'trial', 'chat', 'full'
-    checkoutPlan: 'full',
-    checkoutMethod: 'qris', // 'qris' or 'va'
+    activeAccountKey: 'salman', // 'salman' or 'gelsay'
+    currentUser: Object.assign({}, ACCOUNT_1_SALMAN),
+    checkoutState: {
+      step: 'input', // 'input', 'processing', 'success'
+      planId: 'full', // 'trial', 'chat', 'full'
+      planName: 'Full Legal Suite',
+      planPrice: 300000,
+      invoiceNo: 'INV/20261025/LE/8492',
+      method: 'qris', // 'qris', 'va', 'ewallet'
+      selectedVaBank: 'bca',
+      countdownSeconds: 899, // 14:59
+      customerName: 'Pratama Salman',
+      customerEmail: 'salman@solusimaju.co.id',
+      customerPhone: '0812-9876-5432',
+      customerCompany: 'PT Solusi Maju Bersama'
+    },
     activeDocKey: 'pks',
     notarySearchQuery: '',
     notaryCategoryFilter: 'all',
@@ -38,14 +93,6 @@
       contractDate: new Date().toISOString().split('T')[0],
       contractValue: 'Rp 250.000.000'
     },
-    user: {
-      id: 'usr_' + Math.random().toString(36).substr(2, 9),
-      email: 'client@solusimaju.co.id',
-      fullName: 'Pratama Salman',
-      companyName: 'PT Solusi Maju Bersama',
-      city: 'Jakarta Selatan',
-      isAuthenticated: true
-    },
     checklist: [
       { id: 1, text: "Penetapan 3 Opsi Nama PT & Pengecekan AHU Online", completed: true, category: "Persiapan" },
       { id: 2, text: "Penyusunan KBLI 2020 Sesuai Bidang Usaha Perseroan", completed: true, category: "Legalitas" },
@@ -53,8 +100,7 @@
       { id: 4, text: "Penandatanganan Akta Pendirian di Hadapan Notaris Rekanan", completed: false, category: "Notaris" },
       { id: 5, text: "Penerbitan SK Pengesahan Badan Hukum Kemenkumham RI", completed: false, category: "Kemenkumham" },
       { id: 6, text: "Penerbitan NIB & Sertifikat Standar OSS RBA", completed: false, category: "Perizinan" }
-    ],
-    appointments: []
+    ]
   };
 
   let state = defaultState;
@@ -64,7 +110,7 @@
       state = Object.assign({}, defaultState, JSON.parse(saved));
     }
   } catch (e) {
-    console.warn('Failed to load saved state, using default:', e);
+    console.warn('Failed to load state, using default:', e);
   }
 
   function saveState() {
@@ -75,7 +121,7 @@
     }
   }
 
-  // Expose state for automated testing & console inspection
+  // Expose state globally for verification
   window.legalEaseState = state;
   window.getState = () => state;
 
@@ -267,7 +313,43 @@
     }
   };
 
-  // --- TOAST NOTIFICATION UTILITY ---
+  // --- SOUND SYNTHESIZER FOR PAYMENT CHIME ---
+  function playSuccessChime() {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      
+      const now = ctx.currentTime;
+      const osc1 = ctx.createOscillator();
+      const osc2 = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc1.type = 'sine';
+      osc1.frequency.setValueAtTime(523.25, now); // C5
+      osc1.frequency.exponentialRampToValueAtTime(659.25, now + 0.15); // E5
+
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(659.25, now + 0.15); // E5
+      osc2.frequency.exponentialRampToValueAtTime(783.99, now + 0.3); // G5
+
+      gain.gain.setValueAtTime(0.3, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
+
+      osc1.connect(gain);
+      osc2.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc1.start(now);
+      osc1.stop(now + 0.2);
+      osc2.start(now + 0.15);
+      osc2.stop(now + 0.6);
+    } catch (e) {
+      console.log('Audio chime not supported');
+    }
+  }
+
+  // --- TOAST NOTIFICATIONS ---
   function showToast(message, type) {
     type = type || 'success';
     const container = document.getElementById('toast-container');
@@ -316,6 +398,64 @@
       setTimeout(() => toast.remove(), 300);
     }, 4500);
   }
+
+  // --- SYNC NAVBAR WITH ACTIVE USER PROFILE ---
+  function syncNavbarUser() {
+    const user = state.currentUser;
+    const nameEl = document.getElementById('nav-auth-name');
+    const badgeEl = document.getElementById('nav-auth-badge');
+    const avatarEl = document.getElementById('nav-user-avatar');
+    const avatarMobile = document.getElementById('nav-user-avatar-mobile');
+    const mobileName = document.getElementById('mobile-auth-name');
+    const mobileBadge = document.getElementById('mobile-auth-badge');
+
+    if (nameEl) nameEl.textContent = user.fullName;
+    if (avatarEl) avatarEl.textContent = user.initials || 'LE';
+    if (avatarMobile) avatarMobile.textContent = user.initials || 'LE';
+    if (mobileName) mobileName.textContent = user.fullName;
+
+    let badgeText = 'Paket Biasa (Rp 0)';
+    let badgeClass = 'text-[9px] text-slate-500 font-semibold';
+
+    if (user.plan === 'full') {
+      badgeText = 'Full Suite (Aktif • 300k)';
+      badgeClass = 'text-[9px] text-amber-600 font-bold';
+    } else if (user.plan === 'chat') {
+      badgeText = 'Chat Essential (150k)';
+      badgeClass = 'text-[9px] text-teal-600 font-bold';
+    } else if (user.plan === 'trial') {
+      badgeText = 'Free Trial (3 Hari)';
+      badgeClass = 'text-[9px] text-emerald-600 font-bold';
+    }
+
+    if (badgeEl) {
+      badgeEl.textContent = badgeText;
+      badgeEl.className = badgeClass;
+    }
+    if (mobileBadge) {
+      mobileBadge.textContent = badgeText;
+    }
+  }
+
+  // --- 2-ACCOUNT SWITCHER FUNCTION ---
+  window.switchAccount = function (accountKey) {
+    if (accountKey === 'salman') {
+      state.activeAccountKey = 'salman';
+      state.currentUser = Object.assign({}, ACCOUNT_1_SALMAN);
+      state.docFormData.party1Name = ACCOUNT_1_SALMAN.companyName;
+      showToast('Beralih ke Akun 1: Pratama Salman (Paket Biasa Rp 0 / Belum Berlangganan)', 'info');
+    } else if (accountKey === 'gelsay') {
+      state.activeAccountKey = 'gelsay';
+      state.currentUser = Object.assign({}, ACCOUNT_2_GELSAY);
+      state.docFormData.party1Name = ACCOUNT_2_GELSAY.companyName;
+      showToast('Beralih ke Akun 2: Gelsay Behrous (Full Legal Suite Rp 300k / Aktif)', 'success');
+    }
+
+    saveState();
+    syncNavbarUser();
+    renderLandingDocPreview();
+    closeAuthModal();
+  };
 
   // --- RENDER NOTARIES DIRECTORY ---
   function renderNotaries() {
@@ -390,9 +530,9 @@
           <button onclick="openBookingModal('${notary.id}', '${notary.name}')" class="flex-1 py-2.5 rounded-xl bg-[#0C1E36] hover:bg-slate-800 text-amber-300 text-xs font-bold flex items-center justify-center gap-1.5 transition shadow-2xs">
             <i data-lucide="calendar" class="w-3.5 h-3.5"></i> Jadwalkan Janji Temu
           </button>
-          <a href="#pricing" class="px-4 py-2.5 rounded-xl bg-[#0D7A68] hover:bg-teal-800 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition shadow-2xs" title="Mulai Konsultasi">
+          <button onclick="openCheckoutModal('chat')" class="px-4 py-2.5 rounded-xl bg-[#0D7A68] hover:bg-teal-800 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition shadow-2xs" title="Mulai Konsultasi Chat">
             <i data-lucide="message-square" class="w-3.5 h-3.5"></i> Chat
-          </a>
+          </button>
         </div>
       </div>
     `).join('');
@@ -408,7 +548,6 @@
   window.filterNotariesByCategory = function (cat) {
     state.notaryCategoryFilter = cat;
     
-    // Update button styles
     ['all', 'pt', 'haki', 'ppat'].forEach(c => {
       const btn = document.getElementById(`btn-filter-${c}`);
       if (btn) {
@@ -667,110 +806,292 @@
     showToast('Tahapan baru ditambahkan ke roadmap.', 'success');
   };
 
-  // --- CHECKOUT & PAYMENT MODAL ---
+  // --- AUTHENTIC FINTECH CHECKOUT MODAL (MIDTRANS/XENDIT STYLE) ---
+  let checkoutCountdownTimer = null;
+
   window.openCheckoutModal = function (planId) {
-    state.checkoutPlan = planId || 'full';
-    state.checkoutMethod = 'qris';
+    planId = planId || 'full';
+    state.checkoutState.planId = planId;
+    state.checkoutState.step = 'input';
+    state.checkoutState.countdownSeconds = 899; // 14:59
 
-    const modal = document.getElementById('checkout-modal');
-    const nameEl = document.getElementById('checkout-plan-name');
-    const durationEl = document.getElementById('checkout-plan-duration');
-    const priceEl = document.getElementById('checkout-plan-price');
-
-    if (!modal) return;
+    const user = state.currentUser;
+    state.checkoutState.customerName = user.fullName;
+    state.checkoutState.customerEmail = user.email;
+    state.checkoutState.customerPhone = user.phone || '0812-9876-5432';
+    state.checkoutState.customerCompany = user.companyName;
+    state.checkoutState.invoiceNo = 'INV/20261025/LE/' + Math.floor(1000 + Math.random() * 9000);
 
     if (planId === 'trial') {
-      if (nameEl) nameEl.textContent = '3-Day Free Trial';
-      if (durationEl) durationEl.textContent = '3 Hari Akses';
-      if (priceEl) priceEl.textContent = 'IDR 0';
+      state.checkoutState.planName = '3-Day Free Trial';
+      state.checkoutState.planPrice = 0;
     } else if (planId === 'chat') {
-      if (nameEl) nameEl.textContent = 'Legal Chat Essential';
-      if (durationEl) durationEl.textContent = '1 Bulan (30 Hari)';
-      if (priceEl) priceEl.textContent = 'IDR 150,000';
+      state.checkoutState.planName = 'Legal Chat Essential (1 Bulan)';
+      state.checkoutState.planPrice = 150000;
     } else {
-      if (nameEl) nameEl.textContent = 'Full Legal Suite';
-      if (durationEl) durationEl.textContent = '1 Bulan (30 Hari)';
-      if (priceEl) priceEl.textContent = 'IDR 300,000';
+      state.checkoutState.planName = 'Full Legal Suite (1 Bulan)';
+      state.checkoutState.planPrice = 300000;
     }
 
-    renderCheckoutChannel();
-    modal.classList.remove('hidden');
+    renderCheckoutModal();
+
+    const modal = document.getElementById('checkout-modal');
+    if (modal) modal.classList.remove('hidden');
+
+    // Start live countdown
+    if (checkoutCountdownTimer) clearInterval(checkoutCountdownTimer);
+    checkoutCountdownTimer = setInterval(() => {
+      if (state.checkoutState.countdownSeconds > 0) {
+        state.checkoutState.countdownSeconds--;
+        const mins = Math.floor(state.checkoutState.countdownSeconds / 60);
+        const secs = state.checkoutState.countdownSeconds % 60;
+        const timeStr = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        const timerEl = document.getElementById('checkout-timer-badge');
+        if (timerEl) timerEl.textContent = timeStr;
+      }
+    }, 1000);
+
     if (window.lucide) window.lucide.createIcons();
   };
 
   window.closeCheckoutModal = function () {
     const modal = document.getElementById('checkout-modal');
     if (modal) modal.classList.add('hidden');
+    if (checkoutCountdownTimer) clearInterval(checkoutCountdownTimer);
   };
 
-  window.selectCheckoutMethod = function (method) {
-    state.checkoutMethod = method;
-    const btnQris = document.getElementById('chk-btn-qris');
-    const btnVa = document.getElementById('chk-btn-va');
-
-    if (method === 'qris') {
-      if (btnQris) btnQris.className = 'p-3 rounded-xl border border-[#0D7A68] bg-teal-50/60 font-bold text-slate-800 flex items-center gap-2 transition';
-      if (btnVa) btnVa.className = 'p-3 rounded-xl border border-slate-200 bg-white font-bold text-slate-800 flex items-center gap-2 transition';
-    } else {
-      if (btnQris) btnQris.className = 'p-3 rounded-xl border border-slate-200 bg-white font-bold text-slate-800 flex items-center gap-2 transition';
-      if (btnVa) btnVa.className = 'p-3 rounded-xl border border-[#0D7A68] bg-teal-50/60 font-bold text-slate-800 flex items-center gap-2 transition';
-    }
-
-    renderCheckoutChannel();
+  window.selectPaymentChannel = function (channelKey) {
+    state.checkoutState.method = channelKey;
+    renderCheckoutModal();
   };
 
-  function renderCheckoutChannel() {
-    const container = document.getElementById('checkout-channel-details');
+  window.selectVaBank = function (bankKey) {
+    state.checkoutState.selectedVaBank = bankKey;
+    renderCheckoutModal();
+  };
+
+  function renderCheckoutModal() {
+    const container = document.getElementById('checkout-modal-content');
     if (!container) return;
 
-    if (state.checkoutPlan === 'trial') {
+    const chk = state.checkoutState;
+    const mins = Math.floor(chk.countdownSeconds / 60);
+    const secs = chk.countdownSeconds % 60;
+    const timeFormatted = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+
+    if (chk.step === 'input') {
       container.innerHTML = `
-        <div class="py-3">
-          <i data-lucide="sparkles" class="w-8 h-8 text-[#C29236] mx-auto mb-2"></i>
-          <p class="font-bold text-slate-900 text-xs">Aktivasi Instan Tanpa Kartu Kredit</p>
-          <p class="text-[11px] text-slate-500 mt-1">Free Trial 3 hari akan langsung aktif setelah Anda klik tombol konfirmasi.</p>
-        </div>
-      `;
-    } else if (state.checkoutMethod === 'qris') {
-      container.innerHTML = `
-        <div class="flex flex-col items-center">
-          <p class="font-bold text-slate-900 text-xs mb-2">Pindai Kode QRIS Resmi</p>
-          <div class="w-32 h-32 bg-white p-2 rounded-xl border-2 border-slate-900 shadow-sm flex items-center justify-center mb-2">
-            <svg class="w-full h-full" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect width="100" height="100" fill="white"/>
-              <rect x="10" y="10" width="24" height="24" fill="#0C1E36"/>
-              <rect x="14" y="14" width="16" height="16" fill="white"/>
-              <rect x="18" y="18" width="8" height="8" fill="#0C1E36"/>
-              <rect x="66" y="10" width="24" height="24" fill="#0C1E36"/>
-              <rect x="70" y="14" width="16" height="16" fill="white"/>
-              <rect x="74" y="18" width="8" height="8" fill="#0C1E36"/>
-              <rect x="10" y="66" width="24" height="24" fill="#0C1E36"/>
-              <rect x="14" y="70" width="16" height="16" fill="white"/>
-              <rect x="18" y="74" width="8" height="8" fill="#0C1E36"/>
-              <rect x="42" y="14" width="16" height="6" fill="#0C1E36"/>
-              <rect x="42" y="26" width="8" height="12" fill="#0C1E36"/>
-              <rect x="54" y="32" width="10" height="14" fill="#0C1E36"/>
-              <rect x="14" y="42" width="18" height="8" fill="#0C1E36"/>
-              <rect x="42" y="48" width="16" height="16" fill="#C29236"/>
-              <rect x="68" y="48" width="18" height="8" fill="#0C1E36"/>
-              <rect x="42" y="72" width="24" height="8" fill="#0C1E36"/>
-              <rect x="74" y="64" width="12" height="18" fill="#0C1E36"/>
-            </svg>
+        <div class="space-y-5 text-xs">
+          
+          <!-- Order Summary Card -->
+          <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+              <div>
+                <span class="text-[10px] text-slate-500 font-mono block">NOMOR TAGIHAN</span>
+                <span class="font-mono font-bold text-slate-900">${chk.invoiceNo}</span>
+              </div>
+              <div class="text-right">
+                <span class="text-[10px] text-slate-500 block">BATAS PEMBAYARAN</span>
+                <span id="checkout-timer-badge" class="px-2 py-0.5 rounded countdown-badge font-bold text-[11px]">${timeFormatted}</span>
+              </div>
+            </div>
+
+            <div class="pt-3 space-y-1.5 text-xs">
+              <div class="flex items-center justify-between text-slate-600">
+                <span>Paket Layanan:</span>
+                <span class="font-bold text-slate-900">${chk.planName}</span>
+              </div>
+              <div class="flex items-center justify-between text-slate-600">
+                <span>Biaya Transaksi / PPN:</span>
+                <span class="font-semibold text-emerald-700">Rp 0 (Ditanggung LegalEase)</span>
+              </div>
+              <div class="pt-2 border-t border-slate-200 flex items-center justify-between text-sm">
+                <span class="font-bold text-slate-900">Total Pembayaran:</span>
+                <span class="font-bold text-lg text-[#0C1E36]">IDR ${chk.planPrice.toLocaleString('id-ID')}</span>
+              </div>
+            </div>
           </div>
-          <span class="text-[10px] font-mono text-slate-600">NMID: ID1020268491823 • LegalEase PT</span>
-        </div>
-      `;
-    } else {
-      container.innerHTML = `
-        <div class="py-2 text-center">
-          <p class="font-bold text-slate-900 text-xs mb-1">BCA Virtual Account</p>
-          <div class="p-3 bg-slate-50 border border-slate-300 rounded-xl mb-2">
-            <span class="text-[10px] text-slate-500 uppercase font-mono block">Nomor Rekening VA</span>
-            <span class="text-base font-mono font-bold text-[#0C1E36] tracking-wider">8910 2026 8491 8234</span>
+
+          <!-- Customer Data Form -->
+          <div class="p-4 rounded-2xl bg-white border border-slate-200 space-y-3">
+            <span class="block font-bold text-slate-800 text-[11px] uppercase tracking-wider">Data Pembeli / Klien</span>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <div>
+                <label class="block text-[10px] font-bold text-slate-600 mb-1">Nama Lengkap</label>
+                <input type="text" id="chk-input-name" value="${chk.customerName}" oninput="state.checkoutState.customerName = this.value" class="w-full px-3 py-1.5 rounded-xl border border-slate-300 bg-slate-50 text-slate-800 font-semibold focus:outline-none focus:border-[#0C1E36]">
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold text-slate-600 mb-1">Email Resmi</label>
+                <input type="email" id="chk-input-email" value="${chk.customerEmail}" oninput="state.checkoutState.customerEmail = this.value" class="w-full px-3 py-1.5 rounded-xl border border-slate-300 bg-slate-50 text-slate-800 focus:outline-none focus:border-[#0C1E36]">
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold text-slate-600 mb-1">No. WhatsApp</label>
+                <input type="text" id="chk-input-phone" value="${chk.customerPhone}" oninput="state.checkoutState.customerPhone = this.value" class="w-full px-3 py-1.5 rounded-xl border border-slate-300 bg-slate-50 text-slate-800 focus:outline-none focus:border-[#0C1E36]">
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold text-slate-600 mb-1">Nama Perusahaan / PT</label>
+                <input type="text" id="chk-input-company" value="${chk.customerCompany}" oninput="state.checkoutState.customerCompany = this.value" class="w-full px-3 py-1.5 rounded-xl border border-slate-300 bg-slate-50 text-slate-800 focus:outline-none focus:border-[#0C1E36]">
+              </div>
+            </div>
           </div>
-          <button type="button" onclick="navigator.clipboard.writeText('8910202684918234'); alert('Nomor VA disalin!')" class="text-xs font-bold text-[#0D7A68] hover:underline">
-            Salin Nomor Rekening
+
+          <!-- Payment Channels Selector -->
+          ${chk.planPrice > 0 ? `
+            <div>
+              <label class="block font-bold text-slate-800 mb-2">Metode Pembayaran Resmi</label>
+              <div class="grid grid-cols-3 gap-2 mb-3">
+                <button type="button" onclick="selectPaymentChannel('qris')" class="p-3 rounded-2xl border text-center transition ${chk.method === 'qris' ? 'border-[#0D7A68] bg-teal-50/70 text-[#0D7A68] font-bold ring-1 ring-[#0D7A68]' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'}">
+                  <span class="block text-xs font-bold">QRIS</span>
+                  <span class="text-[9px] text-slate-500 block">Semua Bank & E-Wallet</span>
+                </button>
+                <button type="button" onclick="selectPaymentChannel('va')" class="p-3 rounded-2xl border text-center transition ${chk.method === 'va' ? 'border-[#0D7A68] bg-teal-50/70 text-[#0D7A68] font-bold ring-1 ring-[#0D7A68]' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'}">
+                  <span class="block text-xs font-bold">Virtual Account</span>
+                  <span class="text-[9px] text-slate-500 block">BCA, Mandiri, BNI, BRI</span>
+                </button>
+                <button type="button" onclick="selectPaymentChannel('ewallet')" class="p-3 rounded-2xl border text-center transition ${chk.method === 'ewallet' ? 'border-[#0D7A68] bg-teal-50/70 text-[#0D7A68] font-bold ring-1 ring-[#0D7A68]' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'}">
+                  <span class="block text-xs font-bold">E-Wallet Direct</span>
+                  <span class="text-[9px] text-slate-500 block">GoPay, OVO, DANA</span>
+                </button>
+              </div>
+
+              <!-- Channel Detail Display -->
+              <div class="p-4 rounded-2xl bg-white border border-slate-200">
+                ${chk.method === 'qris' ? `
+                  <div class="flex flex-col items-center text-center">
+                    <span class="font-bold text-slate-900 text-xs mb-1">Scan QRIS Real-Time</span>
+                    <p class="text-[10px] text-slate-500 mb-3">Dukungan: BCA Mobile, Livin Mandiri, GoPay, OVO, ShopeePay, DANA</p>
+                    <div class="w-36 h-36 bg-white p-2 rounded-2xl border-2 border-slate-900 shadow-sm flex items-center justify-center mb-2">
+                      <svg class="w-full h-full" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="100" height="100" fill="white"/>
+                        <rect x="10" y="10" width="24" height="24" fill="#0C1E36"/>
+                        <rect x="14" y="14" width="16" height="16" fill="white"/>
+                        <rect x="18" y="18" width="8" height="8" fill="#0C1E36"/>
+                        <rect x="66" y="10" width="24" height="24" fill="#0C1E36"/>
+                        <rect x="70" y="14" width="16" height="16" fill="white"/>
+                        <rect x="74" y="18" width="8" height="8" fill="#0C1E36"/>
+                        <rect x="10" y="66" width="24" height="24" fill="#0C1E36"/>
+                        <rect x="14" y="70" width="16" height="16" fill="white"/>
+                        <rect x="18" y="74" width="8" height="8" fill="#0C1E36"/>
+                        <rect x="42" y="14" width="16" height="6" fill="#0C1E36"/>
+                        <rect x="42" y="26" width="8" height="12" fill="#0C1E36"/>
+                        <rect x="54" y="32" width="10" height="14" fill="#0C1E36"/>
+                        <rect x="14" y="42" width="18" height="8" fill="#0C1E36"/>
+                        <rect x="42" y="48" width="16" height="16" fill="#C29236"/>
+                        <rect x="68" y="48" width="18" height="8" fill="#0C1E36"/>
+                        <rect x="42" y="72" width="24" height="8" fill="#0C1E36"/>
+                        <rect x="74" y="64" width="12" height="18" fill="#0C1E36"/>
+                      </svg>
+                    </div>
+                    <span class="text-[10px] font-mono text-slate-600 font-bold">NMID: ID1020268491823 • LegalEase Indonesia</span>
+                  </div>
+                ` : (chk.method === 'va' ? `
+                  <div class="space-y-3">
+                    <div class="flex items-center gap-1.5">
+                      <button type="button" onclick="selectVaBank('bca')" class="px-3 py-1 rounded-lg text-xs font-bold ${chk.selectedVaBank === 'bca' ? 'bg-[#0C1E36] text-amber-300' : 'bg-slate-100 text-slate-700'}">BCA</button>
+                      <button type="button" onclick="selectVaBank('mandiri')" class="px-3 py-1 rounded-lg text-xs font-bold ${chk.selectedVaBank === 'mandiri' ? 'bg-[#0C1E36] text-amber-300' : 'bg-slate-100 text-slate-700'}">Mandiri</button>
+                      <button type="button" onclick="selectVaBank('bni')" class="px-3 py-1 rounded-lg text-xs font-bold ${chk.selectedVaBank === 'bni' ? 'bg-[#0C1E36] text-amber-300' : 'bg-slate-100 text-slate-700'}">BNI</button>
+                      <button type="button" onclick="selectVaBank('bri')" class="px-3 py-1 rounded-lg text-xs font-bold ${chk.selectedVaBank === 'bri' ? 'bg-[#0C1E36] text-amber-300' : 'bg-slate-100 text-slate-700'}">BRI</button>
+                    </div>
+                    <div class="p-3 bg-slate-50 border border-slate-300 rounded-xl flex items-center justify-between">
+                      <div>
+                        <span class="text-[10px] text-slate-500 uppercase font-mono block">Nomor Virtual Account ${chk.selectedVaBank.toUpperCase()}</span>
+                        <span class="text-base font-mono font-bold text-[#0C1E36] tracking-wider">${chk.selectedVaBank === 'bca' ? '8910 0812 3456 7890' : (chk.selectedVaBank === 'mandiri' ? '8870 0812 3456 7890' : '8277 0812 3456 7890')}</span>
+                      </div>
+                      <button type="button" onclick="navigator.clipboard.writeText('8910081234567890'); alert('Nomor VA disalin!')" class="px-3 py-1.5 rounded-lg bg-white border border-slate-300 hover:bg-slate-100 font-bold text-[#0D7A68] text-xs">
+                        Salin
+                      </button>
+                    </div>
+                    <p class="text-[10px] text-slate-500">Dapat dibayar melalui ATM, m-Banking, atau Internet Banking 24 jam.</p>
+                  </div>
+                ` : `
+                  <div class="space-y-2 text-center py-2">
+                    <span class="font-bold text-slate-900 text-xs">Push Notification E-Wallet</span>
+                    <p class="text-[10px] text-slate-500">Notifikasi otorisasi pembayaran instan akan dikirimkan ke aplikasi GoPay / OVO / DANA di nomor HP: <strong>${chk.customerPhone}</strong>.</p>
+                  </div>
+                `)}
+              </div>
+            </div>
+          ` : `
+            <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-center">
+              <i data-lucide="sparkles" class="w-8 h-8 text-emerald-600 mx-auto mb-1"></i>
+              <h4 class="font-bold text-emerald-950 text-xs">Aktivasi 3-Day Free Trial Instan</h4>
+              <p class="text-[11px] text-emerald-800 mt-0.5">Nikmati akses konsultasi chat Notaris & pelacak pendirian PT tanpa biaya sepeser pun.</p>
+            </div>
+          `}
+
+          <!-- Pay Button -->
+          <button type="button" onclick="startPaymentSimulationProcess()" class="w-full py-4 rounded-2xl bg-[#0D7A68] hover:bg-teal-800 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition">
+            <i data-lucide="shield-check" class="w-4 h-4"></i>
+            <span>${chk.planPrice > 0 ? `Bayar Sekarang — IDR ${chk.planPrice.toLocaleString('id-ID')}` : 'Konfirmasi & Aktifkan Free Trial (IDR 0)'}</span>
           </button>
+          
+          <p class="text-[10px] text-center text-slate-400">
+            Faktur pajak dan bukti pembayaran resmi elektronik diterbitkan secara instan setelah pembayaran terverifikasi.
+          </p>
+        </div>
+      `;
+    } else if (chk.step === 'processing') {
+      container.innerHTML = `
+        <div class="py-12 px-4 text-center space-y-4">
+          <div class="w-16 h-16 rounded-full border-4 border-[#0D7A68]/20 border-t-[#0D7A68] animate-spin mx-auto"></div>
+          <div>
+            <h3 id="checkout-proc-title" class="font-bold text-sm text-[#0C1E36]">Menghubungkan ke Gateway Pembayaran Bank...</h3>
+            <p id="checkout-proc-sub" class="text-xs text-slate-500 mt-1">Mohon tunggu, transaksi sedang diverifikasi secara real-time melalui sistem Bank Indonesia.</p>
+          </div>
+          <div class="max-w-xs mx-auto bg-slate-100 h-1.5 rounded-full overflow-hidden">
+            <div class="bg-[#0D7A68] h-full rounded-full animate-pulse" style="width: 75%"></div>
+          </div>
+        </div>
+      `;
+    } else if (chk.step === 'success') {
+      container.innerHTML = `
+        <div class="py-6 px-2 text-center space-y-5 animate-checkmark">
+          <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-sm">
+            <i data-lucide="check" class="w-8 h-8 stroke-[3]"></i>
+          </div>
+
+          <div>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-100 px-3 py-0.5 rounded-full">
+              LUNAS • TERVERIFIKASI
+            </span>
+            <h3 class="font-serif-editorial font-bold text-xl text-[#0C1E36] mt-2">
+              Pembayaran Berhasil!
+            </h3>
+            <p class="text-xs text-slate-600 mt-1">
+              Paket <strong>${chk.planName}</strong> telah aktif pada akun Anda.
+            </p>
+          </div>
+
+          <!-- Digital Receipt Box -->
+          <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-left space-y-2 text-xs">
+            <div class="flex items-center justify-between">
+              <span class="text-slate-500">Nomor Transaksi:</span>
+              <span class="font-mono font-bold text-slate-900">${chk.invoiceNo}</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-slate-500">Waktu Bayar:</span>
+              <span class="font-semibold text-slate-800">${new Date().toLocaleString('id-ID')}</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-slate-500">Metode Bayar:</span>
+              <span class="font-semibold text-slate-800">${chk.planPrice > 0 ? (chk.method === 'qris' ? 'QRIS Real-Time' : 'Virtual Account') : 'Aktivasi Free Trial'}</span>
+            </div>
+            <div class="flex items-center justify-between pt-2 border-t border-slate-200 font-bold text-sm">
+              <span class="text-[#0C1E36]">Total Dibayar:</span>
+              <span class="text-[#0D7A68]">IDR ${chk.planPrice.toLocaleString('id-ID')}</span>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="pt-2 flex flex-col sm:flex-row items-center gap-2">
+            <button type="button" onclick="printOfficialInvoice('${chk.invoiceNo}')" class="w-full sm:flex-1 py-3 rounded-full bg-white border border-slate-300 hover:bg-slate-50 text-slate-800 font-bold text-xs flex items-center justify-center gap-2 shadow-2xs">
+              <i data-lucide="printer" class="w-4 h-4"></i> Cetak Faktur Resmi (PDF)
+            </button>
+            <button type="button" onclick="closeCheckoutModal()" class="w-full sm:flex-1 py-3 rounded-full bg-[#0C1E36] hover:bg-slate-800 text-amber-300 font-bold text-xs flex items-center justify-center gap-2 shadow-sm">
+              <span>Mulai Gunakan Layanan</span>
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
+          </div>
         </div>
       `;
     }
@@ -778,97 +1099,163 @@
     if (window.lucide) window.lucide.createIcons();
   }
 
-  window.handleExecutePayment = function () {
-    const planName = state.checkoutPlan === 'full' ? 'Full Legal Suite (Rp 300.000)' : (state.checkoutPlan === 'chat' ? 'Legal Chat Essential (Rp 150.000)' : '3-Day Free Trial (Rp 0)');
-    const invId = 'INV-2026-' + Math.floor(1000 + Math.random() * 9000);
-    const amount = state.checkoutPlan === 'full' ? 300000 : (state.checkoutPlan === 'chat' ? 150000 : 0);
+  window.startPaymentSimulationProcess = function () {
+    state.checkoutState.step = 'processing';
+    renderCheckoutModal();
 
-    closeCheckoutModal();
-    showToast(`Pembayaran berhasil! Paket ${planName} telah aktif untuk akun Anda.`, 'success');
+    setTimeout(() => {
+      const titleEl = document.getElementById('checkout-proc-title');
+      const subEl = document.getElementById('checkout-proc-sub');
+      if (titleEl) titleEl.textContent = 'Menerima verifikasi webhook dari Bank Indonesia...';
+      if (subEl) subEl.textContent = 'Otorisasi pembayaran berhasil diterima oleh gateway LegalEase.';
+    }, 1200);
 
-    // Generate Printable Paid Invoice
+    setTimeout(() => {
+      // Payment Successful!
+      state.checkoutState.step = 'success';
+
+      // Upgrade active user's plan
+      const user = state.currentUser;
+      user.plan = state.checkoutState.planId;
+      if (state.checkoutState.planId === 'full') {
+        user.planName = 'Full Legal Suite (Rp 300.000)';
+        user.planDuration = 'Aktif s/d 30 Hari ke Depan';
+      } else if (state.checkoutState.planId === 'chat') {
+        user.planName = 'Legal Chat Essential (Rp 150.000)';
+        user.planDuration = 'Aktif s/d 30 Hari ke Depan';
+      } else {
+        user.planName = '3-Day Free Trial (Rp 0)';
+        user.planDuration = 'Aktif 3 Hari';
+      }
+
+      // Record transaction
+      user.transactions.unshift({
+        id: state.checkoutState.invoiceNo,
+        planName: state.checkoutState.planName,
+        amount: state.checkoutState.planPrice,
+        method: state.checkoutState.planPrice > 0 ? (state.checkoutState.method === 'qris' ? 'QRIS Real-Time' : 'BCA Virtual Account') : 'Free Trial Activation',
+        date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
+        status: 'PAID'
+      });
+
+      // Update company name if filled
+      if (state.checkoutState.customerCompany) {
+        user.companyName = state.checkoutState.customerCompany;
+        state.docFormData.party1Name = state.checkoutState.customerCompany;
+      }
+      if (state.checkoutState.customerName) {
+        user.fullName = state.checkoutState.customerName;
+      }
+
+      saveState();
+      syncNavbarUser();
+      renderLandingDocPreview();
+      playSuccessChime();
+      renderCheckoutModal();
+      showToast(`Pembayaran berhasil! Paket ${user.planName} aktif untuk ${user.fullName}.`, 'success');
+    }, 2400);
+  };
+
+  window.printOfficialInvoice = function (invId) {
+    const user = state.currentUser;
+    const inv = user.transactions.find(t => t.id === invId) || {
+      id: invId || 'INV-2026-8492',
+      planName: state.checkoutState.planName,
+      amount: state.checkoutState.planPrice,
+      method: state.checkoutState.method === 'qris' ? 'QRIS Real-Time' : 'Virtual Account Bank',
+      date: new Date().toLocaleDateString('id-ID')
+    };
+
     const printWindow = window.open('', '_blank');
-    if (printWindow) {
-      printWindow.document.write(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <title>Faktur Pembayaran Resmi - ${invId}</title>
-          <style>
-            body { font-family: 'Helvetica Neue', Arial, sans-serif; padding: 40px; color: #1e293b; }
-            .header { display: flex; justify-content: space-between; border-bottom: 2px solid #0C1E36; padding-bottom: 20px; margin-bottom: 30px; }
-            .logo { font-size: 24px; font-weight: bold; color: #0C1E36; }
-            .meta { text-align: right; font-size: 12px; color: #64748b; }
-            .table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-            .table th { background: #f1f5f9; text-align: left; padding: 12px; font-size: 12px; border-bottom: 1px solid #cbd5e1; }
-            .table td { padding: 12px; font-size: 13px; border-bottom: 1px solid #e2e8f0; }
-            .total { font-size: 16px; font-weight: bold; color: #0C1E36; text-align: right; margin-top: 20px; }
-            .badge { display: inline-block; padding: 4px 12px; background: #dcfce7; color: #166534; font-weight: bold; border-radius: 9999px; font-size: 11px; }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <div>
-              <div class="logo">LegalEase Indonesia</div>
-              <div style="font-size: 11px; color: #64748b; margin-top: 4px;">PT LegalEase Solusi Digital Indonesia</div>
-              <div style="font-size: 11px; color: #64748b;">Kemenkumham & OSS RBA Certified Platform</div>
-            </div>
-            <div class="meta">
-              <h2 style="margin: 0; color: #0C1E36;">FAKTUR PEMBAYARAN RESMI</h2>
-              <div style="font-family: monospace; font-size: 14px; font-weight: bold; margin-top: 4px;">${invId}</div>
-              <div style="margin-top: 4px;">Tanggal: ${new Date().toLocaleDateString('id-ID')}</div>
-              <div style="margin-top: 2px;"><span class="badge">LUNAS / BERHASIL</span></div>
-            </div>
-          </div>
-
-          <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 24px;">
-            <div>
-              <strong>Diterbitkan Kepada:</strong><br>
-              ${state.user.companyName}<br>
-              Attn: ${state.user.fullName}<br>
-              ${state.user.city}, Indonesia
-            </div>
-            <div style="text-align: right;">
-              <strong>Kanal Pembayaran:</strong><br>
-              ${state.checkoutMethod === 'qris' ? 'QRIS Real-Time' : 'BCA Virtual Account'}<br>
-              Status: Terverifikasi Sistem Otomatis
-            </div>
-          </div>
-
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Deskripsi Layanan Hukum</th>
-                <th>Durasi</th>
-                <th>Status Akses</th>
-                <th style="text-align: right;">Total Tagihan</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><strong>${planName}</strong></td>
-                <td>${state.checkoutPlan === 'trial' ? '3 Hari' : '1 Bulan Penuh'}</td>
-                <td>Aktif Seketika</td>
-                <td style="text-align: right; font-weight: bold;">Rp ${amount.toLocaleString('id-ID')}</td>
-              </tr>
-            </tbody>
-          </table>
-
-          <div class="total">
-            Total Dibayar: Rp ${amount.toLocaleString('id-ID')}
-          </div>
-
-          <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; font-size: 11px; color: #64748b; text-align: center;">
-            Faktur ini sah dan diterbitkan secara elektronik oleh LegalEase Indonesia. Terkoneksi dengan Ikatan Notaris Indonesia (INI).
-          </div>
-          <script>
-            window.onload = function() { window.print(); }
-          </script>
-        </body>
-        </html>
-      `);
-      printWindow.document.close();
+    if (!printWindow) {
+      alert('Izinkan jendela pop-up untuk mencetak faktur.');
+      return;
     }
+
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Faktur Pembayaran Resmi - ${inv.id}</title>
+        <style>
+          body { font-family: 'Helvetica Neue', Arial, sans-serif; padding: 40px; color: #1e293b; line-height: 1.5; }
+          .header { display: flex; justify-content: space-between; border-bottom: 2px solid #0C1E36; padding-bottom: 20px; margin-bottom: 25px; }
+          .logo { font-size: 24px; font-weight: bold; color: #0C1E36; }
+          .meta { text-align: right; font-size: 12px; color: #64748b; }
+          .table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+          .table th { background: #f8fafc; text-align: left; padding: 12px; font-size: 12px; border-bottom: 2px solid #cbd5e1; }
+          .table td { padding: 12px; font-size: 13px; border-bottom: 1px solid #e2e8f0; }
+          .total { font-size: 16px; font-weight: bold; color: #0C1E36; text-align: right; margin-top: 20px; }
+          .badge { display: inline-block; padding: 4px 12px; background: #dcfce7; color: #166534; font-weight: bold; border-radius: 9999px; font-size: 11px; }
+          .seal-stamp { border: 2px dashed #0D7A68; color: #0D7A68; padding: 8px 16px; display: inline-block; font-weight: bold; font-size: 11px; border-radius: 8px; margin-top: 20px; }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <div>
+            <div class="logo">LegalEase Indonesia</div>
+            <div style="font-size: 11px; color: #64748b; margin-top: 4px;">PT LegalEase Solusi Digital Indonesia</div>
+            <div style="font-size: 11px; color: #64748b;">Kemenkumham & OSS RBA Certified Legal Platform</div>
+          </div>
+          <div class="meta">
+            <h2 style="margin: 0; color: #0C1E36; font-size: 18px;">FAKTUR PEMBAYARAN RESMI</h2>
+            <div style="font-family: monospace; font-size: 14px; font-weight: bold; margin-top: 4px;">${inv.id}</div>
+            <div style="margin-top: 4px;">Tanggal: ${inv.date}</div>
+            <div style="margin-top: 4px;"><span class="badge">LUNAS / VERIFIED</span></div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 20px;">
+          <div>
+            <strong>Diterbitkan Kepada:</strong><br>
+            ${user.companyName}<br>
+            Attn: ${user.fullName}<br>
+            ${user.city}, Indonesia
+          </div>
+          <div style="text-align: right;">
+            <strong>Kanal Pembayaran:</strong><br>
+            ${inv.method}<br>
+            Status: Terverifikasi Sistem Bank Indonesia
+          </div>
+        </div>
+
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Deskripsi Layanan Hukum</th>
+              <th>Masa Berlaku</th>
+              <th>Status Akses</th>
+              <th style="text-align: right;">Total Tagihan</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>${inv.planName}</strong></td>
+              <td>1 Bulan Penuh</td>
+              <td>Aktif Seketika</td>
+              <td style="text-align: right; font-weight: bold;">Rp ${inv.amount.toLocaleString('id-ID')}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="total">
+          Total Dibayar: Rp ${inv.amount.toLocaleString('id-ID')}
+        </div>
+
+        <div class="seal-stamp">
+          VERIFIKASI DIGITAL KEMENKUMHAM & NOTARIS RESMI
+        </div>
+
+        <div style="margin-top: 35px; padding-top: 15px; border-top: 1px solid #e2e8f0; font-size: 11px; color: #64748b; text-align: center;">
+          Faktur elektronik ini sah dan diterbitkan secara resmi oleh LegalEase Indonesia. Terkoneksi dengan Ikatan Notaris Indonesia (INI).
+        </div>
+        <script>
+          window.onload = function() { window.print(); }
+        </script>
+      </body>
+      </html>
+    `);
+    printWindow.document.close();
   };
 
   // --- BOOKING MODAL ---
@@ -903,7 +1290,7 @@
     const time = document.getElementById('booking-time')?.value || '';
 
     closeBookingModal();
-    showToast(`Janji temu resmi dengan ${notary.name} berhasil dijadwalkan pada ${date} pukul ${time}. Konfirmasi telah dikirimkan ke email Anda.`, 'success');
+    showToast(`Janji temu resmi dengan ${notary.name} berhasil dijadwalkan pada ${date} pukul ${time}. Konfirmasi telah dikirimkan ke WhatsApp & Email Anda.`, 'success');
   };
 
   // --- APK GUIDE MODAL & SHA CHECKSUM ---
@@ -929,62 +1316,91 @@
     }
   };
 
-  // --- SUPABASE AUTH MODAL ---
+  // --- AUTH MODAL & DUAL PROFILE SWITCHER ---
   window.openAuthModal = function (mode) {
-    mode = mode || 'login';
     const modal = document.getElementById('auth-modal');
     const body = document.getElementById('auth-modal-body');
     if (!modal || !body) return;
 
-    if (mode === 'login') {
-      body.innerHTML = `
-        <form onsubmit="handleUserSignIn(event)" class="space-y-4 text-xs">
-          <div>
-            <label class="block font-bold text-slate-700 mb-1">Email Klien / Perusahaan</label>
-            <input type="email" id="auth-email" required value="${state.user.email}" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-slate-800 focus:outline-none focus:border-[#0C1E36]">
+    const user = state.currentUser;
+
+    body.innerHTML = `
+      <div class="space-y-5 text-xs">
+        
+        <!-- Active User Profile Card -->
+        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Profil Klien Aktif</span>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${user.plan === 'full' ? 'bg-amber-100 text-amber-800' : 'bg-slate-200 text-slate-700'}">
+              ${user.planName}
+            </span>
           </div>
-          <div>
-            <label class="block font-bold text-slate-700 mb-1">Kata Sandi (Password)</label>
-            <input type="password" id="auth-password" required placeholder="Minimal 6 karakter" value="password123" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-slate-800 focus:outline-none focus:border-[#0C1E36]">
+
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-2xl bg-[#0C1E36] text-amber-300 font-extrabold text-sm flex items-center justify-center">
+              ${user.initials || 'LE'}
+            </div>
+            <div>
+              <div class="font-bold text-sm text-[#0C1E36]">${user.fullName}</div>
+              <div class="text-slate-600 font-medium">${user.companyName}</div>
+              <div class="text-[10px] text-slate-400">${user.email} • ${user.city}</div>
+            </div>
           </div>
-          <button type="submit" class="w-full py-3 rounded-full bg-[#0C1E36] hover:bg-slate-800 text-amber-300 font-bold text-xs shadow-sm transition">
-            Masuk ke Layanan LegalEase
+
+          <div class="mt-3 pt-3 border-t border-slate-200/80 flex items-center justify-between text-[11px]">
+            <span class="text-slate-500">Status Langganan:</span>
+            <span class="font-bold ${user.plan === 'full' ? 'text-amber-600' : 'text-slate-700'}">
+              ${user.plan === 'full' ? 'Full Legal Suite (Aktif)' : (user.plan === 'chat' ? 'Chat Essential (Aktif)' : 'Paket Biasa (0 / Belum Bayar)')}
+            </span>
+          </div>
+        </div>
+
+        <!-- 2 Accounts Quick Switcher (Permintaan Pengguna) -->
+        <div>
+          <label class="block font-bold text-slate-800 mb-2">Pilih Akun Cepat (Tersedia 2 Akun Pengguna):</label>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            
+            <!-- Akun 1: Salman (Paket Biasa Rp 0) -->
+            <div onclick="switchAccount('salman')" class="p-3.5 rounded-2xl border ${state.activeAccountKey === 'salman' ? 'border-[#0D7A68] bg-teal-50/60 ring-2 ring-[#0D7A68]/20' : 'border-slate-200 bg-white hover:border-slate-300'} cursor-pointer transition shadow-2xs">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-[10px] font-bold text-slate-500 uppercase">Akun 1 (Default)</span>
+                ${state.activeAccountKey === 'salman' ? '<span class="text-[9px] font-extrabold text-emerald-600">✓ Aktif</span>' : ''}
+              </div>
+              <div class="font-bold text-xs text-[#0C1E36]">Pratama Salman</div>
+              <div class="text-[10px] text-slate-500 truncate">PT Solusi Maju Bersama</div>
+              <div class="mt-2 text-[10px] font-bold text-slate-600 bg-slate-100 py-1 px-2 rounded-md inline-block">
+                Paket Biasa (Rp 0)
+              </div>
+              <p class="text-[9px] text-slate-400 mt-1 leading-tight">Mulai dari 0 untuk simulasi alur pembayaran asli.</p>
+            </div>
+
+            <!-- Akun 2: Gelsay (Full Suite Rp 300k) -->
+            <div onclick="switchAccount('gelsay')" class="p-3.5 rounded-2xl border ${state.activeAccountKey === 'gelsay' ? 'border-[#C29236] bg-amber-50/60 ring-2 ring-[#C29236]/30' : 'border-slate-200 bg-white hover:border-slate-300'} cursor-pointer transition shadow-2xs">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-[10px] font-bold text-amber-700 uppercase">Akun 2 (Enterprise)</span>
+                ${state.activeAccountKey === 'gelsay' ? '<span class="text-[9px] font-extrabold text-[#C29236]">✓ Aktif</span>' : ''}
+              </div>
+              <div class="font-bold text-xs text-[#0C1E36]">Gelsay Behrous</div>
+              <div class="text-[10px] text-slate-500 truncate">PT Nusantara Digital Mandiri</div>
+              <div class="mt-2 text-[10px] font-bold text-amber-800 bg-amber-100 py-1 px-2 rounded-md inline-block">
+                Full Suite (Rp 300.000)
+              </div>
+              <p class="text-[9px] text-slate-400 mt-1 leading-tight">Sudah lunas dengan riwayat faktur resmi.</p>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="pt-2 flex items-center justify-between">
+          <span class="text-[10px] text-slate-400">Sinkronisasi Cloud Aktif</span>
+          <button type="button" onclick="closeAuthModal()" class="px-5 py-2.5 rounded-xl bg-[#0C1E36] hover:bg-slate-800 text-white font-bold text-xs shadow-2xs">
+            Tutup
           </button>
-          <div class="text-center pt-2">
-            <span class="text-slate-500">Belum memiliki akun klien? </span>
-            <button type="button" onclick="openAuthModal('register')" class="font-bold text-[#0D7A68] hover:underline">Daftar Akun Baru</button>
-          </div>
-        </form>
-      `;
-    } else {
-      body.innerHTML = `
-        <form onsubmit="handleUserSignUp(event)" class="space-y-3 text-xs">
-          <div>
-            <label class="block font-bold text-slate-700 mb-1">Nama Lengkap Penanggung Jawab</label>
-            <input type="text" id="reg-name" required placeholder="Contoh: Pratama Salman" value="${state.user.fullName}" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 bg-slate-50 text-slate-800 focus:outline-none focus:border-[#0C1E36]">
-          </div>
-          <div>
-            <label class="block font-bold text-slate-700 mb-1">Nama Perusahaan / Calon PT</label>
-            <input type="text" id="reg-company" required placeholder="Contoh: PT Solusi Maju Bersama" value="${state.user.companyName}" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 bg-slate-50 text-slate-800 focus:outline-none focus:border-[#0C1E36]">
-          </div>
-          <div>
-            <label class="block font-bold text-slate-700 mb-1">Email Resmi</label>
-            <input type="email" id="reg-email" required placeholder="client@perusahaan.co.id" value="${state.user.email}" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 bg-slate-50 text-slate-800 focus:outline-none focus:border-[#0C1E36]">
-          </div>
-          <div>
-            <label class="block font-bold text-slate-700 mb-1">Kata Sandi</label>
-            <input type="password" id="reg-password" required placeholder="Minimal 6 karakter" value="password123" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 bg-slate-50 text-slate-800 focus:outline-none focus:border-[#0C1E36]">
-          </div>
-          <button type="submit" class="w-full py-3 rounded-full bg-[#0D7A68] hover:bg-teal-800 text-white font-bold text-xs shadow-sm transition">
-            Daftar & Hubungkan ke Supabase Cloud
-          </button>
-          <div class="text-center pt-2">
-            <span class="text-slate-500">Sudah terdaftar? </span>
-            <button type="button" onclick="openAuthModal('login')" class="font-bold text-[#0C1E36] hover:underline">Masuk di Sini</button>
-          </div>
-        </form>
-      `;
-    }
+        </div>
+
+      </div>
+    `;
 
     modal.classList.remove('hidden');
     if (window.lucide) window.lucide.createIcons();
@@ -993,42 +1409,6 @@
   window.closeAuthModal = function () {
     const modal = document.getElementById('auth-modal');
     if (modal) modal.classList.add('hidden');
-  };
-
-  window.handleUserSignIn = function (e) {
-    e.preventDefault();
-    const email = document.getElementById('auth-email')?.value || '';
-    state.user.email = email;
-    state.user.isAuthenticated = true;
-    saveState();
-    closeAuthModal();
-
-    const navAuthLabel = document.getElementById('nav-auth-label');
-    if (navAuthLabel) navAuthLabel.textContent = email.split('@')[0];
-
-    showToast(`Berhasil masuk sebagai ${email}. Terhubung ke Supabase Cloud.`, 'success');
-  };
-
-  window.handleUserSignUp = function (e) {
-    e.preventDefault();
-    const name = document.getElementById('reg-name')?.value || '';
-    const company = document.getElementById('reg-company')?.value || '';
-    const email = document.getElementById('reg-email')?.value || '';
-
-    state.user.fullName = name;
-    state.user.companyName = company;
-    state.user.email = email;
-    state.user.isAuthenticated = true;
-    state.docFormData.party1Name = company;
-
-    saveState();
-    closeAuthModal();
-
-    const navAuthLabel = document.getElementById('nav-auth-label');
-    if (navAuthLabel) navAuthLabel.textContent = name.split(' ')[0];
-
-    renderLandingDocPreview();
-    showToast(`Akun perseroan ${company} berhasil didaftarkan.`, 'success');
   };
 
   // --- FAQ ACCORDION ---
@@ -1072,6 +1452,7 @@
   // --- INITIALIZATION ---
   document.addEventListener('DOMContentLoaded', () => {
     initMobileMenu();
+    syncNavbarUser();
     renderNotaries();
     renderTemplateTabs();
     renderLandingDocPreview();
