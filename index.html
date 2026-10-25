@@ -80,6 +80,11 @@
 
       <!-- Right Action Buttons (Download APK + User Profile / Switcher) -->
       <div class="hidden sm:flex items-center gap-2.5">
+        <button onclick="openLiveChat()" class="px-3.5 py-2 rounded-full bg-[#0D7A68]/10 hover:bg-[#0D7A68]/20 text-[#0D7A68] border border-[#0D7A68]/30 text-xs font-bold transition flex items-center gap-1.5 shadow-2xs" title="Konsultasi Chat Notaris Online">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <i data-lucide="message-square" class="w-3.5 h-3.5"></i>
+          <span>Chat Notaris</span>
+        </button>
         <a href="assets/LegalEase-v2.4.1.apk" download="LegalEase-v2.4.1.apk" class="px-4 py-2 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition flex items-center gap-2 shadow-sm hover:shadow">
           <i data-lucide="smartphone" class="w-4 h-4"></i>
           <span>Download APK</span>
@@ -129,6 +134,10 @@
       <a href="#faq" class="block py-2 text-sm text-slate-700 hover:text-[#0C1E36] font-medium border-b border-slate-100">FAQ & Kepatuhan UUJN</a>
       <a href="#team" class="block py-2 text-sm text-slate-700 hover:text-[#0C1E36] font-medium">Dewan Eksekutif</a>
       <div class="pt-3 flex flex-col gap-2">
+        <button onclick="openLiveChat(); toggleMobileMenu();" class="w-full py-2.5 rounded-full bg-[#0D7A68] text-white text-xs font-bold flex items-center justify-center gap-2 shadow-xs">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <i data-lucide="message-square" class="w-4 h-4"></i> Konsultasi Chat Notaris Online
+        </button>
         <a href="assets/LegalEase-v2.4.1.apk" download="LegalEase-v2.4.1.apk" class="w-full py-2.5 rounded-full bg-emerald-600 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-xs">
           <i data-lucide="download" class="w-4 h-4"></i> Download File APK (18.8 MB)
         </a>
@@ -727,8 +736,11 @@
             </ul>
           </div>
 
-          <div class="mt-8 pt-6 border-t border-slate-200">
-            <button onclick="openCheckoutModal('chat')" class="w-full py-3 rounded-full bg-[#0D7A68] hover:bg-teal-800 text-white text-xs font-bold transition shadow-xs">
+          <div class="mt-8 pt-6 border-t border-slate-200 flex flex-col gap-2">
+            <button onclick="openLiveChat()" class="w-full py-3 rounded-full bg-[#0D7A68] hover:bg-teal-800 text-white text-xs font-bold transition shadow-xs flex items-center justify-center gap-2">
+              <i data-lucide="message-square" class="w-4 h-4"></i> Mulai Konsultasi Chat Notaris
+            </button>
+            <button onclick="openCheckoutModal('chat')" class="w-full py-2.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition text-center">
               Berlangganan Paket Chat (Rp 150.000)
             </button>
           </div>
@@ -1417,6 +1429,161 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- FLOATING LIVE CHAT CONSULTATION TRIGGER                                   -->
+  <!-- ========================================================================= -->
+  <div id="floating-chat-widget" class="fixed bottom-6 right-6 z-40 no-print">
+    <button onclick="toggleLiveChat()" class="chat-pulse-btn px-4 py-3 rounded-full bg-[#0C1E36] hover:bg-slate-900 text-white shadow-2xl border-2 border-emerald-500/50 hover:border-emerald-400 flex items-center gap-3 transition-all transform hover:scale-105 group" title="Buka Konsultasi Chat Notaris">
+      <div class="relative">
+        <div class="w-8 h-8 rounded-full bg-[#0D7A68] flex items-center justify-center text-white">
+          <i data-lucide="message-square" class="w-4 h-4"></i>
+        </div>
+        <span class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-400 rounded-full border-2 border-[#0C1E36] animate-pulse"></span>
+      </div>
+      <div class="text-left hidden sm:block">
+        <div class="flex items-center gap-1.5">
+          <span class="text-xs font-bold text-white">Konsultasi Chat Notaris</span>
+          <span class="text-[9px] px-1.5 py-0.2 bg-emerald-500/20 text-emerald-400 rounded-full font-mono font-bold">ONLINE</span>
+        </div>
+        <p class="text-[10px] text-slate-300">Respon hukum cepat & resmi</p>
+      </div>
+      <span id="floating-chat-badge" class="w-5 h-5 rounded-full bg-amber-400 text-slate-950 font-bold text-[10px] flex items-center justify-center shrink-0">1</span>
+    </button>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL 6: INTERACTIVE LIVE CHAT CONSULTATION DIALOGUE                      -->
+  <!-- ========================================================================= -->
+  <div id="live-chat-modal" class="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-[450px] h-[640px] max-h-[calc(100vh-2.5rem)] bg-white rounded-3xl chat-drawer-shadow border border-slate-300 flex flex-col overflow-hidden hidden transition-all duration-300 no-print">
+    
+    <!-- Top Header: Active Notary Profile & Status -->
+    <div class="p-4 bg-[#0C1E36] text-white flex items-center justify-between border-b border-white/10 shrink-0">
+      <div class="flex items-center gap-3">
+        <div class="relative">
+          <img id="chat-notary-avatar" src="assets/team/team_1.jpeg" alt="Notaris" class="w-10 h-10 rounded-full object-cover border-2 border-emerald-400">
+          <span class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-400 rounded-full border-2 border-[#0C1E36]"></span>
+        </div>
+        <div class="leading-tight">
+          <div class="flex items-center gap-1.5">
+            <h4 id="chat-notary-name" class="font-bold text-xs text-white">Dr. Hendra Wijaya, S.H., M.Kn.</h4>
+            <span class="text-[9px] text-emerald-300 bg-emerald-950/60 px-1.5 py-0.2 rounded font-mono font-semibold">SK AHU-0019284</span>
+          </div>
+          <p id="chat-notary-title" class="text-[10px] text-slate-300 mt-0.5">Notaris & PPAT • Online Siap Menjawab</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-1">
+        <!-- Notary Dropdown Switcher -->
+        <div class="relative">
+          <select id="chat-notary-select" onchange="switchChatNotary(this.value)" class="bg-white/10 hover:bg-white/20 text-amber-300 text-[10px] font-bold px-2 py-1.5 rounded-xl border border-white/10 focus:outline-none cursor-pointer">
+            <option value="notary-1" class="text-slate-900">Dr. Hendra Wijaya (PT/PMA)</option>
+            <option value="notary-2" class="text-slate-900">Kartika Permatasari (HAKI/Merek)</option>
+            <option value="notary-3" class="text-slate-900">Bagus Pratama Putra (PPAT/Sewa)</option>
+            <option value="notary-4" class="text-slate-900">Nadia Kusumawardhani (SHA/Startup)</option>
+          </select>
+        </div>
+
+        <!-- Video Call Appointment Button -->
+        <button onclick="openBookingFromChat()" class="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white transition" title="Jadwalkan Tatap Muka / Video Call">
+          <i data-lucide="video" class="w-4 h-4"></i>
+        </button>
+
+        <!-- Close / Minimize Button -->
+        <button onclick="closeLiveChat()" class="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white transition" title="Tutup Chat">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Security & User Trust Bar -->
+    <div class="px-4 py-1.5 bg-[#FAF8F5] border-b border-slate-200 flex items-center justify-between text-[10px] text-slate-600 shrink-0">
+      <div class="flex items-center gap-1.5">
+        <i data-lucide="lock" class="w-3 h-3 text-emerald-600"></i>
+        <span>Enkripsi 256-bit • Rahasia Jabatan Notaris (UUJN No. 2/2014)</span>
+      </div>
+      <div id="chat-client-pill" class="font-bold text-[#0C1E36] font-mono truncate max-w-[150px]">
+        Pratama Salman
+      </div>
+    </div>
+
+    <!-- Chat Messages Scroll Container -->
+    <div id="chat-messages-stream" class="flex-1 overflow-y-auto p-4 space-y-3 bg-[#FAF9F5] text-xs">
+      <!-- Dynamically rendered messages -->
+    </div>
+
+    <!-- Typing Indicator (Hidden by default) -->
+    <div id="chat-typing-indicator" class="hidden px-4 py-2 bg-[#FAF9F5] flex items-center gap-2 text-[11px] text-slate-500 shrink-0">
+      <img id="chat-typing-avatar" src="assets/team/team_1.jpeg" class="w-5 h-5 rounded-full object-cover">
+      <span id="chat-typing-label">Dr. Hendra Wijaya sedang mengetik telaah hukum...</span>
+      <div class="inline-flex gap-1 ml-1">
+        <span class="typing-dot"></span>
+        <span class="typing-dot"></span>
+        <span class="typing-dot"></span>
+      </div>
+    </div>
+
+    <!-- Quick Consultation Suggestion Pills -->
+    <div class="px-3 py-2 bg-white border-t border-slate-100 flex items-center gap-1.5 overflow-x-auto no-scrollbar shrink-0">
+      <button type="button" onclick="sendQuickPrompt('Bagaimana syarat dan modal pendirian PT sesuai UU Cipta Kerja?')" class="px-2.5 py-1 rounded-full bg-slate-100 hover:bg-teal-50 text-[10px] font-semibold text-slate-700 hover:text-[#0D7A68] hover:border-[#0D7A68]/30 border border-slate-200 whitespace-nowrap transition">
+        💼 Syarat & Modal PT
+      </button>
+      <button type="button" onclick="sendQuickPrompt('Bagaimana aturan uang kompensasi PKWT sesuai PP 35/2021?')" class="px-2.5 py-1 rounded-full bg-slate-100 hover:bg-teal-50 text-[10px] font-semibold text-slate-700 hover:text-[#0D7A68] hover:border-[#0D7A68]/30 border border-slate-200 whitespace-nowrap transition">
+        📜 Kompensasi PKWT
+      </button>
+      <button type="button" onclick="sendQuickPrompt('Bagaimana prosedur pendaftaran merek dagang HAKI di DJKI?')" class="px-2.5 py-1 rounded-full bg-slate-100 hover:bg-teal-50 text-[10px] font-semibold text-slate-700 hover:text-[#0D7A68] hover:border-[#0D7A68]/30 border border-slate-200 whitespace-nowrap transition">
+        ™️ Daftar Merek HAKI
+      </button>
+      <button type="button" onclick="sendQuickPrompt('Apakah klausul kerahasiaan NDA mengikat dan ada denda wanprestasi?')" class="px-2.5 py-1 rounded-full bg-slate-100 hover:bg-teal-50 text-[10px] font-semibold text-slate-700 hover:text-[#0D7A68] hover:border-[#0D7A68]/30 border border-slate-200 whitespace-nowrap transition">
+        🔒 Klausul NDA
+      </button>
+      <button type="button" onclick="sendQuickPrompt('Berapa rincian tarif akta notaris dan PNBP Kemenkumham?')" class="px-2.5 py-1 rounded-full bg-slate-100 hover:bg-teal-50 text-[10px] font-semibold text-slate-700 hover:text-[#0D7A68] hover:border-[#0D7A68]/30 border border-slate-200 whitespace-nowrap transition">
+        ⚖️ Biaya & Tarif Akta
+      </button>
+    </div>
+
+    <!-- Chat Input Form & Attachment Action -->
+    <div class="p-3 bg-white border-t border-slate-200 shrink-0">
+      
+      <!-- Attachment Quick Bar (Hidden by default, toggled by paperclip) -->
+      <div id="chat-attachment-bar" class="hidden mb-2 p-2 bg-slate-50 border border-slate-200 rounded-2xl flex items-center justify-between text-[11px]">
+        <div class="flex items-center gap-2 overflow-x-auto py-0.5">
+          <button type="button" onclick="document.getElementById('chat-file-input').click()" class="px-2.5 py-1 rounded-xl bg-white border border-slate-300 font-bold text-slate-700 hover:border-[#0D7A68] flex items-center gap-1 shrink-0">
+            <i data-lucide="upload" class="w-3 h-3 text-[#0D7A68]"></i> Unggah Berkas
+          </button>
+          <button type="button" onclick="attachLegalSampleDoc('Draft_Akta_Pendirian_PT.pdf', '248 KB')" class="px-2 py-1 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 font-semibold shrink-0">
+            + Akta PT (.pdf)
+          </button>
+          <button type="button" onclick="attachLegalSampleDoc('Draf_Perjanjian_Kerjasama_PKS.docx', '185 KB')" class="px-2 py-1 rounded-xl bg-teal-50 text-teal-800 border border-teal-200 font-semibold shrink-0">
+            + Draf PKS (.docx)
+          </button>
+          <button type="button" onclick="attachLegalSampleDoc('Format_Kontrak_PKWT_Karyawan.docx', '142 KB')" class="px-2 py-1 rounded-xl bg-amber-50 text-amber-800 border border-amber-200 font-semibold shrink-0">
+            + Format PKWT (.docx)
+          </button>
+        </div>
+        <button type="button" onclick="toggleChatAttachmentBar()" class="p-1 text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-3.5 h-3.5"></i>
+        </button>
+      </div>
+
+      <input type="file" id="chat-file-input" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg" onchange="handleChatFileUpload(event)" class="hidden">
+
+      <form onsubmit="handleSendChatForm(event)" class="flex items-center gap-2">
+        <button type="button" onclick="toggleChatAttachmentBar()" class="p-2 rounded-xl border border-slate-300 hover:border-[#0D7A68] bg-slate-50 text-slate-600 hover:text-[#0D7A68] transition shrink-0" title="Lampirkan Dokumen Kontrak">
+          <i data-lucide="paperclip" class="w-4 h-4"></i>
+        </button>
+        <input type="text" id="chat-input-text" autocomplete="off" placeholder="Tanya hukum atau draf akta..." class="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 placeholder:text-slate-400 text-xs focus:outline-none focus:border-[#0D7A68] focus:bg-white transition font-medium">
+        <button type="submit" id="chat-send-btn" class="px-3.5 py-2.5 rounded-xl bg-[#0D7A68] hover:bg-teal-800 text-white font-bold transition flex items-center justify-center shrink-0 shadow-xs" title="Kirim Pesan">
+          <i data-lucide="send" class="w-4 h-4"></i>
+        </button>
+      </form>
+      <div class="flex items-center justify-between mt-1 px-1 text-[9px] text-slate-400">
+        <span>Tekan Enter untuk kirim pesan</span>
+        <button type="button" onclick="clearCurrentChatHistory()" class="hover:text-slate-600 underline">Bersihkan Percakapan</button>
+      </div>
+    </div>
+
   </div>
 
   <!-- Production Application Script -->

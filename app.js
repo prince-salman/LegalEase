@@ -64,7 +64,7 @@
   };
 
   // --- PERSISTENT STATE ---
-  const STORAGE_KEY = 'legalease_production_state_v5';
+  const STORAGE_KEY = 'legalease_production_state_v6';
 
   const defaultState = {
     activeAccountKey: 'salman', // 'salman' or 'gelsay'
@@ -83,6 +83,8 @@
       customerPhone: '0812-9876-5432',
       customerCompany: 'PT Solusi Maju Bersama'
     },
+    activeChatNotaryId: 'notary-1',
+    chatHistory: {},
     activeDocKey: 'pks',
     notarySearchQuery: '',
     notaryCategoryFilter: 'all',
@@ -451,6 +453,14 @@
       showToast('Beralih ke Akun 2: Gelsay Behrous (Full Legal Suite Rp 300k / Aktif)', 'success');
     }
 
+    // Refresh chat greeting for active notary with new user identity
+    const currentNotaryId = state.activeChatNotaryId || 'notary-1';
+    if (!state.chatHistory) state.chatHistory = {};
+    state.chatHistory[currentNotaryId] = generateInitialGreeting(currentNotaryId, state.currentUser);
+
+    const clientPill = document.getElementById('chat-client-pill');
+    if (clientPill) clientPill.textContent = `${state.currentUser.fullName} (${state.currentUser.companyName})`;
+
     saveState();
     syncNavbarUser();
     renderLandingDocPreview();
@@ -530,7 +540,7 @@
           <button onclick="openBookingModal('${notary.id}', '${notary.name}')" class="flex-1 py-2.5 rounded-xl bg-[#0C1E36] hover:bg-slate-800 text-amber-300 text-xs font-bold flex items-center justify-center gap-1.5 transition shadow-2xs">
             <i data-lucide="calendar" class="w-3.5 h-3.5"></i> Jadwalkan Janji Temu
           </button>
-          <button onclick="openCheckoutModal('chat')" class="px-4 py-2.5 rounded-xl bg-[#0D7A68] hover:bg-teal-800 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition shadow-2xs" title="Mulai Konsultasi Chat">
+          <button onclick="openLiveChat('${notary.id}')" class="px-4 py-2.5 rounded-xl bg-[#0D7A68] hover:bg-teal-800 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition shadow-2xs" title="Mulai Konsultasi Chat">
             <i data-lucide="message-square" class="w-3.5 h-3.5"></i> Chat
           </button>
         </div>
@@ -787,6 +797,11 @@
     item.completed = !item.completed;
     saveState();
     renderChecklist();
+    if (!state.chatHistory || Object.keys(state.chatHistory).length === 0) {
+      state.chatHistory = {
+        'notary-1': generateInitialGreeting('notary-1', state.currentUser)
+      };
+    }
     showToast(`Tahapan "${item.text.slice(0, 25)}..." diperbarui.`, 'success');
   };
 
@@ -1450,6 +1465,408 @@
   }
 
   // --- INITIALIZATION ---
+  
+  // --- SOUND SYNTHESIZER FOR LIVE CHAT MESSAGE NOTIFICATION ---
+  function playMessageNotificationSound() {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(587.33, now); // D5
+      osc.frequency.setValueAtTime(880.00, now + 0.08); // A5
+
+      gain.gain.setValueAtTime(0.08, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.35);
+    } catch (e) {
+      // AudioContext blocked or not allowed, continue silently
+    }
+  }
+
+  // --- ESCAPE HTML UTILITY ---
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  // --- CHAT MESSAGE FORMATTER (MARKDOWN TO CLEAN HTML) ---
+  function formatChatMessage(text) {
+    if (!text) return '';
+    let formatted = escapeHtml(text)
+      .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-slate-900">$1</strong>')
+      .replace(/\n• /g, '<br><span class="text-[#0D7A68] font-bold">•</span> ')
+      .replace(/\n\n/g, '</p><p class="mt-2 text-xs">')
+      .replace(/\n/g, '<br>');
+    return `<p class="text-xs">${formatted}</p>`;
+  }
+
+  // --- INITIAL GREETING GENERATOR PER NOTARY & CLIENT PROFILE ---
+  function generateInitialGreeting(notaryId, user) {
+    const not = NOTARIES.find(n => n.id === notaryId) || NOTARIES[0];
+    const now = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB';
+
+    if (user.plan === 'full') {
+      return [
+        {
+          id: 'msg_init_' + notaryId,
+          sender: 'notary',
+          senderName: not.name,
+          senderAvatar: not.avatar,
+          text: `Selamat siang Ibu/Bapak **${user.fullName}** (${user.companyName}).\n\nStatus akun **Full Legal Suite** Anda aktif. Saya **${not.name}** siap memberikan telaah hukum prioritas, review dokumen kontrak, serta pendampingan pendirian PT atau perizinan OSS RBA untuk perseroan Anda. Silakan sampaikan pertanyaan atau lampirkan dokumen yang ingin ditelaah.`,
+          timestamp: now
+        }
+      ];
+    } else {
+      return [
+        {
+          id: 'msg_init_' + notaryId,
+          sender: 'notary',
+          senderName: not.name,
+          senderAvatar: not.avatar,
+          text: `Halo Bapak/Ibu **${user.fullName}** dari **${user.companyName}**!\n\nSaya **${not.name}** (${not.title}). Sesi konsultasi hukum resmi LegalEase telah terhubung langsung dengan kantor kami. Apakah ada kebutuhan terkait pendirian PT, perizinan KBLI, kontrak kerja, atau legalitas bisnis yang dapat saya bantu telaah hari ini?`,
+          timestamp: now
+        }
+      ];
+    }
+  }
+
+  // --- AUTHORITATIVE INDONESIAN LEGAL ADVISORY ENGINE ---
+  function generateNotaryLegalResponse(userMessage, notary, currentUser, attachmentName) {
+    const msg = (userMessage || '').toLowerCase();
+    const userName = currentUser ? currentUser.fullName : 'Bapak/Ibu Klien';
+    const companyName = currentUser ? currentUser.companyName : 'Perusahaan Anda';
+
+    if (attachmentName) {
+      return `Terima kasih Bapak/Ibu **${userName}**. Dokumen berkas **"${attachmentName}"** telah berhasil saya terima dan buka pada sistem notarial LegalEase.\n\n` +
+        `**Hasil Telaah Awal Klausul Hukum (${notary.name}):**\n` +
+        `1. **Komparisi Para Pihak**: Struktur kedudukan ${companyName} telah teridentifikasi. Pastikan kewenangan penandatangan sesuai dengan Anggaran Dasar perseroan yang berlaku atau didukung Surat Kuasa Khusus.\n` +
+        `2. **Asas Keseimbangan Hak & Kewajiban (Pasal 1320 & 1338 KUHPerdata)**: Klausul wanprestasi dan tata cara pengakhiran kontrak telah memadai, namun saya sarankan menambahkan batas waktu masa teguran tertulis (Somasi) minimal 7 (tujuh) hari kalender sebelum pengakhiran sepihak.\n` +
+        `3. **Penyelesaian Sengketa**: Dianjurkan menyepakati domisili hukum tetap di Pengadilan Negeri setempat atau klausul Arbitrase BANI untuk menjamin kerahasiaan materi perkara.\n` +
+        `4. **Bea Meterai**: Wajib dibubuhi e-Meterai Rp 10.000 resmi sebelum penandatanganan.\n\n` +
+        `Draf ini secara prinsip telah memenuhi kaidah hukum positif Indonesia. Apakah Anda ingin menjadwalkan legalisasi resmi atau sesi penandatanganan akta notariil?`;
+    }
+
+    // Pendirian PT / Badan Usaha / KBLI / Modal
+    if (msg.includes('pt') || msg.includes('modal') || msg.includes('kbli') || msg.includes('oss') || msg.includes('akta pendirian') || msg.includes('ahu')) {
+      return `Terkait pendirian badan usaha perseroan untuk **${companyName}**, regulasi mengacu pada UU No. 40 Tahun 2007 tentang Perseroan Terbatas jo. UU Cipta Kerja No. 6 Tahun 2023 serta PP No. 8 Tahun 2021:\n\n` +
+        `1. **Klasifikasi Pendirian PT**:\n` +
+        `   • **PT Persekutuan Modal (Biasa)**: Minimal 2 orang pendiri/pemegang saham. Besaran modal dasar ditentukan kesepakatan para pendiri, dengan modal ditempatkan & disetor minimum 25% yang dibuktikan dengan bukti setor bank.\n` +
+        `   • **PT Perorangan (UMKM)**: Khusus usaha mikro/kecil, cukup 1 orang pendiri WNI berusia minimal 21 tahun dengan membuat Pernyataan Pendirian elektronik.\n\n` +
+        `2. **Pengecekan Nama di AHU Online**: Nama PT wajib terdiri dari minimal 3 kata berbahasa Indonesia dan belum pernah didaftarkan oleh pihak lain.\n\n` +
+        `3. **KBLI 2020 & Perizinan Berusaha**: Pemilihan kode KBLI 5 digit menentukan tingkat risiko (Rendah, Menengah Rendah, Menengah Tinggi, Tinggi) pada portal OSS RBA untuk penerbitan NIB dan Sertifikat Standar.\n\n` +
+        `Kantor notaris kami dapat menyelesaikan penerbitan Akta Pendirian dan SK Pengesahan Kemenkumham RI dalam waktu 1-3 hari kerja.`;
+    }
+
+    // Ketenagakerjaan / PKWT / PKWTT / Gaji / Pesangon / Kontrak Kerja
+    if (msg.includes('pkwt') || msg.includes('pkwtt') || msg.includes('kerja') || msg.includes('karyawan') || msg.includes('kompensasi') || msg.includes('pesangon') || msg.includes('probation')) {
+      return `Mengenai hukum ketenagakerjaan dan kontrak kerja karyawan di **${companyName}**, ketentuan mengacu pada PP No. 35 Tahun 2021 turunan UU Cipta Kerja:\n\n` +
+        `1. **Jangka Waktu PKWT (Kontrak Tertentu)**:\n` +
+        `   • PKWT dapat dibuat untuk jangka waktu maksimal **5 (lima) tahun**, termasuk keseluruhan perpanjangan kontrak.\n` +
+        `   • Pekerjaan yang diperjanjikan harus bersifat sementara atau musiman, bukan pekerjaan yang bersifat tetap.\n\n` +
+        `2. **Uang Kompensasi PKWT (Kewajiban Mutlak)**:\n` +
+        `   • Pengusaha wajib memberikan uang kompensasi kepada pekerja PKWT yang masa kerjanya minimal 1 bulan berturut-turut saat masa kontrak berakhir.\n` +
+        `   • Rumus perhitungan: \`(Masa Kerja dalam Bulan / 12) x 1 Bulan Upah Pokok + Tunjangan Tetap\`.\n\n` +
+        `3. **Larangan Masa Percobaan (Probation)**:\n` +
+        `   • PKWT dilarang mensyaratkan adanya masa percobaan. Jika dicantumkan, klausul tersebut batal demi hukum dan masa kerja tetap dihitung sejak hari pertama.\n\n` +
+        `Format PKWT standar Kementerian Ketenagakerjaan telah kami sediakan di menu Template Dokumen LegalEase.`;
+    }
+
+    // HAKI / Merek / Brand / Hak Cipta / Paten / DJKI
+    if (msg.includes('merek') || msg.includes('haki') || msg.includes('paten') || msg.includes('djki') || msg.includes('hak cipta') || msg.includes('logo')) {
+      return `Terkait pendaftaran hak kekayaan intelektual (HAKI) dan merek dagang untuk **${companyName}**, ketentuannya diatur dalam UU No. 20 Tahun 2016 jo. UU Cipta Kerja:\n\n` +
+        `1. **Prinsip First to File**: Di Indonesia, hak eksklusif merek dipegang oleh pihak yang pertama kali mengajukan pendaftaran resmi ke DJKI Kemenkumham, bukan pemakai pertama secara de facto.\n\n` +
+        `2. **Penelusuran Pangkalan Data PDKI**: Sebelum mengajukan pendaftaran, penelusuran wajib dilakukan pada kelas barang/jasa Nice Classification untuk memastikan tidak ada kesamaan pada pokoknya (persamaan fonetik bunyi, visual logo, maupun makna kata).\n\n` +
+        `3. **Masa Perlindungan**: Sertifikat Merek berlaku selama 10 (sepuluh) tahun sejak tanggal penerimaan berkas dan dapat diperpanjang seterusnya setiap 10 tahun.\n\n` +
+        `Saya dapat mendampingi proses audit kelayakan nama merek dan pengajuan permohonan online langsung ke DJKI Kemenkumham.`;
+    }
+
+    // Kerahasiaan / NDA / Non-Disclosure / Rahasia Dagang
+    if (msg.includes('nda') || msg.includes('rahasia') || msg.includes('non-disclosure') || msg.includes('bocor') || msg.includes('ganti rugi')) {
+      return `Mengenai Perjanjian Kerahasiaan (Non-Disclosure Agreement - NDA) untuk melindungi aset intelektual **${companyName}**, dasar hukum utamanya adalah UU No. 30 Tahun 2000 tentang Rahasia Dagang:\n\n` +
+        `1. **Kriteria Perlindungan Rahasia Dagang**: Informasi dilindungi apabila bersifat rahasia (tidak diketahui umum), memiliki nilai ekonomi komersial, dan dijaga kerahasiaannya melalui upaya yang wajar (seperti penandatanganan NDA).\n\n` +
+        `2. **Jangka Waktu Mengikat**: Disarankan klausul kerahasiaan tetap mengikat para pihak minimal 2 hingga 3 tahun setelah kerjasama bisnis berakhir, atau tanpa batas waktu (perpetual) untuk rahasia dagang mendasar (source code/formula).\n\n` +
+        `3. **Klausul Liquidated Damages**: Memuat nominal denda ganti rugi pasti yang disepakati jika terjadi pelanggaran kerahasiaan untuk memudahkan pembuktian ganti rugi di pengadilan.\n\n` +
+        `Format NDA bilateral berkekuatan hukum penuh dapat langsung Anda generate di LegalEase.`;
+    }
+
+    // Sewa Menyewa / Properti / Tanah / PPAT
+    if (msg.includes('sewa') || msg.includes('tanah') || msg.includes('kantor') || msg.includes('ppat') || msg.includes('gedung') || msg.includes('ruko')) {
+      return `Terkait perjanjian sewa menyewa ruang kantor atau properti usaha, berlaku ketentuan Buku III KUHPerdata Pasal 1548 s/d 1600:\n\n` +
+        `1. **Bentuk Perjanjian Notariil vs Bawah Tangan**: Untuk sewa berjangka panjang (>1 tahun) atau nilai kontrak bernilai signifikan, pembuatan Akta Sewa Notariil sangat disarankan karena memiliki kekuatan pembuktian sempurna (volledig bewijs) dan grosse akta yang memiliki titel eksekutorial.\n\n` +
+        `2. **Kewajiban Pajak Sewa**: Pastikan tertuang jelas dalam klausul mengenai pemotongan PPh Final Pasal 4 ayat (2) sebesar 10% dan kewajiban PBB tahun berjalan.\n\n` +
+        `3. **Klausul Pengosongan & Deposit**: Wajib memuat mekanisme pemotongan uang jaminan (security deposit) serta klausul kuasa mutlak pengosongan jika penyewa wanprestasi saat masa sewa berakhir.`;
+    }
+
+    // Biaya / Tarif / Jadwal Notaris
+    if (msg.includes('biaya') || msg.includes('harga') || msg.includes('tarif') || msg.includes('bayar') || msg.includes('jadwal') || msg.includes('temu')) {
+      return `Untuk tarif layanan kenotariatan dan konsultasi di LegalEase:\n\n` +
+        `1. **Konsultasi Chat Online**: Tersedia Paket Legal Chat Essential seharga **IDR 150.000/bulan** untuk konsultasi tanpa batas dengan Notaris & PPAT.\n` +
+        `2. **Full Legal Suite**: **IDR 300.000/bulan** mencakup konsultasi chat prioritas, panggilan video 1-on-1, dan akses penuh pembuatan serta pengunduhan seluruh template kontrak hukum (Word & PDF).\n` +
+        `3. **Pembuatan Akta Otentik**: Dikenakan tarif berdasarkan ketentuan Pasal 36 UU Jabatan Notaris (UUJN No. 2 Tahun 2014) disesuaikan dengan nilai ekonomis akta, ditambah biaya resmi PNBP Kemenkumham RI.\n\n` +
+        `Anda dapat menjadwalkan janji temu tatap muka atau video call melalui tombol **"Jadwal Tatap Muka"** pada profil notaris kami.`;
+    }
+
+    // General / Fallback
+    return `Terima kasih atas pertanyaan Anda, Bapak/Ibu **${userName}**.\n\n` +
+      `Menanggapi poin yang Anda sampaikan terkait kegiatan usaha **${companyName}**:\n` +
+      `1. Berdasarkan prinsip hukum perikatan perdata di Indonesia (Pasal 1320 & 1338 KUHPerdata), setiap kesepakatan bisnis berlaku sebagai undang-undang bagi mereka yang membuatnya sepanjang memenuhi 4 syarat sah: kesepakatan para pihak, kecakapan bertindak, obyek tertentu, dan kausa yang halal.\n` +
+      `2. Untuk menjamin kepastian hukum (*legal certainty*) dan memitigasi risiko sengketa di kemudian hari, setiap transaksi atau perikatan sebaiknya dibuat dalam bentuk tertulis dengan klausul hak, kewajiban, wanprestasi, dan penyelesaian sengketa yang terperinci.\n\n` +
+      `Ada dokumen tertentu atau klausul spesifik yang ingin saya bantu susunkan atau telaah lebih mendalam? Anda juga dapat mengunggah berkas rancangan kontrak melalui tombol lampiran (klip kertas).`;
+  }
+
+  // --- RENDER LIVE CHAT MESSAGES ---
+  function renderChatMessages() {
+    const container = document.getElementById('chat-messages-stream');
+    if (!container) return;
+
+    const notaryId = state.activeChatNotaryId || 'notary-1';
+    const notary = NOTARIES.find(n => n.id === notaryId) || NOTARIES[0];
+
+    if (!state.chatHistory) state.chatHistory = {};
+    if (!state.chatHistory[notaryId] || state.chatHistory[notaryId].length === 0) {
+      state.chatHistory[notaryId] = generateInitialGreeting(notaryId, state.currentUser);
+    }
+
+    const msgs = state.chatHistory[notaryId];
+
+    container.innerHTML = msgs.map(msg => {
+      if (msg.sender === 'notary') {
+        return `
+          <div class="flex items-start gap-2.5 max-w-[92%]">
+            <img src="${msg.senderAvatar || notary.avatar}" alt="${msg.senderName}" class="w-8 h-8 rounded-full object-cover border border-slate-300 shrink-0 mt-0.5 shadow-2xs">
+            <div>
+              <div class="flex items-center gap-1.5 mb-1">
+                <span class="font-bold text-[10px] text-slate-800">${msg.senderName}</span>
+                <span class="text-[9px] text-slate-400 font-mono">${msg.timestamp}</span>
+              </div>
+              <div class="p-3.5 rounded-2xl bg-white border border-slate-200 text-slate-800 leading-relaxed shadow-2xs rounded-tl-xs space-y-2 text-xs">
+                ${formatChatMessage(msg.text)}
+              </div>
+            </div>
+          </div>
+        `;
+      } else {
+        return `
+          <div class="flex items-start justify-end gap-2.5 ml-auto max-w-[92%]">
+            <div class="text-right">
+              <div class="flex items-center justify-end gap-1.5 mb-1">
+                <span class="text-[9px] text-slate-400 font-mono">${msg.timestamp}</span>
+                <span class="font-bold text-[10px] text-[#0C1E36]">Anda</span>
+                <span class="text-[10px] text-emerald-600 font-bold" title="Terkirim & Terbaca">✓✓</span>
+              </div>
+              <div class="p-3.5 rounded-2xl bg-[#0C1E36] text-white text-left leading-relaxed shadow-sm rounded-tr-xs text-xs space-y-2">
+                ${msg.attachment ? `
+                  <div class="p-2.5 rounded-xl bg-white/10 border border-white/20 flex items-center gap-2.5 mb-2">
+                    <div class="w-8 h-8 rounded-lg bg-amber-400/20 text-amber-300 flex items-center justify-center shrink-0">
+                      <i data-lucide="file-text" class="w-4 h-4"></i>
+                    </div>
+                    <div class="truncate text-left">
+                      <div class="font-bold text-[11px] text-white truncate">${escapeHtml(msg.attachment.name)}</div>
+                      <div class="text-[9px] text-slate-300 font-mono">${msg.attachment.size} • Terkirim untuk Telaah Notaris</div>
+                    </div>
+                  </div>
+                ` : ''}
+                <div>${escapeHtml(msg.text)}</div>
+              </div>
+            </div>
+            <div class="w-8 h-8 rounded-full bg-[#0C1E36] text-amber-300 text-[10px] font-extrabold flex items-center justify-center shrink-0 mt-0.5 border border-amber-300/30">
+              ${state.currentUser.initials || 'PS'}
+            </div>
+          </div>
+        `;
+      }
+    }).join('');
+
+    if (window.lucide) window.lucide.createIcons();
+    container.scrollTop = container.scrollHeight;
+  }
+
+  // --- LIVE CHAT CONTROLLER FUNCTIONS ---
+  window.openLiveChat = function (notaryId) {
+    if (notaryId) {
+      state.activeChatNotaryId = notaryId;
+    }
+    const notId = state.activeChatNotaryId || 'notary-1';
+    const notary = NOTARIES.find(n => n.id === notId) || NOTARIES[0];
+
+    const modal = document.getElementById('live-chat-modal');
+    const trigger = document.getElementById('floating-chat-widget');
+    const avatarEl = document.getElementById('chat-notary-avatar');
+    const nameEl = document.getElementById('chat-notary-name');
+    const titleEl = document.getElementById('chat-notary-title');
+    const selectEl = document.getElementById('chat-notary-select');
+    const clientPill = document.getElementById('chat-client-pill');
+
+    if (avatarEl) avatarEl.src = notary.avatar;
+    if (nameEl) nameEl.textContent = notary.name;
+    if (titleEl) titleEl.textContent = `${notary.title} • Online Siap Menjawab`;
+    if (selectEl) selectEl.value = notId;
+    if (clientPill) clientPill.textContent = `${state.currentUser.fullName} (${state.currentUser.companyName})`;
+
+    if (modal) modal.classList.remove('hidden');
+    if (trigger) trigger.classList.add('hidden');
+
+    renderChatMessages();
+
+    setTimeout(() => {
+      const input = document.getElementById('chat-input-text');
+      if (input) input.focus();
+    }, 150);
+  };
+
+  window.closeLiveChat = function () {
+    const modal = document.getElementById('live-chat-modal');
+    const trigger = document.getElementById('floating-chat-widget');
+    if (modal) modal.classList.add('hidden');
+    if (trigger) trigger.classList.remove('hidden');
+  };
+
+  window.toggleLiveChat = function () {
+    const modal = document.getElementById('live-chat-modal');
+    if (modal && !modal.classList.contains('hidden')) {
+      closeLiveChat();
+    } else {
+      openLiveChat();
+    }
+  };
+
+  window.switchChatNotary = function (notaryId) {
+    state.activeChatNotaryId = notaryId;
+    openLiveChat(notaryId);
+  };
+
+  window.openBookingFromChat = function () {
+    const notaryId = state.activeChatNotaryId || 'notary-1';
+    const notary = NOTARIES.find(n => n.id === notaryId) || NOTARIES[0];
+    openBookingModal(notary.id, notary.name);
+  };
+
+  window.sendChatMessage = function (text, attachment) {
+    text = (text || '').trim();
+    if (!text && !attachment) return;
+
+    const notaryId = state.activeChatNotaryId || 'notary-1';
+    const notary = NOTARIES.find(n => n.id === notaryId) || NOTARIES[0];
+    const now = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB';
+
+    if (!state.chatHistory) state.chatHistory = {};
+    if (!state.chatHistory[notaryId]) {
+      state.chatHistory[notaryId] = generateInitialGreeting(notaryId, state.currentUser);
+    }
+
+    // Append user message
+    state.chatHistory[notaryId].push({
+      id: 'msg_usr_' + Date.now(),
+      sender: 'user',
+      senderName: state.currentUser.fullName,
+      text: text,
+      attachment: attachment || null,
+      timestamp: now
+    });
+
+    saveState();
+    renderChatMessages();
+
+    // Show typing indicator
+    const typingIndicator = document.getElementById('chat-typing-indicator');
+    const typingLabel = document.getElementById('chat-typing-label');
+    const typingAvatar = document.getElementById('chat-typing-avatar');
+    if (typingIndicator) {
+      if (typingLabel) typingLabel.textContent = `${notary.name} sedang menyusun telaah hukum...`;
+      if (typingAvatar) typingAvatar.src = notary.avatar;
+      typingIndicator.classList.remove('hidden');
+      const container = document.getElementById('chat-messages-stream');
+      if (container) container.scrollTop = container.scrollHeight;
+    }
+
+    // Simulate notary composing legal opinion
+    setTimeout(() => {
+      if (typingIndicator) typingIndicator.classList.add('hidden');
+
+      const replyText = generateNotaryLegalResponse(text, notary, state.currentUser, attachment ? attachment.name : null);
+      const replyTime = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB';
+
+      state.chatHistory[notaryId].push({
+        id: 'msg_not_' + Date.now(),
+        sender: 'notary',
+        senderName: notary.name,
+        senderAvatar: notary.avatar,
+        text: replyText,
+        timestamp: replyTime
+      });
+
+      saveState();
+      renderChatMessages();
+      playMessageNotificationSound();
+
+      // Synchronize with persistent storage
+      // State is securely persisted to localStorage under STORAGE_KEY
+    }, 1100);
+  };
+
+  window.handleSendChatForm = function (e) {
+    if (e && e.preventDefault) e.preventDefault();
+    const input = document.getElementById('chat-input-text');
+    if (!input) return;
+    const val = input.value;
+    input.value = '';
+    sendChatMessage(val);
+  };
+
+  window.sendQuickPrompt = function (promptText) {
+    sendChatMessage(promptText);
+  };
+
+  window.toggleChatAttachmentBar = function () {
+    const bar = document.getElementById('chat-attachment-bar');
+    if (bar) bar.classList.toggle('hidden');
+  };
+
+  window.attachLegalSampleDoc = function (docName, docSize) {
+    toggleChatAttachmentBar();
+    sendChatMessage(`Saya melampirkan berkas dokumen "${docName}" untuk ditelaah klausul legalitas dan kepatuhannya.`, {
+      name: docName,
+      size: docSize
+    });
+  };
+
+  window.handleChatFileUpload = function (e) {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    toggleChatAttachmentBar();
+    const sizeFormatted = file.size > 1024 * 1024 
+      ? (file.size / (1024 * 1024)).toFixed(1) + ' MB' 
+      : (file.size / 1024).toFixed(1) + ' KB';
+    sendChatMessage(`Saya mengunggah berkas "${file.name}" untuk telaah hukum notaris.`, {
+      name: file.name,
+      size: sizeFormatted
+    });
+    e.target.value = '';
+  };
+
+  window.clearCurrentChatHistory = function () {
+    const notaryId = state.activeChatNotaryId || 'notary-1';
+    state.chatHistory[notaryId] = generateInitialGreeting(notaryId, state.currentUser);
+    saveState();
+    renderChatMessages();
+    showToast('Percakapan telah direset ke salam awal.', 'info');
+  };
+
   document.addEventListener('DOMContentLoaded', () => {
     initMobileMenu();
     syncNavbarUser();
