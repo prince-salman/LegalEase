@@ -1,0 +1,10 @@
+# robots.txt for LegalEase Indonesia
+User-agent: *
+Allow: /
+Allow: /assets/
+
+# Crawl-delay: 0 (Fast crawling allowed for Googlebot & Bingbot)
+Crawl-delay: 0
+
+# XML Sitemap Location
+Sitemap: https://prince-salman.github.io/LegalEase/sitemap.xml
