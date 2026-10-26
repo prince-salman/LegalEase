@@ -834,7 +834,7 @@
             <span>Beranda Publik</span>
           </button>
         ` : `
-          <button type="button" onclick="switchView('client_dashboard')" class="px-3.5 py-1.5 rounded-full bg-[#0D7A68] hover:bg-teal-800 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-xs" title="Buka Dashboard Korporasi Klien">
+          <button type="button" onclick="switchView('client_dashboard')" class="px-3.5 py-1.5 rounded-full bg-[#2E9B95] hover:bg-teal-800 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-xs" title="Buka Dashboard Korporasi Klien">
             <i data-lucide="layout-dashboard" class="w-3.5 h-3.5 text-amber-300"></i>
             <span>Dashboard Klien</span>
           </button>
@@ -863,10 +863,10 @@
             ${isClientDashboard ? `
               <button onclick="switchView('public'); toggleMobileMenu();" class="text-xs font-bold text-slate-700">Beranda</button>
             ` : `
-              <button onclick="switchView('client_dashboard'); toggleMobileMenu();" class="text-xs font-bold text-[#0D7A68]">Dashboard</button>
+              <button onclick="switchView('client_dashboard'); toggleMobileMenu();" class="text-xs font-bold text-[#2E9B95]">Dashboard</button>
             `}
             <span class="text-slate-300">|</span>
-            <button onclick="openAuthModal('profile')" class="text-xs font-bold text-[#0D7A68]">Profil</button>
+            <button onclick="openAuthModal('profile')" class="text-xs font-bold text-[#2E9B95]">Profil</button>
             <span class="text-slate-300">|</span>
             <button onclick="handleUserSignOut()" class="text-xs font-bold text-rose-600">Keluar</button>
           </div>
@@ -929,7 +929,7 @@
                 </span>
               </div>
               <h3 class="font-serif-editorial font-bold text-base text-[#0C1E36]">${notary.name}</h3>
-              <p class="text-[11px] text-[#0D7A68] font-bold">${notary.title}</p>
+              <p class="text-[11px] text-[#2E9B95] font-bold">${notary.title}</p>
               <p class="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
                 <i data-lucide="map-pin" class="w-3 h-3 text-slate-400"></i> ${notary.address}
               </p>
@@ -963,7 +963,7 @@
           <button onclick="startVoiceCall('${notary.id}')" class="px-3.5 py-2.5 rounded-xl bg-[#0C384D] hover:bg-slate-900 text-amber-300 text-xs font-bold flex items-center justify-center gap-1.5 transition shadow-2xs" title="Panggilan Suara Notaris">
             <i data-lucide="phone-call" class="w-3.5 h-3.5"></i> Call
           </button>
-          <button onclick="openLiveChat('${notary.id}')" class="px-3.5 py-2.5 rounded-xl bg-[#0D7A68] hover:bg-teal-800 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition shadow-2xs" title="Mulai Konsultasi Chat">
+          <button onclick="openLiveChat('${notary.id}')" class="px-3.5 py-2.5 rounded-xl bg-[#2E9B95] hover:bg-teal-800 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition shadow-2xs" title="Mulai Konsultasi Chat">
             <i data-lucide="message-square" class="w-3.5 h-3.5"></i> Chat
           </button>
         </div>
@@ -1081,8 +1081,8 @@
         <style>
           @page { size: A4; margin: 2.5cm 2cm 2.5cm 2cm; }
           body { font-family: 'Times New Roman', Times, serif; font-size: 11pt; line-height: 1.4; color: #000; }
-          .header-legalease { text-align: center; border-bottom: 2pt double #0D7A68; padding-bottom: 6pt; margin-bottom: 18pt; font-family: 'Times New Roman', Times, serif; }
-          .header-tag { font-size: 11pt; font-weight: bold; letter-spacing: 1.5pt; color: #0D7A68; text-transform: uppercase; margin-bottom: 3pt; }
+          .header-legalease { text-align: center; border-bottom: 2pt double #2E9B95; padding-bottom: 6pt; margin-bottom: 18pt; font-family: 'Times New Roman', Times, serif; }
+          .header-tag { font-size: 11pt; font-weight: bold; letter-spacing: 1.5pt; color: #2E9B95; text-transform: uppercase; margin-bottom: 3pt; }
           .header-sub { font-size: 9pt; color: #555555; text-transform: uppercase; letter-spacing: 0.5pt; }
           h2 { text-align: center; font-size: 14pt; font-weight: bold; margin-top: 10pt; margin-bottom: 2pt; text-transform: uppercase; font-family: 'Times New Roman', Times, serif; }
           .sub { text-align: center; font-size: 10pt; font-style: italic; margin-bottom: 20pt; color: #444; }
@@ -1223,7 +1223,7 @@
             type="checkbox" 
             ${item.completed ? 'checked' : ''} 
             onchange="toggleChecklistItem(${item.id})"
-            class="w-4 h-4 rounded text-[#0D7A68] focus:ring-[#0D7A68] cursor-pointer"
+            class="w-4 h-4 rounded text-[#2E9B95] focus:ring-[#2E9B95] cursor-pointer"
           >
           <div>
             <div class="text-xs font-bold ${item.completed ? 'text-slate-800 line-through opacity-75' : 'text-[#0C1E36]'}">
@@ -1419,15 +1419,15 @@
             <div>
               <label class="block font-bold text-slate-800 mb-2">Metode Pembayaran Resmi</label>
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-3">
-                <button type="button" onclick="selectPaymentChannel('qris')" class="p-3 rounded-2xl border text-center transition ${chk.method === 'qris' ? 'border-[#0D7A68] bg-teal-50/70 text-[#0D7A68] font-bold ring-1 ring-[#0D7A68]' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'}">
+                <button type="button" onclick="selectPaymentChannel('qris')" class="p-3 rounded-2xl border text-center transition ${chk.method === 'qris' ? 'border-[#2E9B95] bg-teal-50/70 text-[#2E9B95] font-bold ring-1 ring-[#2E9B95]' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'}">
                   <span class="block text-xs font-bold">QRIS</span>
                   <span class="text-[9px] text-slate-500 block">Semua Bank & E-Wallet</span>
                 </button>
-                <button type="button" onclick="selectPaymentChannel('va')" class="p-3 rounded-2xl border text-center transition ${chk.method === 'va' ? 'border-[#0D7A68] bg-teal-50/70 text-[#0D7A68] font-bold ring-1 ring-[#0D7A68]' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'}">
+                <button type="button" onclick="selectPaymentChannel('va')" class="p-3 rounded-2xl border text-center transition ${chk.method === 'va' ? 'border-[#2E9B95] bg-teal-50/70 text-[#2E9B95] font-bold ring-1 ring-[#2E9B95]' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'}">
                   <span class="block text-xs font-bold">Virtual Account</span>
                   <span class="text-[9px] text-slate-500 block">BCA, Mandiri, BNI, BRI</span>
                 </button>
-                <button type="button" onclick="selectPaymentChannel('ewallet')" class="p-3 rounded-2xl border text-center transition ${chk.method === 'ewallet' ? 'border-[#0D7A68] bg-teal-50/70 text-[#0D7A68] font-bold ring-1 ring-[#0D7A68]' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'}">
+                <button type="button" onclick="selectPaymentChannel('ewallet')" class="p-3 rounded-2xl border text-center transition ${chk.method === 'ewallet' ? 'border-[#2E9B95] bg-teal-50/70 text-[#2E9B95] font-bold ring-1 ring-[#2E9B95]' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'}">
                   <span class="block text-xs font-bold">E-Wallet Direct</span>
                   <span class="text-[9px] text-slate-500 block">GoPay, OVO, DANA</span>
                 </button>
@@ -1476,7 +1476,7 @@
                         <span class="text-[10px] text-slate-500 uppercase font-mono block">Nomor Virtual Account ${chk.selectedVaBank.toUpperCase()}</span>
                         <span class="text-base font-mono font-bold text-[#0C1E36] tracking-wider">${chk.selectedVaBank === 'bca' ? '8910 0812 3456 7890' : (chk.selectedVaBank === 'mandiri' ? '8870 0812 3456 7890' : '8277 0812 3456 7890')}</span>
                       </div>
-                      <button type="button" onclick="navigator.clipboard.writeText('8910081234567890'); alert('Nomor VA disalin!')" class="px-3 py-1.5 rounded-lg bg-white border border-slate-300 hover:bg-slate-100 font-bold text-[#0D7A68] text-xs">
+                      <button type="button" onclick="navigator.clipboard.writeText('8910081234567890'); alert('Nomor VA disalin!')" class="px-3 py-1.5 rounded-lg bg-white border border-slate-300 hover:bg-slate-100 font-bold text-[#2E9B95] text-xs">
                         Salin
                       </button>
                     </div>
@@ -1499,7 +1499,7 @@
           `}
 
           <!-- Pay Button -->
-          <button type="button" onclick="startPaymentSimulationProcess()" class="w-full py-4 rounded-2xl bg-[#0D7A68] hover:bg-teal-800 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition">
+          <button type="button" onclick="startPaymentSimulationProcess()" class="w-full py-4 rounded-2xl bg-[#2E9B95] hover:bg-teal-800 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition">
             <i data-lucide="shield-check" class="w-4 h-4"></i>
             <span>${chk.planPrice > 0 ? `Bayar Sekarang — IDR ${chk.planPrice.toLocaleString('id-ID')}` : 'Konfirmasi & Aktifkan Free Trial (IDR 0)'}</span>
           </button>
@@ -1512,13 +1512,13 @@
     } else if (chk.step === 'processing') {
       container.innerHTML = `
         <div class="py-12 px-4 text-center space-y-4">
-          <div class="w-16 h-16 rounded-full border-4 border-[#0D7A68]/20 border-t-[#0D7A68] animate-spin mx-auto"></div>
+          <div class="w-16 h-16 rounded-full border-4 border-[#2E9B95]/20 border-t-[#2E9B95] animate-spin mx-auto"></div>
           <div>
             <h3 id="checkout-proc-title" class="font-bold text-sm text-[#0C1E36]">Menghubungkan ke Gateway Pembayaran Bank...</h3>
             <p id="checkout-proc-sub" class="text-xs text-slate-500 mt-1">Mohon tunggu, transaksi sedang diverifikasi secara real-time melalui sistem Bank Indonesia.</p>
           </div>
           <div class="max-w-xs mx-auto bg-slate-100 h-1.5 rounded-full overflow-hidden">
-            <div class="bg-[#0D7A68] h-full rounded-full animate-pulse" style="width: 75%"></div>
+            <div class="bg-[#2E9B95] h-full rounded-full animate-pulse" style="width: 75%"></div>
           </div>
         </div>
       `;
@@ -1557,7 +1557,7 @@
             </div>
             <div class="flex items-center justify-between pt-2 border-t border-slate-200 font-bold text-sm">
               <span class="text-[#0C1E36]">Total Dibayar:</span>
-              <span class="text-[#0D7A68]">IDR ${chk.planPrice.toLocaleString('id-ID')}</span>
+              <span class="text-[#2E9B95]">IDR ${chk.planPrice.toLocaleString('id-ID')}</span>
             </div>
           </div>
 
@@ -1715,7 +1715,7 @@
           .table td { padding: 12px; font-size: 13px; border-bottom: 1px solid #e2e8f0; }
           .total { font-size: 16px; font-weight: bold; color: #0C1E36; text-align: right; margin-top: 20px; }
           .badge { display: inline-block; padding: 4px 12px; background: #dcfce7; color: #166534; font-weight: bold; border-radius: 9999px; font-size: 11px; }
-          .seal-stamp { border: 2px dashed #0D7A68; color: #0D7A68; padding: 8px 16px; display: inline-block; font-weight: bold; font-size: 11px; border-radius: 8px; margin-top: 20px; }
+          .seal-stamp { border: 2px dashed #2E9B95; color: #2E9B95; padding: 8px 16px; display: inline-block; font-weight: bold; font-size: 11px; border-radius: 8px; margin-top: 20px; }
         </style>
       </head>
       <body>
@@ -2320,7 +2320,7 @@
           <div class="pt-3 border-t border-slate-100 text-center">
             <p class="text-slate-600">
               Belum memiliki akun perusahaan? 
-              <button type="button" onclick="openAuthModal('register')" class="font-bold text-[#0D7A68] hover:underline">Daftar Akun Baru (Gratis)</button>
+              <button type="button" onclick="openAuthModal('register')" class="font-bold text-[#2E9B95] hover:underline">Daftar Akun Baru (Gratis)</button>
             </p>
           </div>
         </div>
@@ -2423,7 +2423,7 @@
               </div>
             </div>
 
-            <button type="submit" id="reg-submit-btn" class="w-full py-3 rounded-xl bg-[#0D7A68] hover:bg-teal-800 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition mt-2">
+            <button type="submit" id="reg-submit-btn" class="w-full py-3 rounded-xl bg-[#2E9B95] hover:bg-teal-800 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition mt-2">
               <i data-lucide="user-plus" class="w-4 h-4"></i>
               <span id="reg-submit-text">${curPlan === 'trial' ? 'Buat Akun & Aktifkan Free Trial (Rp 0)' : (curPlan === 'chat' ? 'Buat Akun & Lanjut Pembayaran (Rp 150.000)' : 'Buat Akun & Lanjut Pembayaran (Rp 300.000)')}</span>
             </button>
@@ -2432,7 +2432,7 @@
           <div class="pt-3 border-t border-slate-100 text-center">
             <p class="text-slate-600">
               Sudah memiliki akun terdaftar? 
-              <button type="button" onclick="openAuthModal('login')" class="font-bold text-[#0D7A68] hover:underline">Masuk di sini</button>
+              <button type="button" onclick="openAuthModal('login')" class="font-bold text-[#2E9B95] hover:underline">Masuk di sini</button>
             </p>
           </div>
         </div>
@@ -3000,7 +3000,7 @@
     if (!text) return '';
     let formatted = escapeHtml(text)
       .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-slate-900">$1</strong>')
-      .replace(/\n• /g, '<br><span class="text-[#0D7A68] font-bold">•</span> ')
+      .replace(/\n• /g, '<br><span class="text-[#2E9B95] font-bold">•</span> ')
       .replace(/\n\n/g, '</p><p class="mt-2 text-xs">')
       .replace(/\n/g, '<br>');
     return `<p class="text-xs">${formatted}</p>`;
@@ -3860,7 +3860,7 @@
                         ` : ''}
 
                         ${isChat ? `
-                          <button onclick="openLiveChat('${apt.notaryId}')" class="btn-open-chat px-4 py-2 rounded-xl bg-[#0D7A68] hover:bg-teal-800 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-xs">
+                          <button onclick="openLiveChat('${apt.notaryId}')" class="btn-open-chat px-4 py-2 rounded-xl bg-[#2E9B95] hover:bg-teal-800 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-xs">
                             <i data-lucide="messages-square" class="w-3.5 h-3.5"></i>
                             <span>Buka Chat Notaris</span>
                           </button>
@@ -3933,19 +3933,19 @@
 
           <!-- Quick Query Pills -->
           <div class="px-6 py-2.5 bg-white border-t border-slate-100 flex items-center gap-2 overflow-x-auto no-scrollbar shrink-0">
-            <button type="button" onclick="sendQuickPrompt('Bagaimana syarat dan modal pendirian PT sesuai UU Cipta Kerja?')" class="px-3 py-1.5 rounded-full bg-slate-100 hover:bg-teal-50 text-[11px] font-semibold text-slate-700 hover:text-[#0D7A68] hover:border-[#0D7A68]/30 border border-slate-200 whitespace-nowrap transition">
+            <button type="button" onclick="sendQuickPrompt('Bagaimana syarat dan modal pendirian PT sesuai UU Cipta Kerja?')" class="px-3 py-1.5 rounded-full bg-slate-100 hover:bg-teal-50 text-[11px] font-semibold text-slate-700 hover:text-[#2E9B95] hover:border-[#2E9B95]/30 border border-slate-200 whitespace-nowrap transition">
               💼 Syarat & Modal PT
             </button>
-            <button type="button" onclick="sendQuickPrompt('Bagaimana aturan uang kompensasi PKWT sesuai PP 35/2021?')" class="px-3 py-1.5 rounded-full bg-slate-100 hover:bg-teal-50 text-[11px] font-semibold text-slate-700 hover:text-[#0D7A68] hover:border-[#0D7A68]/30 border border-slate-200 whitespace-nowrap transition">
+            <button type="button" onclick="sendQuickPrompt('Bagaimana aturan uang kompensasi PKWT sesuai PP 35/2021?')" class="px-3 py-1.5 rounded-full bg-slate-100 hover:bg-teal-50 text-[11px] font-semibold text-slate-700 hover:text-[#2E9B95] hover:border-[#2E9B95]/30 border border-slate-200 whitespace-nowrap transition">
               📜 Kompensasi PKWT
             </button>
-            <button type="button" onclick="sendQuickPrompt('Bagaimana prosedur pendaftaran merek dagang HAKI di DJKI?')" class="px-3 py-1.5 rounded-full bg-slate-100 hover:bg-teal-50 text-[11px] font-semibold text-slate-700 hover:text-[#0D7A68] hover:border-[#0D7A68]/30 border border-slate-200 whitespace-nowrap transition">
+            <button type="button" onclick="sendQuickPrompt('Bagaimana prosedur pendaftaran merek dagang HAKI di DJKI?')" class="px-3 py-1.5 rounded-full bg-slate-100 hover:bg-teal-50 text-[11px] font-semibold text-slate-700 hover:text-[#2E9B95] hover:border-[#2E9B95]/30 border border-slate-200 whitespace-nowrap transition">
               ™️ Pendaftaran HAKI
             </button>
-            <button type="button" onclick="sendQuickPrompt('Apakah klausul kerahasiaan NDA mengikat dan ada denda wanprestasi?')" class="px-3 py-1.5 rounded-full bg-slate-100 hover:bg-teal-50 text-[11px] font-semibold text-slate-700 hover:text-[#0D7A68] hover:border-[#0D7A68]/30 border border-slate-200 whitespace-nowrap transition">
+            <button type="button" onclick="sendQuickPrompt('Apakah klausul kerahasiaan NDA mengikat dan ada denda wanprestasi?')" class="px-3 py-1.5 rounded-full bg-slate-100 hover:bg-teal-50 text-[11px] font-semibold text-slate-700 hover:text-[#2E9B95] hover:border-[#2E9B95]/30 border border-slate-200 whitespace-nowrap transition">
               🔒 Klausul NDA
             </button>
-            <button type="button" onclick="sendQuickPrompt('Berapa rincian tarif akta notaris dan PNBP Kemenkumham?')" class="px-3 py-1.5 rounded-full bg-slate-100 hover:bg-teal-50 text-[11px] font-semibold text-slate-700 hover:text-[#0D7A68] hover:border-[#0D7A68]/30 border border-slate-200 whitespace-nowrap transition">
+            <button type="button" onclick="sendQuickPrompt('Berapa rincian tarif akta notaris dan PNBP Kemenkumham?')" class="px-3 py-1.5 rounded-full bg-slate-100 hover:bg-teal-50 text-[11px] font-semibold text-slate-700 hover:text-[#2E9B95] hover:border-[#2E9B95]/30 border border-slate-200 whitespace-nowrap transition">
               ⚖️ Tarif Akta & PNBP
             </button>
           </div>
@@ -3953,11 +3953,11 @@
           <!-- Input Form -->
           <div class="p-4 px-6 bg-white border-t border-slate-200 shrink-0">
             <form onsubmit="handleClientPortalSendChat(event)" class="flex items-center gap-3">
-              <button type="button" onclick="attachLegalSampleDoc('Draft_Akta_Pendirian_PT.pdf', '248 KB')" class="p-2.5 rounded-xl border border-slate-300 hover:border-[#0D7A68] bg-slate-50 text-slate-600 hover:text-[#0D7A68] transition shrink-0" title="Lampirkan Dokumen Kontrak">
+              <button type="button" onclick="attachLegalSampleDoc('Draft_Akta_Pendirian_PT.pdf', '248 KB')" class="p-2.5 rounded-xl border border-slate-300 hover:border-[#2E9B95] bg-slate-50 text-slate-600 hover:text-[#2E9B95] transition shrink-0" title="Lampirkan Dokumen Kontrak">
                 <i data-lucide="paperclip" class="w-4 h-4"></i>
               </button>
-              <input type="text" id="client-portal-chat-input" autocomplete="off" placeholder="Tanyakan permasalahan hukum perusahaan Anda atau kirim draf akta..." class="flex-1 px-4 py-3 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 text-xs focus:outline-none focus:border-[#0D7A68] focus:bg-white transition font-medium">
-              <button type="submit" class="px-5 py-3 rounded-xl bg-[#0D7A68] hover:bg-teal-800 text-white font-bold text-xs transition flex items-center justify-center gap-1.5 shadow-xs shrink-0">
+              <input type="text" id="client-portal-chat-input" autocomplete="off" placeholder="Tanyakan permasalahan hukum perusahaan Anda atau kirim draf akta..." class="flex-1 px-4 py-3 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 text-xs focus:outline-none focus:border-[#2E9B95] focus:bg-white transition font-medium">
+              <button type="submit" class="px-5 py-3 rounded-xl bg-[#2E9B95] hover:bg-teal-800 text-white font-bold text-xs transition flex items-center justify-center gap-1.5 shadow-xs shrink-0">
                 <i data-lucide="send" class="w-4 h-4"></i> Kirim Konsultasi
               </button>
             </form>
@@ -3989,7 +3989,7 @@
                   <div class="font-bold text-xs text-[#0C1E36]">Full Legal Suite</div>
                   <div class="text-emerald-700 font-bold text-sm my-1">Rp 300.000 <span class="text-[10px] text-slate-400 font-normal">/bulan</span></div>
                   <p class="text-[10px] text-slate-500 mb-3">Akses akta PT lengkap, 6 template kontrak, konsultasi prioritas.</p>
-                  <button onclick="openCheckoutModal('full')" class="w-full py-2 rounded-lg bg-[#0D7A68] hover:bg-teal-800 text-white font-bold text-xs transition">Pilih Paket</button>
+                  <button onclick="openCheckoutModal('full')" class="w-full py-2 rounded-lg bg-[#2E9B95] hover:bg-teal-800 text-white font-bold text-xs transition">Pilih Paket</button>
                 </div>
                 <div class="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs">
                   <div class="font-bold text-xs text-[#0C1E36]">Konsultasi Chat</div>
@@ -4019,7 +4019,7 @@
                       <td class="p-4 font-mono font-bold text-slate-900">${escapeHtml(t.id)}</td>
                       <td class="p-4 font-semibold text-[#0C1E36]">${escapeHtml(t.planName)}</td>
                       <td class="p-4 uppercase font-mono text-[11px]">${escapeHtml(t.method)}</td>
-                      <td class="p-4 font-bold text-[#0D7A68]">IDR ${Number(t.amount || 0).toLocaleString('id-ID')}</td>
+                      <td class="p-4 font-bold text-[#2E9B95]">IDR ${Number(t.amount || 0).toLocaleString('id-ID')}</td>
                       <td class="p-4">
                         <span class="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px]">
                           ${escapeHtml(t.status || 'LUNAS')}
@@ -4097,7 +4097,7 @@
               </div>
 
               <div class="flex items-center gap-2">
-                <button onclick="downloadCurrentDocAsWord()" class="px-4 py-2.5 rounded-xl bg-[#0D7A68] hover:bg-teal-800 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-xs">
+                <button onclick="downloadCurrentDocAsWord()" class="px-4 py-2.5 rounded-xl bg-[#2E9B95] hover:bg-teal-800 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-xs">
                   <i data-lucide="download" class="w-4 h-4"></i> Unduh Word (.doc)
                 </button>
                 <button onclick="openDocumentPreview('${activeDoc.key}')" class="px-4 py-2.5 rounded-xl bg-[#0C1E36] hover:bg-slate-800 text-amber-300 font-bold text-xs transition flex items-center gap-1.5 shadow-xs">
@@ -4244,7 +4244,7 @@
               </div>
 
               ${(user.plan === 'biasa' || user.plan === 'trial' || user.plan === 'chat') ? `
-                <button onclick="openPlanPickerModal()" class="px-4 py-3 rounded-2xl bg-[#0D7A68] hover:bg-teal-800 text-white font-bold text-xs shadow-xs transition flex items-center gap-2" title="Pilih / Upgrade Paket Langganan">
+                <button onclick="openPlanPickerModal()" class="px-4 py-3 rounded-2xl bg-[#2E9B95] hover:bg-teal-800 text-white font-bold text-xs shadow-xs transition flex items-center gap-2" title="Pilih / Upgrade Paket Langganan">
                   <i data-lucide="zap" class="w-4 h-4 text-amber-300"></i>
                   <span>${user.plan === 'chat' ? 'Upgrade ke Full Suite' : 'Pilih / Upgrade Paket'}</span>
                 </button>
@@ -4533,12 +4533,12 @@
                   Belum ada pesan masuk dari perangkat klien lain.<br>Kirim pesan dari perangkat klien untuk melihat sinkronisasi live.
                 </div>
               ` : clients.map(c => `
-                <div onclick="selectAdminClientChat('${c.clientEmail}')" class="p-3.5 hover:bg-slate-100 cursor-pointer transition ${c.clientEmail === activeEmail ? 'bg-white border-l-4 border-[#0D7A68] shadow-2xs' : ''}">
+                <div onclick="selectAdminClientChat('${c.clientEmail}')" class="p-3.5 hover:bg-slate-100 cursor-pointer transition ${c.clientEmail === activeEmail ? 'bg-white border-l-4 border-[#2E9B95] shadow-2xs' : ''}">
                   <div class="flex items-center justify-between mb-1">
                     <span class="font-bold text-xs text-[#0C1E36] truncate">${escapeHtml(c.clientName)}</span>
                     <span class="text-[9px] text-slate-400 font-mono">${c.messages.length > 0 ? c.messages[c.messages.length - 1].timestamp : ''}</span>
                   </div>
-                  <div class="text-[10px] text-[#0D7A68] font-semibold truncate mb-1">${escapeHtml(c.clientCompany)}</div>
+                  <div class="text-[10px] text-[#2E9B95] font-semibold truncate mb-1">${escapeHtml(c.clientCompany)}</div>
                   <div class="text-[11px] text-slate-500 truncate">${c.messages.length > 0 ? escapeHtml(c.messages[c.messages.length - 1].text) : 'Belum ada pesan'}</div>
                 </div>
               `).join('')}
@@ -4584,7 +4584,7 @@
               <!-- Admin Reply Form -->
               <form onsubmit="handleSendAdminReply(event)" class="p-3 bg-white border-t border-slate-200 flex items-center gap-2 shrink-0">
                 <input type="text" id="admin-reply-input" autocomplete="off" placeholder="Tulis tanggapan notaris resmi ke perangkat klien..." class="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 text-xs focus:outline-none focus:border-[#0C1E36] focus:bg-white font-medium">
-                <button type="submit" class="px-4 py-2.5 rounded-xl bg-[#0D7A68] hover:bg-teal-800 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs">
+                <button type="submit" class="px-4 py-2.5 rounded-xl bg-[#2E9B95] hover:bg-teal-800 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs">
                   <i data-lucide="send" class="w-4 h-4"></i> Balas Klien
                 </button>
               </form>
@@ -4629,7 +4629,7 @@
                 ` : users.map(u => `
                   <tr class="hover:bg-slate-50">
                     <td class="p-3.5 font-bold text-slate-900">${escapeHtml(u.fullName)}</td>
-                    <td class="p-3.5 font-semibold text-[#0D7A68]">${escapeHtml(u.companyName)}</td>
+                    <td class="p-3.5 font-semibold text-[#2E9B95]">${escapeHtml(u.companyName)}</td>
                     <td class="p-3.5 font-mono text-[11px]">${escapeHtml(u.email)}<br><span class="text-slate-400">${escapeHtml(u.phone || '-')}</span></td>
                     <td class="p-3.5">${escapeHtml(u.city)}</td>
                     <td class="p-3.5"><span class="px-2 py-0.5 rounded-full bg-slate-100 font-bold text-[10px]">${escapeHtml(u.planName || 'Paket Biasa (Rp 0)')}</span></td>
@@ -4683,7 +4683,7 @@
                     <td class="p-3.5 font-mono font-bold text-slate-900">${escapeHtml(t.id)}</td>
                     <td class="p-3.5 font-semibold">${escapeHtml(t.userName)}<br><span class="text-[10px] text-slate-400">${escapeHtml(t.company)}</span></td>
                     <td class="p-3.5">${escapeHtml(t.planName)}</td>
-                    <td class="p-3.5 font-bold text-[#0D7A68]">IDR ${Number(t.amount || 0).toLocaleString('id-ID')}</td>
+                    <td class="p-3.5 font-bold text-[#2E9B95]">IDR ${Number(t.amount || 0).toLocaleString('id-ID')}</td>
                     <td class="p-3.5">${escapeHtml(t.method)}</td>
                     <td class="p-3.5"><span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px]">${escapeHtml(t.status || 'LUNAS')}</span></td>
                     <td class="p-3.5 text-slate-400">${escapeHtml(t.date)}</td>

@@ -27,17 +27,42 @@ html, body {
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400;1,6..72,500&display=swap');
 
 :root {
-  --navy-deep: #0C1E36;
-  --navy-slate: #162B48;
-  --gold-heritage: #C29236;
-  --gold-light: #F7EEDB;
+  /* Official LegalEase Logo Color System */
+  --navy-deep: #17345E;       /* Deep Navy Blue from Logo */
+  --navy-slate: #1F4475;      /* Secondary Navy Slate */
+  --teal-emerald: #2E9B95;    /* Primary Vibrant Teal from Logo */
+  --teal-dark: #1E677A;       /* Deep Cyan / Dark Teal */
+  --teal-light: #EDFFFF;      /* Soft Ice Aqua Tint */
+  --gold-heritage: #C29236;    /* Heritage Gold Accent / Emblem */
+  --gold-light: #F7EEDB;      /* Warm Champagne Gold */
   --gold-subtle: #FDF9F0;
-  --teal-emerald: #0D7A68;
   --paper-cream: #FAF9F5;
   --paper-card: #FFFFFF;
-  --text-primary: #111827;
+  --text-primary: #17345E;    /* Dark Navy Text */
   --text-secondary: #4B5563;
   --border-light: #E5E7EB;
+}
+
+/* Theme Utilities Aligned with Logo */
+.theme-logo-gradient {
+  background: linear-gradient(135deg, #17345E 0%, #1E677A 50%, #2E9B95 100%);
+}
+
+.theme-logo-btn {
+  background: linear-gradient(135deg, #2E9B95 0%, #1E677A 100%);
+  color: #FFFFFF;
+  transition: all 0.2s ease;
+}
+
+.theme-logo-btn:hover {
+  background: linear-gradient(135deg, #35ABA5 0%, #23778D 100%);
+  transform: translateY(-1px);
+}
+
+.theme-logo-pill {
+  background-color: #EDFFFF;
+  color: #1E677A;
+  border: 1px solid rgba(46, 155, 149, 0.3);
 }
 
 body {
@@ -167,7 +192,7 @@ body {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background-color: #0D7A68;
+  background-color: #2E9B95;
   animation: typingBounce 1.2s infinite ease-in-out;
 }
 
@@ -176,8 +201,8 @@ body {
 .typing-dot:nth-child(3) { animation-delay: 0.4s; }
 
 @keyframes chatPulseGlow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(13, 122, 104, 0.5); }
-  50% { box-shadow: 0 0 0 10px rgba(13, 122, 104, 0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(46, 155, 149, 0.5); }
+  50% { box-shadow: 0 0 0 10px rgba(46, 155, 149, 0); }
 }
 
 .chat-pulse-btn {
