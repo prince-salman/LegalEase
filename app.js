@@ -2153,8 +2153,31 @@
     if (modal) modal.classList.add('hidden');
   };
 
+  window.switchGuideTab = function (osType) {
+    const btnAndroid = document.getElementById('guide-tab-btn-android');
+    const btnIos = document.getElementById('guide-tab-btn-ios');
+    const contentAndroid = document.getElementById('guide-content-android');
+    const contentIos = document.getElementById('guide-content-ios');
+
+    if (!btnAndroid || !btnIos || !contentAndroid || !contentIos) return;
+
+    if (osType === 'ios') {
+      btnAndroid.className = 'flex-1 py-3 text-center border-b-2 border-transparent text-slate-500 hover:text-slate-800 bg-slate-50 flex items-center justify-center gap-1.5 transition';
+      btnIos.className = 'flex-1 py-3 text-center border-b-2 border-emerald-600 text-emerald-800 bg-white flex items-center justify-center gap-1.5 transition';
+      contentAndroid.classList.add('hidden');
+      contentIos.classList.remove('hidden');
+    } else {
+      btnAndroid.className = 'flex-1 py-3 text-center border-b-2 border-emerald-600 text-emerald-800 bg-white flex items-center justify-center gap-1.5 transition';
+      btnIos.className = 'flex-1 py-3 text-center border-b-2 border-transparent text-slate-500 hover:text-slate-800 bg-slate-50 flex items-center justify-center gap-1.5 transition';
+      contentAndroid.classList.remove('hidden');
+      contentIos.classList.add('hidden');
+    }
+
+    if (window.lucide) window.lucide.createIcons();
+  };
+
   window.copySha256Checksum = function () {
-    const sha = "69a12be6a66d7921892c946837f472958696554e93e85917198f43aae3c5ad5e";
+    const sha = "768fe6759630d9ee8a7735dae86c4804dabc341afa6c879c5407b3a561368101";
     if (navigator.clipboard) {
       navigator.clipboard.writeText(sha).then(() => {
         showToast(`SHA-256 Checksum disalin: ${sha.slice(0, 16)}...`, 'success');

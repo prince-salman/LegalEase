@@ -43,6 +43,9 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="assets/logo.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/logo.png">
+  <meta name="apple-mobile-web-app-title" content="LegalEase">
   <link rel="manifest" href="manifest.json">
 
   <!-- JSON-LD Structured Data for Google Rich Snippets (Schema.org) -->
@@ -1915,14 +1918,27 @@
       <div class="p-5 px-6 bg-[#0C1E36] text-white flex items-center justify-between">
         <div class="flex items-center gap-2">
           <i data-lucide="help-circle" class="w-5 h-5 text-amber-300"></i>
-          <h3 class="text-sm font-bold text-white">Panduan Instalasi APK Android</h3>
+          <h3 class="text-sm font-bold text-white">Panduan Pemasangan Aplikasi Mobile</h3>
         </div>
         <button onclick="closeApkGuideModal()" class="w-8 h-8 rounded-full bg-white/10 text-slate-300 hover:text-white flex items-center justify-center transition">
           <i data-lucide="x" class="w-4 h-4"></i>
         </button>
       </div>
 
-      <div class="p-5 sm:p-6 space-y-4 text-xs overflow-y-auto flex-1">
+      <!-- Tab Switcher: Android vs iOS -->
+      <div class="flex border-b border-slate-200 bg-slate-50 text-xs font-bold">
+        <button id="guide-tab-btn-android" onclick="switchGuideTab('android')" class="flex-1 py-3 text-center border-b-2 border-emerald-600 text-emerald-800 bg-white flex items-center justify-center gap-1.5 transition">
+          <i data-lucide="smartphone" class="w-4 h-4 text-emerald-600"></i>
+          <span>Android (File APK)</span>
+        </button>
+        <button id="guide-tab-btn-ios" onclick="switchGuideTab('ios')" class="flex-1 py-3 text-center border-b-2 border-transparent text-slate-500 hover:text-slate-800 bg-slate-50 flex items-center justify-center gap-1.5 transition">
+          <i data-lucide="apple" class="w-4 h-4 text-slate-700"></i>
+          <span>iPhone / iOS (PWA)</span>
+        </button>
+      </div>
+
+      <!-- ANDROID CONTENT -->
+      <div id="guide-content-android" class="p-5 sm:p-6 space-y-4 text-xs overflow-y-auto flex-1">
         <div class="p-3.5 rounded-2xl bg-emerald-50/70 border border-emerald-200 text-xs space-y-1.5">
           <div class="flex items-center gap-1.5 text-emerald-950 font-bold">
             <i data-lucide="layers" class="w-4 h-4 text-emerald-600"></i>
@@ -1964,6 +1980,59 @@
           <a href="https://github.com/prince-salman/LegalEase/raw/main/assets/LegalEase-v2.4.1.apk" target="_blank" rel="noopener noreferrer" onclick="if(typeof triggerApkFallbackDownload==='function'){triggerApkFallbackDownload(); return false;}" class="w-full py-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs flex items-center justify-center gap-1.5 transition border border-slate-200">
             <i data-lucide="external-link" class="w-3.5 h-3.5 text-slate-600"></i> Server Cadangan (Mirror GitHub)
           </a>
+        </div>
+      </div>
+
+      <!-- IOS (IPHONE) CONTENT -->
+      <div id="guide-content-ios" class="p-5 sm:p-6 space-y-4 text-xs overflow-y-auto flex-1 hidden">
+        <div class="p-3.5 rounded-2xl bg-amber-50/80 border border-amber-200 text-xs space-y-1.5">
+          <div class="flex items-center gap-1.5 text-amber-950 font-bold">
+            <i data-lucide="info" class="w-4 h-4 text-amber-600"></i>
+            <span>Mengapa File .APK Tidak Bisa Dipasang di iOS?</span>
+          </div>
+          <p class="text-[11px] text-amber-800 leading-relaxed">
+            Format <code>.apk</code> adalah paket khusus sistem operasi Android. Apple iOS memiliki sistem tertutup (*sandboxed*) yang memblokir berkas APK luar. Namun, LegalEase mendukung penuh standar resmi Apple: <strong>Progressive Web App (PWA Standalone)</strong> tanpa perlu App Store.
+          </p>
+        </div>
+
+        <div class="space-y-3">
+          <div class="flex items-start gap-3">
+            <div class="w-7 h-7 rounded-full bg-blue-100 text-blue-800 font-bold flex items-center justify-center shrink-0">1</div>
+            <div>
+              <h4 class="font-bold text-slate-900 mb-0.5">Buka di Browser Safari iPhone</h4>
+              <p class="text-slate-600 leading-relaxed">Pastikan Anda membuka website LegalEase menggunakan peramban <strong>Safari</strong> bawaan iOS (bukan Chrome/in-app browser).</p>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-3">
+            <div class="w-7 h-7 rounded-full bg-blue-100 text-blue-800 font-bold flex items-center justify-center shrink-0">2</div>
+            <div>
+              <h4 class="font-bold text-slate-900 mb-0.5">Tekan Tombol Bagikan (Share)</h4>
+              <p class="text-slate-600 leading-relaxed">Ketuk ikon <strong>Share</strong> di bilah bawah Safari (ikon persegi dengan tanda panah ke atas: <span class="inline-block px-1.5 py-0.5 bg-slate-100 border border-slate-300 rounded font-bold">⬆</span>).</p>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-3">
+            <div class="w-7 h-7 rounded-full bg-blue-100 text-blue-800 font-bold flex items-center justify-center shrink-0">3</div>
+            <div>
+              <h4 class="font-bold text-slate-900 mb-0.5">Pilih "Add to Home Screen"</h4>
+              <p class="text-slate-600 leading-relaxed">Gulir ke bawah dan ketuk opsi <strong>"Add to Home Screen"</strong> (atau <strong>"Tambah ke Layar Utama"</strong>).</p>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-3">
+            <div class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center shrink-0">✓</div>
+            <div>
+              <h4 class="font-bold text-slate-900 mb-0.5">Selesai — Aplikasi Siap Digunakan</h4>
+              <p class="text-slate-600 leading-relaxed">Ketuk <strong>Add / Tambah</strong> di pojok kanan atas. Ikon resmi LegalEase akan langsung muncul di Layar Utama iPhone Anda dan berjalan fullscreen layaknya aplikasi App Store.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-3 border-t border-slate-200">
+          <button onclick="navigator.clipboard && navigator.clipboard.writeText('https://prince-salman.github.io/LegalEase/').then(() => showToast('Tautan resmi LegalEase disalin! Buka di Safari.', 'success'));" class="w-full py-3 rounded-full bg-[#17345E] hover:bg-[#0C1E36] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition">
+            <i data-lucide="copy" class="w-4 h-4"></i> Salin Tautan Website untuk Safari
+          </button>
         </div>
       </div>
     </div>
