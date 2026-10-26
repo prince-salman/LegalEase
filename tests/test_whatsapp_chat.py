@@ -143,6 +143,10 @@ async def main():
         assert "berhasil dikirimkan" in toast_text, f"Unexpected toast: {toast_text}"
         print("   [OK] Admin manual reply dispatched successfully")
 
+        # Close Admin console modal before switching
+        await page.evaluate("() => window.closeAdminConsole()")
+        await page.wait_for_timeout(300)
+
         # -------------------------------------------------------------
         # 6. Switch back to Client and verify the real reply appears
         # -------------------------------------------------------------
