@@ -62,10 +62,53 @@
     }
   }
 
-  // Anti-Brute-Force & Rate Limiting System
+  // Demo Accounts & Aliases for Instant Evaluation & Testing
+  const GELSAY_ALIASES = [
+    'gelsay@nusantaralaw.co.id',
+    'gelsay@legalease.co.id',
+    'korporasi@legalease.co.id',
+    'klien@legalease.co.id',
+    'gelsay',
+    'korporasi'
+  ];
+
+  const FAJAR_ALIASES = [
+    'fajar@sinergidigital.co.id',
+    'fajar@legalease.co.id',
+    'fajar'
+  ];
+
+  const ADMIN_ALIASES = [
+    'admin@legalease.co.id',
+    'admin'
+  ];
+
+  const NOTARY_ALIASES = [
+    'notaris@legalease.co.id',
+    'notaris',
+    'hendra.wijaya@notaris-legalease.id'
+  ];
+
+  const DEMO_ACCOUNT_ALIASES = [
+    ...GELSAY_ALIASES,
+    ...FAJAR_ALIASES,
+    ...ADMIN_ALIASES,
+    ...NOTARY_ALIASES
+  ];
+
+  function isDemoAccount(email) {
+    if (!email) return false;
+    const clean = String(email).trim().toLowerCase();
+    return DEMO_ACCOUNT_ALIASES.includes(clean);
+  }
+
+  // Anti-Brute-Force & Rate Limiting System (Bypassed for Demo Accounts)
   const loginAttempts = {};
 
   function checkLoginThrottling(email) {
+    if (isDemoAccount(email)) {
+      return { allowed: true };
+    }
     const record = loginAttempts[email];
     if (!record) return { allowed: true };
     const now = Date.now();
@@ -77,6 +120,9 @@
   }
 
   function recordFailedLogin(email) {
+    if (isDemoAccount(email)) {
+      return; // Never lock out demo accounts during testing/evaluation
+    }
     if (!loginAttempts[email]) {
       loginAttempts[email] = { count: 0, lockedUntil: 0 };
     }
@@ -137,57 +183,68 @@
     transactions: []
   };
 
-  // Pre-configured Verified Corporate Client Accounts (for seamless cross-device authentication)
-  const DEFAULT_CLIENT_ACCOUNTS = {
-    'fajar@sinergidigital.co.id': {
-      password: 'secret123',
-      user: {
-        id: 'usr_client_fajar',
-        fullName: 'Fajar Nugraha',
-        initials: 'FN',
-        companyName: 'PT Sinergi Digital Indonesia',
-        email: 'fajar@sinergidigital.co.id',
-        phone: '0812-9988-7766',
-        city: 'Jakarta Selatan',
-        role: 'client',
-        plan: 'biasa',
-        planName: 'Paket Biasa (Rp 0)',
-        planDuration: '0 Hari Aktif',
-        registeredAt: '25 Okt 2026',
-        isAuthenticated: true,
-        transactions: []
-      }
-    },
-    'gelsay@nusantaralaw.co.id': {
-      password: 'gelsaypass',
-      user: {
-        id: 'usr_client_gelsay',
-        fullName: 'Gelsay Behrous',
-        initials: 'GB',
-        companyName: 'PT Gelsay Law Nusantara',
-        email: 'gelsay@nusantaralaw.co.id',
-        phone: '0813-8877-6655',
-        city: 'Jakarta Pusat',
-        role: 'client',
-        plan: 'full',
+  // Official Corporate Client Account (PT Gelsay Law Nusantara)
+  const CORPORATE_GELSAY_USER = {
+    id: 'usr_client_gelsay',
+    fullName: 'Gelsay Behrous',
+    initials: 'GB',
+    companyName: 'PT Gelsay Law Nusantara',
+    email: 'gelsay@nusantaralaw.co.id',
+    phone: '0813-8877-6655',
+    city: 'Jakarta Pusat',
+    role: 'client',
+    plan: 'full',
+    planName: 'Full Legal Suite',
+    planDuration: '12 Bulan Penuh (Hingga 25 Okt 2027)',
+    registeredAt: '25 Okt 2026',
+    isAuthenticated: true,
+    transactions: [
+      {
+        id: 'TX-LEG-20261025-8492',
+        invoiceNo: 'INV/20261025/LE/8492',
         planName: 'Full Legal Suite',
-        planDuration: '12 Bulan Penuh (Hingga 25 Okt 2027)',
-        registeredAt: '25 Okt 2026',
-        isAuthenticated: true,
-        transactions: [
-          {
-            id: 'TX-LEG-20261025-8492',
-            invoiceNo: 'INV/20261025/LE/8492',
-            planName: 'Full Legal Suite',
-            amount: 300000,
-            date: '25 Okt 2026',
-            method: 'QRIS Real-Time (NMID: ID102026049281)',
-            status: 'LUNAS (Terverifikasi Bank Indonesia)'
-          }
-        ]
+        amount: 300000,
+        date: '25 Okt 2026',
+        method: 'QRIS Real-Time (NMID: ID102026049281)',
+        status: 'LUNAS (Terverifikasi Bank Indonesia)'
       }
-    }
+    ]
   };
+
+  // Official Business Client Account (Fajar Nugraha)
+  const BUSINESS_FAJAR_USER = {
+    id: 'usr_client_fajar',
+    fullName: 'Fajar Nugraha',
+    initials: 'FN',
+    companyName: 'PT Sinergi Digital Indonesia',
+    email: 'fajar@sinergidigital.co.id',
+    phone: '0812-9988-7766',
+    city: 'Jakarta Selatan',
+    role: 'client',
+    plan: 'biasa',
+    planName: 'Paket Biasa (Rp 0)',
+    planDuration: '0 Hari Aktif',
+    registeredAt: '25 Okt 2026',
+    isAuthenticated: true,
+    transactions: []
+  };
+
+  // Pre-configured Verified Corporate Client Accounts (for seamless cross-device authentication)
+  const DEFAULT_CLIENT_ACCOUNTS = {};
+  GELSAY_ALIASES.forEach(alias => {
+    DEFAULT_CLIENT_ACCOUNTS[alias] = {
+      password: 'gelsaypass',
+      passwords: ['gelsaypass', 'secret123'],
+      user: CORPORATE_GELSAY_USER
+    };
+  });
+  FAJAR_ALIASES.forEach(alias => {
+    DEFAULT_CLIENT_ACCOUNTS[alias] = {
+      password: 'secret123',
+      passwords: ['secret123'],
+      user: BUSINESS_FAJAR_USER
+    };
+  });
 
   function getRegisteredUsers() {
     try {
@@ -1786,10 +1843,35 @@
             <p class="text-[11px] text-slate-500 mt-0.5">Akses layanan notaris, konsultasi terenkripsi, dan pembuatan dokumen hukum</p>
           </div>
 
-          <form onsubmit="handleUserLoginSubmit(event)" class="space-y-3 pt-1">
+          <!-- Quick-Fill Demo Accounts -->
+          <div class="p-3 bg-amber-50/90 border border-amber-200/90 rounded-xl space-y-2">
+            <div class="flex items-center justify-between text-[11px] font-bold text-amber-950">
+              <span class="flex items-center gap-1.5">
+                <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-600"></i>
+                1-Click Quick-Fill Demo Akun
+              </span>
+              <span class="text-[9px] font-semibold text-amber-800 bg-amber-200/80 px-2 py-0.5 rounded-full uppercase tracking-wider font-mono">Siap Pakai</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-1.5 pt-0.5">
+              <button type="button" id="quick-fill-gelsay" onclick="quickFillDemoAccount('gelsay')" class="px-2.5 py-2 rounded-lg bg-white border border-amber-200 hover:border-amber-400 hover:bg-amber-100/50 text-[11px] font-bold text-slate-800 text-left transition flex items-center gap-1.5 shadow-2xs group cursor-pointer">
+                <span class="text-sm">🏢</span>
+                <span class="truncate group-hover:text-amber-950">Klien Korporasi (PT Gelsay)</span>
+              </button>
+              <button type="button" id="quick-fill-fajar" onclick="quickFillDemoAccount('fajar')" class="px-2.5 py-2 rounded-lg bg-white border border-amber-200 hover:border-amber-400 hover:bg-amber-100/50 text-[11px] font-bold text-slate-800 text-left transition flex items-center gap-1.5 shadow-2xs group cursor-pointer">
+                <span class="text-sm">👤</span>
+                <span class="truncate group-hover:text-amber-950">Klien Bisnis (Fajar)</span>
+              </button>
+              <button type="button" id="quick-fill-admin" onclick="quickFillDemoAccount('admin')" class="px-2.5 py-2 rounded-lg bg-white border border-amber-200 hover:border-amber-400 hover:bg-amber-100/50 text-[11px] font-bold text-slate-800 text-left transition flex items-center gap-1.5 shadow-2xs group cursor-pointer">
+                <span class="text-sm">⚖️</span>
+                <span class="truncate group-hover:text-amber-950">Admin Notaris (Dr. Hendra)</span>
+              </button>
+            </div>
+          </div>
+
+          <form onsubmit="handleUserLoginSubmit(event)" novalidate class="space-y-3 pt-1">
             <div>
-              <label class="block font-bold text-slate-700 mb-1">Email Resmi</label>
-              <input type="email" id="auth-login-email" required placeholder="nama@perusahaan.co.id" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 focus:outline-none focus:border-[#0C1E36] focus:bg-white text-xs font-medium">
+              <label class="block font-bold text-slate-700 mb-1">Email / Username Akun</label>
+              <input type="text" id="auth-login-email" required placeholder="nama@perusahaan.co.id atau username demo" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 focus:outline-none focus:border-[#0C1E36] focus:bg-white text-xs font-medium">
             </div>
             <div>
               <label class="block font-bold text-slate-700 mb-1">Kata Sandi</label>
@@ -1804,7 +1886,7 @@
               <span class="text-[9px] px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold font-mono">AKTIF</span>
             </div>
 
-            <button type="submit" class="w-full py-3 rounded-xl bg-[#0C1E36] hover:bg-slate-800 text-amber-300 font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition">
+            <button type="submit" class="w-full py-3 rounded-xl bg-[#0C1E36] hover:bg-slate-800 text-amber-300 font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition cursor-pointer">
               <i data-lucide="log-in" class="w-4 h-4"></i> Masuk Sekarang
             </button>
           </form>
@@ -1996,16 +2078,34 @@
     if (modal) modal.classList.add('hidden');
   };
 
-  window.fillAdminCredentials = function () {
+  window.quickFillDemoAccount = function (type) {
     const emailInput = document.getElementById('auth-login-email');
     const passInput = document.getElementById('auth-login-password');
-    if (emailInput) emailInput.value = 'admin@legalease.co.id';
-    if (passInput) passInput.value = 'admin';
+    if (!emailInput || !passInput) return;
+
+    if (type === 'gelsay' || type === 'corporate' || type === 'korporasi') {
+      emailInput.value = 'gelsay@nusantaralaw.co.id';
+      passInput.value = 'gelsaypass';
+      showToast('Kredensial Klien Korporasi (PT Gelsay) berhasil diisi.', 'info');
+    } else if (type === 'fajar' || type === 'business' || type === 'bisnis') {
+      emailInput.value = 'fajar@sinergidigital.co.id';
+      passInput.value = 'secret123';
+      showToast('Kredensial Klien Bisnis (Fajar) berhasil diisi.', 'info');
+    } else if (type === 'admin') {
+      emailInput.value = 'admin@legalease.co.id';
+      passInput.value = 'admin';
+      showToast('Kredensial Admin Notaris (Dr. Hendra) berhasil diisi.', 'info');
+    }
+  };
+
+  window.fillAdminCredentials = function () {
+    window.quickFillDemoAccount('admin');
   };
 
   window.handleUserLoginSubmit = async function (e) {
     if (e && e.preventDefault) e.preventDefault();
-    const email = (document.getElementById('auth-login-email')?.value || '').trim().toLowerCase();
+    const rawEmail = (document.getElementById('auth-login-email')?.value || '').trim();
+    const email = rawEmail.toLowerCase();
     const password = (document.getElementById('auth-login-password')?.value || '').trim();
 
     if (!email || !password) {
@@ -2013,18 +2113,18 @@
       return;
     }
 
-    // Rate-Limiting & Anti-Brute-Force Protection
+    // Rate-Limiting & Anti-Brute-Force Protection (bypassed for demo accounts)
     const throttle = checkLoginThrottling(email);
     if (!throttle.allowed) {
       showToast(`Terlalu banyak percobaan gagal. Akun dikunci sementara demi keamanan. Coba lagi dalam ${throttle.remainingSecs} detik.`, 'error');
       return;
     }
 
-    // 1. Check Administrator Notary Login (Admin Besar) via Salted SHA-256 Hash
+    // 1. Check Administrator Notary Login (Admin Besar) via Salted SHA-256 Hash or Demo Credential
     if (email === 'admin@legalease.co.id' || email === 'admin') {
       const inputHash = await computeHash(password, ADMIN_SALT);
-      if (ADMIN_CREDENTIAL_HASHES.includes(inputHash)) {
-        clearFailedLogin(email);
+      if (ADMIN_CREDENTIAL_HASHES.includes(inputHash) || password === 'admin') {
+        ADMIN_ALIASES.forEach(a => clearFailedLogin(a));
         state.currentUser = Object.assign({}, ADMIN_ACCOUNT);
         state.currentUser.sessionToken = generateSessionToken();
         state.currentUser.sessionExpiresAt = Date.now() + (24 * 60 * 60 * 1000); // 24 jam
@@ -2045,7 +2145,7 @@
     // 2. Check Regular Partner Notary Login (Notaris Rekanan Biasa - Bukan Admin Besar)
     if (email === 'notaris@legalease.co.id' || email === 'notaris' || email === 'hendra.wijaya@notaris-legalease.id') {
       if (password === 'notaris123' || password === 'notaris' || password === 'admin') {
-        clearFailedLogin(email);
+        NOTARY_ALIASES.forEach(a => clearFailedLogin(a));
         state.currentUser = Object.assign({}, NOTARY_ACCOUNT);
         state.currentUser.sessionToken = generateSessionToken();
         state.currentUser.sessionExpiresAt = Date.now() + (24 * 60 * 60 * 1000); // 24 jam
@@ -2063,35 +2163,99 @@
       }
     }
 
-    if (false) {
-      const inputHash = await computeHash(password, ADMIN_SALT);
-      if (ADMIN_CREDENTIAL_HASHES.includes(inputHash)) {
-        clearFailedLogin(email);
-        state.currentUser = Object.assign({}, ADMIN_ACCOUNT);
-        state.currentUser.sessionToken = generateSessionToken();
-        state.currentUser.sessionExpiresAt = Date.now() + (24 * 60 * 60 * 1000); // 24 jam
-        saveSession(state.currentUser);
+    // 3. Check Corporate Client Aliases (Gelsay Behrous - PT Gelsay Law Nusantara)
+    const gelsayAliases = GELSAY_ALIASES;
+    if (gelsayAliases.includes(email)) {
+      let isGelsayMatch = (password === 'gelsaypass' || password === 'secret123');
+      const users = getRegisteredUsers();
+      let gelsayUser = users.find(u => gelsayAliases.includes((u.email || '').toLowerCase()) || u.id === 'usr_client_gelsay');
+      if (!isGelsayMatch && gelsayUser && gelsayUser.passwordHash && gelsayUser.passwordSalt) {
+        const computed = await computeHash(password, gelsayUser.passwordSalt);
+        if (computed === gelsayUser.passwordHash) isGelsayMatch = true;
+      }
+
+      if (isGelsayMatch) {
+        gelsayAliases.forEach(a => clearFailedLogin(a));
+        if (!gelsayUser) {
+          gelsayUser = JSON.parse(JSON.stringify(CORPORATE_GELSAY_USER));
+          const newSalt = generateCryptoSalt(16);
+          gelsayUser.passwordHash = await computeHash('gelsaypass', newSalt);
+          gelsayUser.passwordSalt = newSalt;
+          users.push(gelsayUser);
+          saveRegisteredUsers(users);
+        }
+        const safeUser = Object.assign({}, gelsayUser);
+        delete safeUser.passwordHash;
+        delete safeUser.passwordSalt;
+        delete safeUser.password;
+        safeUser.sessionToken = generateSessionToken();
+        safeUser.sessionExpiresAt = Date.now() + (24 * 60 * 60 * 1000); // 24 jam
+        state.currentUser = safeUser;
+        saveSession(safeUser);
         saveState();
         syncNavbarUser();
         closeAuthModal();
-        switchView('admin_dashboard');
-        showToast('Autentikasi terverifikasi. Masuk sebagai Notaris Administrator.', 'success');
+        switchView('client_dashboard');
+        showToast(`Selamat datang kembali, ${escapeHtml(safeUser.fullName)}!`, 'success');
         return;
       } else {
         recordFailedLogin(email);
-        showToast('Kredensial notaris tidak valid. Akses ditolak.', 'error');
+        showToast('Kata sandi untuk akun korporasi salah. Gunakan kata sandi "gelsaypass" atau "secret123".', 'error');
         return;
       }
     }
 
-    // 2. Check Registered Client Login via Salted SHA-256 Hash
+    // 4. Check Business Client Aliases (Fajar Nugraha - PT Sinergi Digital Indonesia)
+    const fajarAliases = FAJAR_ALIASES;
+    if (fajarAliases.includes(email)) {
+      let isFajarMatch = (password === 'secret123');
+      const users = getRegisteredUsers();
+      let fajarUser = users.find(u => fajarAliases.includes((u.email || '').toLowerCase()) || u.id === 'usr_client_fajar');
+      if (!isFajarMatch && fajarUser && fajarUser.passwordHash && fajarUser.passwordSalt) {
+        const computed = await computeHash(password, fajarUser.passwordSalt);
+        if (computed === fajarUser.passwordHash) isFajarMatch = true;
+      }
+
+      if (isFajarMatch) {
+        fajarAliases.forEach(a => clearFailedLogin(a));
+        if (!fajarUser) {
+          fajarUser = JSON.parse(JSON.stringify(BUSINESS_FAJAR_USER));
+          const newSalt = generateCryptoSalt(16);
+          fajarUser.passwordHash = await computeHash('secret123', newSalt);
+          fajarUser.passwordSalt = newSalt;
+          users.push(fajarUser);
+          saveRegisteredUsers(users);
+        }
+        const safeUser = Object.assign({}, fajarUser);
+        delete safeUser.passwordHash;
+        delete safeUser.passwordSalt;
+        delete safeUser.password;
+        safeUser.sessionToken = generateSessionToken();
+        safeUser.sessionExpiresAt = Date.now() + (24 * 60 * 60 * 1000); // 24 jam
+        state.currentUser = safeUser;
+        saveSession(safeUser);
+        saveState();
+        syncNavbarUser();
+        closeAuthModal();
+        switchView('client_dashboard');
+        showToast(`Selamat datang kembali, ${escapeHtml(safeUser.fullName)}!`, 'success');
+        return;
+      } else {
+        recordFailedLogin(email);
+        showToast('Kata sandi untuk akun klien bisnis salah. Gunakan kata sandi "secret123".', 'error');
+        return;
+      }
+    }
+
+    // 5. Check Other Registered Client Accounts via Salted SHA-256 Hash
     const users = getRegisteredUsers();
     let found = users.find(u => u.email.toLowerCase() === email);
 
     // Support instant sign-in for pre-configured client accounts if not yet in localStorage
     if (!found && DEFAULT_CLIENT_ACCOUNTS[email]) {
       const defaultEntry = DEFAULT_CLIENT_ACCOUNTS[email];
-      if (defaultEntry.password === password) {
+      const matchPass = (defaultEntry.passwords && defaultEntry.passwords.includes(password)) || defaultEntry.password === password;
+      if (matchPass) {
         const newSalt = generateCryptoSalt(16);
         const passwordHash = await computeHash(password, newSalt);
         const newUser = Object.assign({}, defaultEntry.user, {
