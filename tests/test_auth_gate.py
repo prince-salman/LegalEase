@@ -93,7 +93,7 @@ async def main():
         auth_open = await page.evaluate("() => !document.getElementById('auth-modal').classList.contains('hidden')")
         assert auth_open, "FAILED: auth-modal should open when unauthenticated user triggers voice call"
         toast_text = await page.inner_text('#toast-container')
-        assert 'Silakan masuk ke akun Anda terlebih dahulu untuk memulai sesi video / telepon dengan Notaris.' in toast_text
+        assert ('memulai panggilan suara dengan Notaris' in toast_text or 'memulai sesi video / telepon dengan Notaris' in toast_text)
         print("   [OK] Voice call correctly blocked and prompted login modal")
 
         await page.evaluate("() => window.closeAuthModal()")

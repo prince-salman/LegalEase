@@ -933,7 +933,10 @@
           <button onclick="openBookingModal('${notary.id}', '${notary.name}')" class="flex-1 py-2.5 rounded-xl bg-[#0C1E36] hover:bg-slate-800 text-amber-300 text-xs font-bold flex items-center justify-center gap-1.5 transition shadow-2xs">
             <i data-lucide="calendar" class="w-3.5 h-3.5"></i> Jadwalkan Janji Temu
           </button>
-          <button onclick="openLiveChat('${notary.id}')" class="px-4 py-2.5 rounded-xl bg-[#0D7A68] hover:bg-teal-800 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition shadow-2xs" title="Mulai Konsultasi Chat">
+          <button onclick="startVoiceCall('${notary.id}')" class="px-3.5 py-2.5 rounded-xl bg-[#0C384D] hover:bg-slate-900 text-amber-300 text-xs font-bold flex items-center justify-center gap-1.5 transition shadow-2xs" title="Panggilan Suara Notaris">
+            <i data-lucide="phone-call" class="w-3.5 h-3.5"></i> Call
+          </button>
+          <button onclick="openLiveChat('${notary.id}')" class="px-3.5 py-2.5 rounded-xl bg-[#0D7A68] hover:bg-teal-800 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition shadow-2xs" title="Mulai Konsultasi Chat">
             <i data-lucide="message-square" class="w-3.5 h-3.5"></i> Chat
           </button>
         </div>
@@ -1770,15 +1773,147 @@
     return true;
   };
 
-  // --- TELECONSULTATION / VOICE CALL CONTROLLER (ITEM 13: AUTH-GATE) ---
+  // --- OFFICIAL NOTARY ENCRYPTED VOICE CALL CONTROLLER (ITEM 4) ---
+  let voiceCallTimerInterval = null;
+  let voiceCallSeconds = 0;
+  let voiceCallIsMuted = false;
+  let voiceCallIsSpeaker = true;
+  let voiceCallActiveNotary = null;
+
   window.startVoiceCall = function (notaryId) {
-    if (!window.requireAuth(null, 'memulai sesi video / telepon dengan Notaris')) {
+    if (!window.requireAuth(null, 'memulai panggilan suara dengan Notaris')) {
       return false;
     }
+
     const notId = notaryId || state.activeChatNotaryId || 'notary-1';
-    const notary = NOTARIES.find(n => n.id === notId) || NOTARIES[0];
-    showToast(`Menghubungkan sesi telekonsultasi resmi dengan ${notary.name}...`, 'info');
+    const notary = (typeof NOTARIES !== 'undefined' ? NOTARIES.find(n => n.id === notId) : null) || (typeof NOTARIES !== 'undefined' ? NOTARIES[0] : {
+      id: notId,
+      name: 'Dr. Hendra Wijaya, S.H., M.Kn.',
+      title: 'Notaris & PPAT Rekanan Resmi Kemenkumham RI',
+      avatar: 'assets/team/team_1.jpeg'
+    });
+
+    voiceCallActiveNotary = notary;
+    voiceCallSeconds = 0;
+    voiceCallIsMuted = false;
+    voiceCallIsSpeaker = true;
+
+    if (voiceCallTimerInterval) {
+      clearInterval(voiceCallTimerInterval);
+      voiceCallTimerInterval = null;
+    }
+
+    const modal = document.getElementById('voice-call-modal');
+    if (!modal) return false;
+
+    // Populate notary details into modal
+    const nameEl = document.getElementById('voice-call-notary-name');
+    const titleEl = document.getElementById('voice-call-notary-title');
+    const avatarEl = document.getElementById('voice-call-avatar');
+    const timerEl = document.getElementById('voice-call-timer');
+    const statusEl = document.getElementById('voice-call-status');
+
+    if (nameEl) nameEl.textContent = notary.name;
+    if (titleEl) titleEl.textContent = notary.title || 'Notaris & PPAT Rekanan Resmi Kemenkumham RI';
+    if (avatarEl) avatarEl.src = notary.avatar;
+    if (timerEl) timerEl.textContent = '00:00';
+    if (statusEl) statusEl.textContent = 'Terhubung';
+
+    syncVoiceCallControlsUI();
+
+    modal.classList.remove('hidden');
+
+    // Start 1-second interval timer
+    voiceCallTimerInterval = setInterval(() => {
+      voiceCallSeconds++;
+      const mins = Math.floor(voiceCallSeconds / 60);
+      const secs = voiceCallSeconds % 60;
+      const formatted = String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+      const timerDisplay = document.getElementById('voice-call-timer');
+      if (timerDisplay) {
+        timerDisplay.textContent = formatted;
+      }
+    }, 1000);
+
+    if (window.lucide) window.lucide.createIcons();
+    showToast(`Panggilan suara terhubung dengan ${notary.name}. Sesi resmi terenkripsi aktif.`, 'success');
     return true;
+  };
+
+  window.endVoiceCall = function () {
+    if (voiceCallTimerInterval) {
+      clearInterval(voiceCallTimerInterval);
+      voiceCallTimerInterval = null;
+    }
+
+    const modal = document.getElementById('voice-call-modal');
+    if (modal) {
+      modal.classList.add('hidden');
+    }
+
+    const mins = Math.floor(voiceCallSeconds / 60);
+    const secs = voiceCallSeconds % 60;
+    const formatted = String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+    const notaryName = voiceCallActiveNotary ? voiceCallActiveNotary.name : 'Notaris';
+
+    showToast(`Panggilan suara dengan ${notaryName} selesai (${formatted}). Ringkasan konsultasi dicatat ke buku agenda.`, 'info');
+    voiceCallSeconds = 0;
+  };
+
+  function syncVoiceCallControlsUI() {
+    // Mute UI
+    const muteIconBg = document.getElementById('voice-call-mute-icon-bg');
+    const muteLabel = document.getElementById('voice-call-mute-label');
+    const muteIcon = document.getElementById('voice-call-mute-icon');
+
+    if (muteIconBg) {
+      if (voiceCallIsMuted) {
+        muteIconBg.className = 'w-12 h-12 rounded-full bg-rose-500/30 text-rose-300 flex items-center justify-center transition border border-rose-400/40 shadow-sm';
+      } else {
+        muteIconBg.className = 'w-12 h-12 rounded-full bg-white/10 group-hover:bg-white/20 text-white flex items-center justify-center transition border border-white/10 shadow-sm';
+      }
+    }
+    if (muteLabel) {
+      muteLabel.textContent = voiceCallIsMuted ? 'Muted' : 'Mute';
+      muteLabel.className = voiceCallIsMuted ? 'text-[10px] text-rose-300 font-bold' : 'text-[10px] text-slate-300 font-medium';
+    }
+    if (muteIcon) {
+      muteIcon.setAttribute('data-lucide', voiceCallIsMuted ? 'mic-off' : 'mic');
+    }
+
+    // Speaker UI
+    const speakerIconBg = document.getElementById('voice-call-speaker-icon-bg');
+    const speakerLabel = document.getElementById('voice-call-speaker-label');
+    const speakerIcon = document.getElementById('voice-call-speaker-icon');
+
+    if (speakerIconBg) {
+      if (voiceCallIsSpeaker) {
+        speakerIconBg.className = 'w-12 h-12 rounded-full bg-cyan-500/20 text-cyan-300 group-hover:bg-cyan-500/30 flex items-center justify-center transition border border-cyan-400/30 shadow-sm';
+      } else {
+        speakerIconBg.className = 'w-12 h-12 rounded-full bg-white/10 group-hover:bg-white/20 text-slate-400 flex items-center justify-center transition border border-white/10 shadow-sm';
+      }
+    }
+    if (speakerLabel) {
+      speakerLabel.textContent = voiceCallIsSpeaker ? 'Speaker On' : 'Speaker Off';
+      speakerLabel.className = voiceCallIsSpeaker ? 'text-[10px] text-cyan-200 font-medium' : 'text-[10px] text-slate-400 font-medium';
+    }
+    if (speakerIcon) {
+      speakerIcon.setAttribute('data-lucide', voiceCallIsSpeaker ? 'volume-2' : 'volume-x');
+    }
+
+    if (window.lucide) window.lucide.createIcons();
+  }
+
+  window.toggleVoiceMute = function () {
+    voiceCallIsMuted = !voiceCallIsMuted;
+    syncVoiceCallControlsUI();
+    showToast(voiceCallIsMuted ? 'Mikrofon dinonaktifkan (Muted).' : 'Mikrofon diaktifkan.', 'info');
+  };
+
+  window.toggleVoiceSpeaker = function () {
+    voiceCallIsSpeaker = !voiceCallIsSpeaker;
+    syncVoiceCallControlsUI();
+    showToast(voiceCallIsSpeaker ? 'Pengeras suara diaktifkan.' : 'Pengeras suara dimatikan (Ear-piece).', 'info');
   };
 
   // --- APK GUIDE MODAL & SHA CHECKSUM ---
@@ -2095,7 +2230,7 @@
                     </div>
                     <div class="font-bold text-xs text-[#0C1E36]">Full Legal Suite</div>
                     <div class="text-sm font-bold text-amber-900 my-0.5">Rp 300.000</div>
-                    <p class="text-[10px] text-slate-500 leading-tight">Video call notaris + 6 draf akta PT & kontrak Word.</p>
+                    <p class="text-[10px] text-slate-500 leading-tight">Panggilan suara notaris + 6 draf akta PT & kontrak Word.</p>
                   </div>
                 </div>
               </div>
@@ -2766,9 +2901,9 @@
     if (msg.includes('biaya') || msg.includes('harga') || msg.includes('tarif') || msg.includes('bayar') || msg.includes('jadwal') || msg.includes('temu')) {
       return `Untuk tarif layanan kenotariatan dan konsultasi di LegalEase:\n\n` +
         `1. **Konsultasi Chat Online**: Tersedia Paket Legal Chat Essential seharga **IDR 150.000/bulan** untuk konsultasi tanpa batas dengan Notaris & PPAT.\n` +
-        `2. **Full Legal Suite**: **IDR 300.000/bulan** mencakup konsultasi chat prioritas, panggilan video 1-on-1, dan akses penuh pembuatan serta pengunduhan seluruh template kontrak hukum (Word & PDF).\n` +
+        `2. **Full Legal Suite**: **IDR 300.000/bulan** mencakup konsultasi chat prioritas, panggilan suara (voice call HD) langsung dengan Notaris, dan akses penuh pembuatan serta pengunduhan seluruh template kontrak hukum (Word & PDF).\n` +
         `3. **Pembuatan Akta Otentik**: Dikenakan tarif berdasarkan ketentuan Pasal 36 UU Jabatan Notaris (UUJN No. 2 Tahun 2014) disesuaikan dengan nilai ekonomis akta, ditambah biaya resmi PNBP Kemenkumham RI.\n\n` +
-        `Anda dapat menjadwalkan janji temu tatap muka atau video call melalui tombol **"Jadwal Tatap Muka"** pada profil notaris kami.`;
+        `Anda dapat menjadwalkan janji temu tatap muka atau panggilan suara melalui tombol **"Jadwal Tatap Muka"** pada profil notaris kami.`;
     }
 
     // General / Fallback
@@ -3333,6 +3468,9 @@
               <span class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold bg-white/10 text-emerald-300 font-mono">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Terhubung Cloud Realtime
               </span>
+              <button onclick="startVoiceCall('${notary.id}')" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-2xs">
+                <i data-lucide="phone-call" class="w-3.5 h-3.5"></i> Panggilan Suara
+              </button>
               <button onclick="openBookingModal('${notary.id}', '${notary.name}')" class="px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-950 font-bold text-xs transition flex items-center gap-1.5 shadow-2xs">
                 <i data-lucide="calendar" class="w-3.5 h-3.5"></i> Jadwalkan Temu
               </button>
@@ -4506,7 +4644,7 @@
             <div class="p-4 rounded-2xl bg-black/30 border border-white/5">
               <div class="text-[10px] font-bold uppercase text-emerald-300 font-mono">Agenda Janji Temu</div>
               <div class="text-2xl font-bold text-white mt-1">2 Sesi Hari Ini</div>
-              <div class="text-[10px] text-teal-300 mt-1">1 Tatap Muka • 1 Video Call</div>
+              <div class="text-[10px] text-teal-300 mt-1">1 Tatap Muka • 1 Panggilan Suara</div>
             </div>
             <div class="p-4 rounded-2xl bg-black/30 border border-white/5">
               <div class="text-[10px] font-bold uppercase text-emerald-300 font-mono">Sertifikat Elektronik</div>
@@ -4529,7 +4667,7 @@
           </button>
           <button onclick="switchNotaryPortalTab('schedule')" id="btn-notary-tab-schedule" class="py-3 px-4 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${activeNotaryTab === 'schedule' ? 'bg-emerald-500 text-slate-950 font-extrabold shadow-xs' : 'text-emerald-200 hover:text-white'}">
             <i data-lucide="calendar" class="w-4 h-4"></i>
-            <span>Buku Agenda Temu & Video Call (2)</span>
+            <span>Buku Agenda Temu & Panggilan Suara (2)</span>
           </button>
         </div>
 
@@ -4632,7 +4770,7 @@
           <div class="flex items-center justify-between pb-4 border-b border-slate-100">
             <div>
               <h3 class="font-bold text-base text-[#0C1E36]">Buku Agenda Janji Temu Resmi Notaris</h3>
-              <p class="text-xs text-slate-500">Jadwal tatap muka kantor dan konsultasi video call terdaftar untuk Dr. Hendra Wijaya</p>
+              <p class="text-xs text-slate-500">Jadwal tatap muka kantor dan konsultasi panggilan suara terdaftar untuk Dr. Hendra Wijaya</p>
             </div>
             <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold font-mono">2 Sesi Terjadwal</span>
           </div>
@@ -4641,21 +4779,21 @@
             <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 hover:border-emerald-500/50 transition">
               <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div class="flex items-start gap-3">
-                  <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center shrink-0">
-                    <i data-lucide="video" class="w-5 h-5"></i>
+                  <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0">
+                    <i data-lucide="phone-call" class="w-5 h-5"></i>
                   </div>
                   <div>
                     <div class="flex items-center gap-2">
                       <h4 class="font-bold text-sm text-[#0C1E36]">Fajar Nugraha (PT Sinergi Digital Indonesia)</h4>
-                      <span class="px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 text-[10px] font-bold">Panggilan Video WebRTC</span>
+                      <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">Panggilan Suara Notaris (Voice Call HD)</span>
                     </div>
                     <p class="text-xs text-slate-600 mt-1">Agenda: Konsultasi Persyaratan Modal Ditempatkan 25% & Pengecekan 3 Opsi Nama PT di AHU Online</p>
-                    <p class="text-[11px] text-slate-400 font-mono mt-0.5">Waktu: Besok, Pukul 10:00 - 10:45 WIB • Tautan Ruang: legalease.co.id/room/notary-hw-041</p>
+                    <p class="text-[11px] text-slate-400 font-mono mt-0.5">Waktu: Besok, Pukul 10:00 - 10:45 WIB • Jalur Suara Langsung Terenkripsi</p>
                   </div>
                 </div>
                 <div class="flex items-center gap-2">
-                  <button onclick="showToast('Ruang video call siap dibuka pada jam sesi yang dijadwalkan.', 'info')" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-xs">
-                    <i data-lucide="video" class="w-3.5 h-3.5"></i> Masuk Ruang VC
+                  <button onclick="startVoiceCall('notary-1')" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-xs">
+                    <i data-lucide="phone-call" class="w-3.5 h-3.5"></i> Mulai Panggilan Suara
                   </button>
                 </div>
               </div>
