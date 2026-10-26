@@ -1067,26 +1067,49 @@
     let wordHtml = `
       <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
       <head>
-        <meta charset='utf-8'>
-        <title>${doc.title}</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <title>${doc.title} - Dokumen Resmi dari Tim LegalEase Indonesia</title>
+        <!--[if gte mso 9]>
+        <xml>
+          <w:WordDocument>
+            <w:View>Print</w:View>
+            <w:Zoom>100</w:Zoom>
+            <w:DoNotOptimizeForBrowser/>
+          </w:WordDocument>
+        </xml>
+        <![endif]-->
         <style>
-          body { font-family: 'Times New Roman', Times, serif; font-size: 12pt; line-height: 1.5; color: #000; margin: 2.5cm; }
-          h2 { text-align: center; font-size: 14pt; font-weight: bold; margin-bottom: 2pt; text-transform: uppercase; }
-          .sub { text-align: center; font-size: 10pt; font-style: italic; margin-bottom: 24pt; }
-          h3 { font-size: 11pt; font-weight: bold; margin-top: 14pt; margin-bottom: 4pt; text-transform: uppercase; }
-          p { text-align: justify; margin-bottom: 10pt; }
-          .signatures { width: 100%; margin-top: 40pt; border-collapse: collapse; }
-          .signatures td { width: 50%; text-align: center; vertical-align: bottom; height: 100pt; }
-          .seal { border: 1px dashed #666; padding: 10pt; width: 100pt; margin: 0 auto; font-size: 8pt; text-align: center; }
+          @page { size: A4; margin: 2.5cm 2cm 2.5cm 2cm; }
+          body { font-family: 'Times New Roman', Times, serif; font-size: 11pt; line-height: 1.4; color: #000; }
+          .header-legalease { text-align: center; border-bottom: 2pt double #0D7A68; padding-bottom: 6pt; margin-bottom: 18pt; font-family: 'Times New Roman', Times, serif; }
+          .header-tag { font-size: 11pt; font-weight: bold; letter-spacing: 1.5pt; color: #0D7A68; text-transform: uppercase; margin-bottom: 3pt; }
+          .header-sub { font-size: 9pt; color: #555555; text-transform: uppercase; letter-spacing: 0.5pt; }
+          h2 { text-align: center; font-size: 14pt; font-weight: bold; margin-top: 10pt; margin-bottom: 2pt; text-transform: uppercase; font-family: 'Times New Roman', Times, serif; }
+          .sub { text-align: center; font-size: 10pt; font-style: italic; margin-bottom: 20pt; color: #444; }
+          h3 { font-size: 11pt; font-weight: bold; margin-top: 14pt; margin-bottom: 4pt; text-transform: uppercase; font-family: 'Times New Roman', Times, serif; }
+          p { text-align: justify; margin-bottom: 8pt; font-size: 11pt; line-height: 1.4; }
+          .signature-table { width: 100%; border-collapse: collapse; margin-top: 30pt; }
+          .signature-table td { width: 50%; vertical-align: top; text-align: center; padding: 10pt; }
+          .sign-space { height: 50pt; }
+          .sign-line { border-bottom: 1.5pt solid #000; display: inline-block; min-width: 160pt; padding-bottom: 2pt; font-weight: bold; font-size: 11pt; }
+          .meterai-box { display: inline-block; border: 1.5pt dashed #DC2626; background-color: #FEF2F2; padding: 6pt 14pt; margin: 4pt auto 10pt auto; font-size: 8pt; color: #991B1B; font-weight: bold; text-align: center; }
+          .meterai-amount { font-size: 10pt; font-weight: bold; display: block; margin-top: 2pt; }
+          .verified-badge { font-size: 8.5pt; color: #047857; margin-top: 4pt; font-weight: bold; }
         </style>
       </head>
       <body>
+        <div class="header-legalease">
+          <div class="header-tag">DOKUMEN RESMI DARI TIM LEGALEASE INDONESIA</div>
+          <div class="header-sub">Standar Baku Tersertifikasi Notaris &amp; PPAT Kemenkumham RI</div>
+        </div>
+
         <h2>${doc.title}</h2>
-        <div class="sub">Nomor: ${doc.docNo}</div>
-        <p>Pada hari ini, tanggal <strong>${state.docFormData.contractDate}</strong>, bertempat di <strong>${state.docFormData.contractCity}</strong>, telah dibuat dan ditandatangani perjanjian hukum antara:</p>
+        <div class="sub">Nomor: ${doc.docNo} &bull; ${doc.subtitle}</div>
+
+        <p>Pada hari ini, tanggal <strong>${state.docFormData.contractDate}</strong>, bertempat di <strong>${state.docFormData.contractCity}</strong>, telah dibuat dan disepakati dokumen hukum resmi antara:</p>
         <p>1. <strong>${state.docFormData.party1Name}</strong>, selanjutnya disebut sebagai <strong>PIHAK PERTAMA</strong>.</p>
         <p>2. <strong>${state.docFormData.party2Name}</strong>, selanjutnya disebut sebagai <strong>PIHAK KEDUA</strong>.</p>
-        <p>Para Pihak dengan ini menerangkan dan bersepakat atas pasal-pasal sebagai berikut:</p>
+        <p>Para Pihak dengan ini menerangkan dan bersepakat atas klausul dan pasal-pasal ketentuan sebagai berikut:</p>
     `;
 
     doc.clauses.forEach(clause => {
@@ -1101,16 +1124,23 @@
     });
 
     wordHtml += `
-        <table class="signatures">
+        <table class="signature-table">
           <tr>
             <td>
-              Pihak Pertama,<br><br><br><br>
-              <strong>${state.docFormData.party1Name}</strong>
+              <p style="margin-bottom: 8pt; font-weight: bold;">Pihak Pertama / Direktur Pelaksana</p>
+              <div class="sign-space"></div>
+              <div class="sign-line">${state.docFormData.party1Name}</div>
+              <div style="font-size: 9pt; color: #555555; margin-top: 4pt;">${state.docFormData.contractCity}</div>
             </td>
             <td>
-              Pihak Kedua & Saksi Notaris,<br>
-              <div class="seal">METERAI<br>Rp 10.000</div><br>
-              <strong>${state.docFormData.party2Name}</strong>
+              <p style="margin-bottom: 8pt; font-weight: bold;">Pihak Kedua &amp; Saksi Notaris</p>
+              <div class="meterai-box">
+                METERAI TEMPEL<br>
+                <span class="meterai-amount">Rp 10.000</span>
+              </div>
+              <br>
+              <div class="sign-line">${state.docFormData.party2Name}</div>
+              <div class="verified-badge">SK Kemenkumham RI Verified</div>
             </td>
           </tr>
         </table>
@@ -1118,7 +1148,7 @@
       </html>
     `;
 
-    const blob = new Blob([wordHtml], { type: 'application/msword;charset=utf-8' });
+    const blob = new Blob(['\uFEFF', wordHtml], { type: 'application/msword;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;

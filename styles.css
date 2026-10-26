@@ -190,22 +190,69 @@ body {
 
 /* Print Stylesheet for Official Legal Documents */
 @media print {
+  @page {
+    size: A4;
+    margin: 15mm 20mm;
+  }
+
+  body {
+    background: #FFFFFF !important;
+    color: #000000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
   body * {
     visibility: hidden;
   }
+
   #doc-preview-modal,
   #doc-preview-modal * {
     visibility: visible;
   }
+
   #doc-preview-modal {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
+    display: block !important;
+    position: static !important;
+    inset: auto !important;
+    width: 100% !important;
+    max-height: none !important;
+    height: auto !important;
+    overflow: visible !important;
     background: #FFFFFF !important;
     padding: 0 !important;
   }
+
+  #doc-preview-modal > div {
+    max-width: 100% !important;
+    max-height: none !important;
+    height: auto !important;
+    overflow: visible !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+
+  #doc-printable-area {
+    max-height: none !important;
+    height: auto !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: none !important;
+  }
+
   .no-print {
     display: none !important;
   }
+
+  .page-break-inside-avoid {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
+
+.page-break-inside-avoid {
+  break-inside: avoid;
+  page-break-inside: avoid;
 }
