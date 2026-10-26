@@ -205,13 +205,59 @@
 
       <!-- Desktop Navigation Links -->
       <nav class="hidden xl:flex items-center gap-5 text-xs font-semibold text-slate-600">
-        <a href="#services" class="hover:text-[#0C1E36] transition-colors py-1">Layanan</a>
-        <a href="#notaris" class="hover:text-[#0C1E36] transition-colors py-1">Notaris & PPAT</a>
-        <a href="#templates" class="hover:text-[#0C1E36] transition-colors py-1">Template Dokumen</a>
-        <a href="#roadmap" class="hover:text-[#0C1E36] transition-colors py-1">Pendirian PT</a>
+        <!-- Consolidated Layanan Dropdown (Item 9) -->
+        <div class="relative group py-1">
+          <a href="#services" class="flex items-center gap-1.5 hover:text-[#0C1E36] transition-colors py-1">
+            <span>Layanan</span>
+            <i data-lucide="chevron-down" class="w-3.5 h-3.5 transition-transform duration-200 group-hover:rotate-180"></i>
+          </a>
+          
+          <!-- Dropdown Menu -->
+          <div class="absolute left-0 top-full pt-2 w-64 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 z-50">
+            <div class="bg-white/95 backdrop-blur-xl border border-slate-200/90 rounded-2xl p-2 shadow-xl space-y-1">
+              <a href="#services" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-700 hover:text-[#0C1E36] hover:bg-slate-50 transition-colors">
+                <div class="w-7 h-7 rounded-lg bg-teal-50 text-[#0D7A68] flex items-center justify-center shrink-0">
+                  <i data-lucide="grid" class="w-3.5 h-3.5"></i>
+                </div>
+                <div>
+                  <div class="font-bold text-xs text-slate-800">Semua Layanan</div>
+                  <div class="text-[10px] text-slate-500 font-normal">Katalog lengkap produk legal</div>
+                </div>
+              </a>
+              <a href="#notaris" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-700 hover:text-[#0C1E36] hover:bg-slate-50 transition-colors">
+                <div class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0">
+                  <i data-lucide="users" class="w-3.5 h-3.5"></i>
+                </div>
+                <div>
+                  <div class="font-bold text-xs text-slate-800">Direktori Notaris & PPAT</div>
+                  <div class="text-[10px] text-slate-500 font-normal">Konsultasi pejabat resmi</div>
+                </div>
+              </a>
+              <a href="#templates" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-700 hover:text-[#0C1E36] hover:bg-slate-50 transition-colors">
+                <div class="w-7 h-7 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center shrink-0">
+                  <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+                </div>
+                <div>
+                  <div class="font-bold text-xs text-slate-800">Template Dokumen Resmi</div>
+                  <div class="text-[10px] text-slate-500 font-normal">Format standar Word & PDF</div>
+                </div>
+              </a>
+              <a href="#roadmap" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-700 hover:text-[#0C1E36] hover:bg-slate-50 transition-colors">
+                <div class="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-700 flex items-center justify-center shrink-0">
+                  <i data-lucide="building" class="w-3.5 h-3.5"></i>
+                </div>
+                <div>
+                  <div class="font-bold text-xs text-slate-800">Pendirian PT & Legalitas</div>
+                  <div class="text-[10px] text-slate-500 font-normal">Panduan & alur Kemenkumham</div>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+
         <a href="#pricing" class="hover:text-[#0C1E36] transition-colors py-1">Paket & Biaya</a>
+        <a href="#download" class="hover:text-[#0C1E36] transition-colors py-1">Download APK</a>
         <a href="#faq" class="hover:text-[#0C1E36] transition-colors py-1">FAQ</a>
-        <a href="#team" class="hover:text-[#0C1E36] transition-colors py-1">Tim Eksekutif</a>
       </nav>
 
       <!-- Right Action Buttons (Download APK + User Profile / Switcher) -->
@@ -248,17 +294,31 @@
       <div id="mobile-auth-container" class="mb-2">
         <!-- Dynamically populated by syncNavbarUser() -->
       </div>
-      <a href="#services" class="block py-2 text-sm text-slate-700 hover:text-[#0C1E36] font-medium border-b border-slate-100">Layanan Hukum</a>
-      <a href="#notaris" class="block py-2 text-sm text-slate-700 hover:text-[#0C1E36] font-medium border-b border-slate-100">Direktori Notaris & PPAT</a>
-      <a href="#templates" class="block py-2 text-sm text-slate-700 hover:text-[#0C1E36] font-medium border-b border-slate-100">Template Dokumen (DOC/PDF)</a>
-      <a href="#roadmap" class="block py-2 text-sm text-slate-700 hover:text-[#0C1E36] font-medium border-b border-slate-100">Roadmap Pendirian PT</a>
+      <!-- Consolidated Layanan Section (Item 9) -->
+      <details class="group border-b border-slate-100 pb-2" open>
+        <summary class="flex items-center justify-between py-2 text-sm text-slate-700 hover:text-[#0C1E36] font-semibold cursor-pointer list-none select-none">
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded-lg bg-teal-50 text-[#0D7A68] flex items-center justify-center">
+              <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+            </div>
+            <span>Layanan Hukum</span>
+          </div>
+          <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform duration-200 group-open:rotate-180"></i>
+        </summary>
+        <div class="pl-8 pr-2 pt-1 pb-1 space-y-1">
+          <a href="#services" class="block py-1.5 text-xs text-slate-600 hover:text-[#0C1E36] font-medium">Semua Layanan</a>
+          <a href="#notaris" class="block py-1.5 text-xs text-slate-600 hover:text-[#0C1E36] font-medium">Direktori Notaris & PPAT</a>
+          <a href="#templates" class="block py-1.5 text-xs text-slate-600 hover:text-[#0C1E36] font-medium">Template Dokumen Resmi</a>
+          <a href="#roadmap" class="block py-1.5 text-xs text-slate-600 hover:text-[#0C1E36] font-medium">Pendirian PT & Legalitas</a>
+        </div>
+      </details>
+
       <a href="#pricing" class="block py-2 text-sm text-slate-700 hover:text-[#0C1E36] font-medium border-b border-slate-100">Paket Langganan (Trial / 150k / 300k)</a>
       <a href="#download" class="block py-2 text-sm text-emerald-700 font-bold border-b border-slate-100 flex items-center justify-between">
         <span>Download APK Android</span>
         <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-[10px]">v2.4.1</span>
       </a>
       <a href="#faq" class="block py-2 text-sm text-slate-700 hover:text-[#0C1E36] font-medium border-b border-slate-100">FAQ & Kepatuhan UUJN</a>
-      <a href="#team" class="block py-2 text-sm text-slate-700 hover:text-[#0C1E36] font-medium">Dewan Eksekutif</a>
       <div class="pt-3 flex flex-col gap-2">
         <button onclick="openLiveChat(); toggleMobileMenu();" class="w-full py-2.5 rounded-full bg-[#0D7A68] text-white text-xs font-bold flex items-center justify-center gap-2 shadow-xs">
           <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -2078,6 +2138,11 @@
 
     </div>
   </div>
+
+  <!-- Floating Back to Top Button (Item 10) -->
+  <button id="back-to-top-btn" onclick="scrollToTop()" class="fixed bottom-24 right-5 sm:bottom-8 sm:right-8 z-40 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-gradient-to-tr from-[#0C384D] to-[#0E7C86] text-white shadow-xl hover:shadow-2xl hover:scale-110 active:scale-95 transition-all duration-300 flex items-center justify-center opacity-0 pointer-events-none translate-y-4 cursor-pointer" title="Kembali ke atas" aria-label="Kembali ke atas">
+    <i data-lucide="arrow-up" class="w-5 h-5"></i>
+  </button>
 
   <!-- Production Application Script -->
   <script src="app.js"></script>

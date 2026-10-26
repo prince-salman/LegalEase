@@ -2903,6 +2903,27 @@
     const menu = document.getElementById('mobile-menu');
     if (menu) menu.classList.add('hidden');
   };
+
+  // --- BACK TO TOP (Item 10) ---
+  window.scrollToTop = function () {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  function initBackToTop() {
+    const updateBackToTop = function () {
+      const btn = document.getElementById('back-to-top-btn');
+      if (!btn) return;
+      if (window.scrollY > 300) {
+        btn.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-4');
+        btn.classList.add('opacity-100', 'pointer-events-auto', 'translate-y-0');
+      } else {
+        btn.classList.add('opacity-0', 'pointer-events-none', 'translate-y-4');
+        btn.classList.remove('opacity-100', 'pointer-events-auto', 'translate-y-0');
+      }
+    };
+    window.addEventListener('scroll', updateBackToTop, { passive: true });
+    updateBackToTop();
+  }
   window.switchClientPortalTab = function (tab) {
     if (typeof window.switchClientTab === 'function') {
       window.switchClientTab(tab);
@@ -5358,6 +5379,7 @@
 
   document.addEventListener('DOMContentLoaded', () => {
     initMobileMenu();
+    initBackToTop();
     initRealtimeChannel();
     syncNavbarUser();
     renderNotaries();
