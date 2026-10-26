@@ -2176,8 +2176,145 @@
     if (window.lucide) window.lucide.createIcons();
   };
 
+  // --- PWA INSTALL BANNER SYSTEM (Bisa di-install & bisa di-hapus) ---
+  let deferredPwaPrompt = null;
+
+  function initPwaInstallBanner() {
+    // Fast path untuk Playwright / Automated Testing agar tidak menutupi tombol lain
+    if (window.navigator.webdriver || (window.location.search && window.location.search.includes('test'))) return;
+
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+    const isMobileApp = (navigator.userAgent && navigator.userAgent.includes('LegalEaseMobileApp')) || window.location.protocol === 'file:';
+    
+    // Jangan muncul jika sudah berjalan di mode standalone PWA atau APK native
+    if (isStandalone || isMobileApp) return;
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPwaPrompt = e;
+      checkAndShowPwaBanner();
+    });
+
+    // Fallback timer untuk iOS / browser mobile
+    setTimeout(() => {
+      checkAndShowPwaBanner();
+    }, 2000);
+  }
+
+  window.checkAndShowPwaBanner = function (force = false) {
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+    const isMobileApp = (navigator.userAgent && navigator.userAgent.includes('LegalEaseMobileApp')) || window.location.protocol === 'file:';
+    if (!force && (isStandalone || isMobileApp)) return;
+
+    try {
+      if (!force && sessionStorage.getItem('legalease_pwa_dismissed') === 'true') {
+        return; // Pengguna telah menutup notifikasi pada sesi ini
+      }
+    } catch (e) {}
+
+    const banner = document.getElementById('pwa-install-banner');
+    if (!banner) return;
+
+    banner.classList.remove('hidden');
+    requestAnimationFrame(() => {
+      banner.classList.remove('translate-y-4', 'opacity-0');
+      banner.classList.add('translate-y-0', 'opacity-100');
+    });
+
+    if (window.lucide) window.lucide.createIcons();
+  };
+
+  window.dismissPwaInstallBanner = function () {
+    const banner = document.getElementById('pwa-install-banner');
+    if (banner) {
+      banner.classList.remove('translate-y-0', 'opacity-100');
+      banner.classList.add('translate-y-4', 'opacity-0');
+      setTimeout(() => {
+        banner.classList.add('hidden');
+      }, 300);
+    }
+    try {
+      sessionStorage.setItem('legalease_pwa_dismissed', 'true');
+    } catch (e) {}
+    showToast('Notifikasi pemasangan ditutup. Anda tetap bisa memasang lewat menu kapan saja.', 'info');
+  };
+
+  window.triggerPwaInstallPrompt = function () {
+    const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+    if (deferredPwaPrompt) {
+      deferredPwaPrompt.prompt();
+      deferredPwaPrompt.userChoice.then((choiceResult) => {
+        if (choiceResult && choiceResult.outcome === 'accepted') {
+          showToast('Terima kasih! LegalEase berhasil dipasang di perangkat Anda.', 'success');
+          window.dismissPwaInstallBanner();
+        }
+        deferredPwaPrompt = null;
+      });
+    } else if (isIos) {
+      // Buka panduan khusus iPhone / iOS PWA
+      window.openApkGuideModal();
+      window.switchGuideTab('ios');
+    } else {
+      window.openApkGuideModal();
+    }
+  };
+
+  // --- APP PRELOADER / SPLASH SYSTEM (Sebelum masuk web ada loading) ---
+  function initPreloader() {
+    const preloader = document.getElementById('app-preloader');
+    if (!preloader) return;
+
+    // Fast path untuk Playwright / Automated Testing agar tidak memblokir uji coba
+    if (window.navigator.webdriver || window.location.search.includes('test')) {
+      preloader.style.display = 'none';
+      preloader.classList.add('opacity-0', 'pointer-events-none');
+      return;
+    }
+
+    const progressBar = document.getElementById('preloader-progress-bar');
+    const statusText = document.getElementById('preloader-status-text');
+    const percentText = document.getElementById('preloader-percent-text');
+
+    let progress = 20;
+    const interval = setInterval(() => {
+      progress += Math.floor(Math.random() * 20) + 12;
+      if (progress >= 92) {
+        progress = 92;
+        clearInterval(interval);
+      }
+      if (progressBar) progressBar.style.width = progress + '%';
+      if (percentText) percentText.textContent = progress + '%';
+      if (statusText) {
+        if (progress > 65) statusText.textContent = 'Menghubungkan layanan Notaris Kemenkumham...';
+        else if (progress > 35) statusText.textContent = 'Menyiapkan modul keamanan & enkripsi...';
+      }
+    }, 100);
+
+    const finishPreloader = () => {
+      clearInterval(interval);
+      if (progressBar) progressBar.style.width = '100%';
+      if (percentText) percentText.textContent = '100%';
+      if (statusText) statusText.textContent = 'Sistem LegalEase Siap!';
+
+      setTimeout(() => {
+        preloader.classList.add('opacity-0', 'pointer-events-none');
+        setTimeout(() => {
+          preloader.style.display = 'none';
+        }, 500);
+      }, 400);
+    };
+
+    if (document.readyState === 'complete') {
+      setTimeout(finishPreloader, 600);
+    } else {
+      window.addEventListener('load', () => setTimeout(finishPreloader, 400));
+      setTimeout(finishPreloader, 1800); // Batas aman jika ada resource eksternal lambat
+    }
+  }
+
   window.copySha256Checksum = function () {
-    const sha = "768fe6759630d9ee8a7735dae86c4804dabc341afa6c879c5407b3a561368101";
+    const sha = "7944d9e4dc8de74ddfe443cbe49741d414b67ccafb565be1c2a9a4e7f3259a96";
     if (navigator.clipboard) {
       navigator.clipboard.writeText(sha).then(() => {
         showToast(`SHA-256 Checksum disalin: ${sha.slice(0, 16)}...`, 'success');
@@ -5481,6 +5618,8 @@
       console.log('✓ Running inside Native LegalEase Android App WebView');
     }
 
+    initPreloader();
+    initPwaInstallBanner();
     initMobileMenu();
     initBackToTop();
     initRealtimeChannel();

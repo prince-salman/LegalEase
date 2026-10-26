@@ -182,8 +182,85 @@
 </head>
 <body class="bg-[#FAF9F5] text-slate-800 antialiased selection:bg-[#F7EEDB] selection:text-[#0C1E36] overflow-x-hidden min-h-screen">
 
+  <!-- APP SPLASH / PRELOADER SCREEN (Sebelum masuk web ada loading) -->
+  <div id="app-preloader" class="fixed inset-0 z-[99999] bg-[#0C1E36] flex flex-col items-center justify-center p-6 transition-opacity duration-500 ease-out select-none">
+    <div class="relative flex flex-col items-center text-center max-w-xs w-full">
+      <!-- Glow ambient backdrop -->
+      <div class="absolute -top-12 w-48 h-48 bg-[#2E9B95]/20 rounded-full blur-3xl pointer-events-none"></div>
+
+      <!-- Brand Logo in card with subtle pulse -->
+      <div class="relative mb-5">
+        <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-white p-3 shadow-2xl flex items-center justify-center border border-white/20 animate-pulse">
+          <img src="assets/logo.png" alt="LegalEase Indonesia" class="w-full h-full object-contain">
+        </div>
+        <div class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-[#2E9B95] border-2 border-[#0C1E36] flex items-center justify-center shadow-md">
+          <i data-lucide="shield-check" class="w-3.5 h-3.5 text-white"></i>
+        </div>
+      </div>
+
+      <!-- App Name & Subtitle -->
+      <h1 class="text-2xl font-black text-white tracking-tight flex items-center gap-1.5 justify-center">
+        Legal<span class="text-[#2E9B95]">Ease</span>
+        <span class="text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#17345E] text-emerald-300 border border-emerald-500/30">ID</span>
+      </h1>
+      <p class="text-xs text-slate-300 mt-1 font-medium tracking-wide">Platform Notaris & Hukum Digital Indonesia</p>
+      <p class="text-[10px] text-slate-400 mt-0.5">Terstandarisasi UU Cipta Kerja & AHU Kemenkumham RI</p>
+
+      <!-- Progress Bar & Status Indicator -->
+      <div class="w-full mt-6 space-y-2">
+        <div class="w-full bg-[#17345E] h-1.5 rounded-full overflow-hidden relative">
+          <div id="preloader-progress-bar" class="h-full bg-gradient-to-r from-[#2E9B95] via-[#4AD0C7] to-emerald-400 rounded-full transition-all duration-300 ease-out" style="width: 15%;"></div>
+        </div>
+        <div class="flex items-center justify-between text-[10px] font-mono text-slate-400">
+          <span id="preloader-status-text">Memuat sistem terenkripsi...</span>
+          <span id="preloader-percent-text">15%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
   <!-- Toast Notification Container -->
   <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- PWA INSTALL FLOATING NOTIFICATION BANNER (Bisa di-install & bisa di-hapus / dismiss) -->
+  <aside id="pwa-install-banner" aria-label="Notifikasi PWA Install" class="fixed bottom-20 sm:bottom-6 left-4 right-4 sm:left-6 sm:right-auto sm:max-w-md z-40 hidden transition-all duration-300 transform translate-y-4 opacity-0 no-print">
+    <div class="bg-[#0C1E36]/95 backdrop-blur-xl border border-[#2E9B95]/40 rounded-3xl p-4 sm:p-5 shadow-2xl text-white relative overflow-hidden flex flex-col gap-3">
+      <!-- Glow ambient -->
+      <div class="absolute -right-8 -top-8 w-32 h-32 bg-[#2E9B95]/20 rounded-full blur-2xl pointer-events-none"></div>
+
+      <!-- Top Row: Icon, Titles, Dismiss 'X' Button -->
+      <div class="flex items-start gap-3 relative z-10">
+        <div class="w-12 h-12 rounded-2xl bg-white p-2 shrink-0 shadow-md flex items-center justify-center border border-white/20">
+          <img src="assets/logo.png" alt="LegalEase App Icon" class="w-full h-full object-contain">
+        </div>
+        <div class="flex-1 min-w-0 pr-6">
+          <div class="flex items-center gap-1.5">
+            <span class="text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-[#2E9B95]/20 text-[#2E9B95] border border-[#2E9B95]/30">Aplikasi PWA</span>
+            <span class="text-[10px] text-slate-400">LegalEase ID</span>
+          </div>
+          <h3 class="text-sm font-bold text-white tracking-tight mt-0.5">Pasang Aplikasi LegalEase</h3>
+          <p class="text-[11px] text-slate-300 leading-snug mt-0.5">Akses cepat tanpa browser, hemat kuota, dan konsultasi notaris langsung dari Layar Utama.</p>
+        </div>
+        <!-- Dismiss 'X' button ("tpi bisa di hapussss") -->
+        <button type="button" onclick="dismissPwaInstallBanner()" title="Tutup Notifikasi" class="absolute top-0 right-0 w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition cursor-pointer">
+          <i data-lucide="x" class="w-3.5 h-3.5"></i>
+        </button>
+      </div>
+
+      <!-- Bottom Row Action Buttons -->
+      <div class="flex items-center gap-2 pt-1 relative z-10">
+        <button type="button" id="pwa-install-btn" onclick="triggerPwaInstallPrompt()" class="flex-1 py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#2E9B95] to-[#1E677A] hover:brightness-110 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md transition cursor-pointer">
+          <i data-lucide="download-cloud" class="w-4 h-4"></i>
+          <span>Pasang Sekarang</span>
+        </button>
+        <button type="button" onclick="dismissPwaInstallBanner()" class="py-2.5 px-3 rounded-xl bg-white/10 hover:bg-white/15 text-slate-300 hover:text-white text-xs font-semibold transition cursor-pointer">
+          Nanti Saja
+        </button>
+      </div>
+    </div>
+  </aside>
+
 
   <!-- FLOATING NAVIGATION HEADER -->
   <div class="fixed top-0 left-0 right-0 z-40 px-4 sm:px-6 pt-3 pointer-events-none no-print">
@@ -330,6 +407,9 @@
         <a href="assets/LegalEase-v2.4.1.apk" download="LegalEase-v2.4.1.apk" onclick="triggerApkDownload(event); return true;" class="w-full py-2.5 rounded-full bg-emerald-600 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-xs">
           <i data-lucide="download" class="w-4 h-4"></i> Download File APK (19.5 MB)
         </a>
+        <button type="button" onclick="triggerPwaInstallPrompt()" class="w-full py-2.5 rounded-full bg-[#17345E] hover:bg-[#0C1E36] text-white text-xs font-bold flex items-center justify-center gap-2 shadow-xs transition mt-1.5 cursor-pointer">
+          <i data-lucide="smartphone" class="w-4 h-4 text-[#2E9B95]"></i> Pasang Aplikasi PWA (Android / iPhone)
+        </button>
       </div>
     </div>
   </div>
