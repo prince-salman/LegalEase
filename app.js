@@ -2154,7 +2154,7 @@
   };
 
   window.copySha256Checksum = function () {
-    const sha = "0c067f8e2b7567da95aa8421d2c9657712e8ad2f852ae480dcc2dfaf4c9ba605";
+    const sha = "e19747767ad82c73205b0fa52c7b579bdc30dd5cfeafb1a4879a34acfef14b0f";
     if (navigator.clipboard) {
       navigator.clipboard.writeText(sha).then(() => {
         showToast(`SHA-256 Checksum disalin: ${sha.slice(0, 16)}...`, 'success');
