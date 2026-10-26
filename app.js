@@ -3122,7 +3122,7 @@
       `Ada dokumen tertentu atau klausul spesifik yang ingin saya bantu susunkan atau telaah lebih mendalam? Anda juga dapat mengunggah berkas rancangan kontrak melalui tombol lampiran (klip kertas).`;
   }
 
-  // --- RENDER LIVE CHAT MESSAGES ---
+  // --- RENDER LIVE CHAT MESSAGES (ITEM 11: WHATSAPP-STYLE DOWNWARD CHAT) ---
   function renderChatMessages() {
     const container = document.getElementById('chat-messages-stream');
     const portalContainer = document.getElementById('client-portal-chat-stream');
@@ -3138,60 +3138,73 @@
 
     const msgs = state.chatHistory[notaryId];
 
-    container.innerHTML = msgs.map(msg => {
+    const bubblesHtml = msgs.map(msg => {
       if (msg.sender === 'notary') {
         return `
-          <div class="flex items-start gap-2.5 max-w-[92%]">
-            <img src="${msg.senderAvatar || notary.avatar}" alt="${msg.senderName}" class="w-8 h-8 rounded-full object-cover border border-slate-300 shrink-0 mt-0.5 shadow-2xs">
-            <div>
-              <div class="flex items-center gap-1.5 mb-1">
-                <span class="font-bold text-[10px] text-slate-800">${msg.senderName}</span>
-                <span class="text-[9px] text-slate-400 font-mono">${msg.timestamp}</span>
-              </div>
-              <div class="p-3.5 rounded-2xl bg-white border border-slate-200 text-slate-800 leading-relaxed shadow-2xs rounded-tl-xs space-y-2 text-xs">
+          <div class="chat-bubble-notary flex items-start gap-2 max-w-[85%] sm:max-w-[75%] mr-auto mb-2.5">
+            <img src="${msg.senderAvatar || notary.avatar}" alt="${escapeHtml(msg.senderName)}" class="w-8 h-8 rounded-full object-cover border border-slate-300 shrink-0 mt-0.5 shadow-2xs">
+            <div class="flex flex-col items-start">
+              <span class="font-bold text-[10px] text-teal-800 mb-0.5 pl-1">${escapeHtml(msg.senderName)}</span>
+              <div class="p-3 rounded-2xl rounded-tl-xs bg-white border border-slate-200/90 text-slate-800 leading-relaxed shadow-2xs text-xs space-y-1.5 relative">
                 ${formatChatMessage(msg.text)}
+                <div class="text-[9px] text-slate-400 text-right mt-1 font-mono">${msg.timestamp}</div>
               </div>
             </div>
           </div>
         `;
       } else {
         return `
-          <div class="flex items-start justify-end gap-2.5 ml-auto max-w-[92%]">
-            <div class="text-right">
-              <div class="flex items-center justify-end gap-1.5 mb-1">
-                <span class="text-[9px] text-slate-400 font-mono">${msg.timestamp}</span>
-                <span class="font-bold text-[10px] text-[#0C1E36]">Anda</span>
-                <span class="text-[10px] text-emerald-600 font-bold" title="Terkirim & Terbaca">✓✓</span>
-              </div>
-              <div class="p-3.5 rounded-2xl bg-[#0C1E36] text-white text-left leading-relaxed shadow-sm rounded-tr-xs text-xs space-y-2">
+          <div class="chat-bubble-user flex items-start justify-end gap-2 max-w-[85%] sm:max-w-[75%] ml-auto mb-2.5">
+            <div class="flex flex-col items-end">
+              <span class="font-bold text-[10px] text-slate-500 mb-0.5 pr-1">Anda</span>
+              <div class="p-3 rounded-2xl rounded-tr-xs bg-[#D9FDD3] border border-emerald-200/60 text-slate-900 leading-relaxed shadow-2xs text-xs space-y-1.5 relative">
                 ${msg.attachment ? `
-                  <div class="p-2.5 rounded-xl bg-white/10 border border-white/20 flex items-center gap-2.5 mb-2">
-                    <div class="w-8 h-8 rounded-lg bg-amber-400/20 text-amber-300 flex items-center justify-center shrink-0">
+                  <div class="p-2 rounded-xl bg-emerald-100/70 border border-emerald-300/60 flex items-center gap-2 mb-1.5">
+                    <div class="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center shrink-0">
                       <i data-lucide="file-text" class="w-4 h-4"></i>
                     </div>
                     <div class="truncate text-left">
-                      <div class="font-bold text-[11px] text-white truncate">${escapeHtml(msg.attachment.name)}</div>
-                      <div class="text-[9px] text-slate-300 font-mono">${msg.attachment.size} • Terkirim untuk Telaah Notaris</div>
+                      <div class="font-bold text-[11px] text-slate-900 truncate">${escapeHtml(msg.attachment.name)}</div>
+                      <div class="text-[9px] text-slate-600 font-mono">${msg.attachment.size} • Terlampir</div>
                     </div>
                   </div>
                 ` : ''}
-                <div>${escapeHtml(msg.text)}</div>
+                <div class="text-left text-slate-900 leading-relaxed">${escapeHtml(msg.text)}</div>
+                <div class="flex items-center justify-end gap-1 mt-1 text-[9px] text-slate-500 font-mono">
+                  <span>${msg.timestamp}</span>
+                  <span class="text-sky-600 font-bold tracking-tighter" title="Terkirim & Tersampaikan">✓✓</span>
+                </div>
               </div>
             </div>
             <div class="w-8 h-8 rounded-full bg-[#0C1E36] text-amber-300 text-[10px] font-extrabold flex items-center justify-center shrink-0 mt-0.5 border border-amber-300/30">
-              ${state.currentUser.initials || 'PS'}
+              ${(state.currentUser && state.currentUser.initials) || 'K'}
             </div>
           </div>
         `;
       }
     }).join('');
 
-    if (window.lucide) window.lucide.createIcons();
-    if (container) container.scrollTop = container.scrollHeight;
-    if (portalContainer && container) {
-      portalContainer.innerHTML = container.innerHTML;
+    const lastMsg = msgs[msgs.length - 1];
+    let pendingIndicator = '';
+    if (lastMsg && lastMsg.sender === 'user') {
+      pendingIndicator = `
+        <div class="chat-pending-status flex items-center justify-end gap-1.5 text-[10px] text-slate-500 italic pr-10 mb-2">
+          <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+          <span>Pesan terkirim ke Notaris ${escapeHtml(notary.name)} • Menunggu tanggapan langsung...</span>
+        </div>
+      `;
+    }
+
+    if (container) {
+      container.innerHTML = bubblesHtml + pendingIndicator;
+      container.scrollTop = container.scrollHeight;
+    }
+    if (portalContainer) {
+      portalContainer.innerHTML = bubblesHtml + pendingIndicator;
       portalContainer.scrollTop = portalContainer.scrollHeight;
     }
+
+    if (window.lucide) window.lucide.createIcons();
   }
 
   // --- LIVE CHAT CONTROLLER FUNCTIONS (ITEM 13: AUTH-GATE) ---
@@ -3280,35 +3293,35 @@
       email: 'tamu@legalease.co.id'
     };
 
-    // Append user message
-    state.chatHistory[notaryId].push({
+    const newMsg = {
       id: 'msg_usr_' + Date.now(),
       sender: 'user',
       senderName: cUser.fullName,
       text: text,
       attachment: attachment || null,
       timestamp: now
-    });
+    };
+
+    // Append user message
+    state.chatHistory[notaryId].push(newMsg);
+
+    // Track in Admin thread directly (for live admin reply - Item 12)
+    const email = cUser.email || 'guest@klien.id';
+    if (!state.adminClientChats) state.adminClientChats = {};
+    if (!state.adminClientChats[email]) {
+      state.adminClientChats[email] = {
+        clientName: cUser.fullName,
+        clientCompany: cUser.companyName || 'Perusahaan Klien',
+        clientEmail: email,
+        unreadCount: 0,
+        messages: []
+      };
+    }
+    state.adminClientChats[email].messages.push(newMsg);
+    state.adminClientChats[email].unreadCount++;
 
     saveState();
     renderChatMessages();
-
-    // Instant response without any delay (tanpa delay sedikitpun)
-    const replyText = generateNotaryLegalResponse(text, notary, state.currentUser, attachment ? attachment.name : null);
-    const replyTime = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB';
-
-    state.chatHistory[notaryId].push({
-      id: 'msg_not_' + (Date.now() + 1),
-      sender: 'notary',
-      senderName: notary.name,
-      senderAvatar: notary.avatar,
-      text: replyText,
-      timestamp: replyTime
-    });
-
-    saveState();
-    renderChatMessages();
-    playMessageNotificationSound();
 
     const typingIndicator = document.getElementById('chat-typing-indicator');
     if (typingIndicator) typingIndicator.classList.add('hidden');
@@ -3316,40 +3329,28 @@
     const container = document.getElementById('chat-messages-stream');
     if (container) container.scrollTop = container.scrollHeight;
 
-    // BROADCAST TO ALL CONNECTED DEVICES VIA SUPABASE REALTIME
+    // BROADCAST TO ALL CONNECTED DEVICES VIA SUPABASE REALTIME (NO BOT REPLY - Item 12)
     if (realtimeChannel) {
-      realtimeChannel.send({
-        type: 'broadcast',
-        event: 'client-message',
-        payload: {
-          id: 'msg_usr_' + Date.now(),
-          notaryId: notaryId,
-          sender: 'user',
-          senderName: state.currentUser ? state.currentUser.fullName : 'Klien Tamu',
-          userEmail: state.currentUser ? state.currentUser.email : 'guest@klien.id',
-          userCompany: state.currentUser ? state.currentUser.companyName : 'Perusahaan Klien',
-          text: text,
-          attachment: attachment || null,
-          timestamp: now,
-          deviceId: DEVICE_ID
-        }
-      });
-
-      realtimeChannel.send({
-        type: 'broadcast',
-        event: 'notary-reply',
-        payload: {
-          id: 'msg_not_' + (Date.now() + 1),
-          notaryId: notaryId,
-          sender: 'notary',
-          senderName: notary.name,
-          senderAvatar: notary.avatar,
-          userEmail: state.currentUser ? state.currentUser.email : 'guest@klien.id',
-          text: replyText,
-          timestamp: replyTime,
-          deviceId: DEVICE_ID
-        }
-      });
+      try {
+        realtimeChannel.send({
+          type: 'broadcast',
+          event: 'client-message',
+          payload: {
+            id: newMsg.id,
+            notaryId: notaryId,
+            sender: 'user',
+            senderName: state.currentUser ? state.currentUser.fullName : 'Klien Tamu',
+            userEmail: email,
+            userCompany: state.currentUser ? state.currentUser.companyName : 'Perusahaan Klien',
+            text: text,
+            attachment: attachment || null,
+            timestamp: now,
+            deviceId: DEVICE_ID
+          }
+        });
+      } catch (err) {
+        console.warn('Realtime client message error:', err);
+      }
     }
   };
 
@@ -4887,14 +4888,22 @@
     const notName = 'Dr. Hendra Wijaya, S.H., M.Kn.';
 
     // Append to admin chat thread
-    state.adminClientChats[email].messages.push({
+    const adminReplyMsg = {
       id: 'msg_adm_' + Date.now(),
       sender: 'notary',
       senderName: notName,
+      senderAvatar: 'assets/team/team_1.jpeg',
       text: text,
       timestamp: now
-    });
+    };
+    state.adminClientChats[email].messages.push(adminReplyMsg);
 
+    // Also append to active notary chat history so client immediately sees it (Item 12)
+    if (!state.chatHistory) state.chatHistory = {};
+    if (!state.chatHistory['notary-1']) state.chatHistory['notary-1'] = [];
+    state.chatHistory['notary-1'].push(adminReplyMsg);
+    saveState();
+    renderChatMessages();
     renderAdminContent();
 
     // Broadcast reply back to client device via Supabase Realtime
