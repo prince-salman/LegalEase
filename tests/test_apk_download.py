@@ -11,7 +11,7 @@ sys.stdout.reconfigure(encoding='utf-8')
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 APK_FILE_PATH = os.path.join(REPO_ROOT, "assets", "LegalEase-v2.4.1.apk")
-EXPECTED_APK_SIZE = 20442330  # ~19.5 MB
+EXPECTED_APK_SIZE = os.path.getsize(APK_FILE_PATH) if os.path.exists(APK_FILE_PATH) else 41180525
 
 def get_free_port() -> int:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:

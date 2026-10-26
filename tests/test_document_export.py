@@ -47,7 +47,7 @@ async def main():
         # Printable Area Official Header Banner
         header_banner = await page.evaluate("""() => {
             const area = document.getElementById('doc-printable-area');
-            const h = area.querySelector('[class*="text-[#0D7A68]"]');
+            const h = area.querySelector('[class*="text-[#2E9B95]"], [class*="text-[#0D7A68]"]');
             const sub = area.querySelector('p.text-slate-500');
             return {
                 title: h ? h.textContent.trim() : '',
