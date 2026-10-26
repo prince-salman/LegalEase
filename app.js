@@ -292,7 +292,28 @@
   const defaultState = {
     currentUser: getSavedSession(), // null if not logged in
     currentView: 'public', // 'public', 'client_dashboard', 'admin_dashboard'
-    activeClientTab: 'documents', // 'documents', 'chat', 'invoices' // null if not logged in
+    activeClientTab: 'documents', // 'documents', 'appointments', 'chat', 'invoices' // null if not logged in
+    appointments: [
+      {
+        id: 'apt_seed_gelsay',
+        userId: 'usr_client_gelsay',
+        userEmail: 'gelsay@gelsaylaw.id',
+        userName: 'Gelsay Behrous',
+        companyName: 'PT Gelsay Law Nusantara',
+        notaryId: 'notary-1',
+        notaryName: 'Dr. Hendra Wijaya, S.H., M.Kn.',
+        notaryTitle: 'Notaris & PPAT Berizin Kemenkumham RI',
+        notaryAvatar: 'assets/team/team_1.jpeg',
+        date: 'Lusa',
+        time: '14:00 - 15:30 WIB',
+        topic: 'Pembacaan & Penandatanganan Minuta Akta Pendirian PT di hadapan Notaris',
+        mode: 'in_person_deed',
+        modeLabel: 'Tatap Muka di Kantor Notaris',
+        status: 'Dikonfirmasi',
+        stepIndex: 2,
+        createdAt: new Date().toISOString()
+      }
+    ],
     adminClientChats: {}, // multi-device client chats received by admin
     activeAdminChatEmail: null,
     checkoutState: {
@@ -336,9 +357,15 @@
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
       state = Object.assign({}, defaultState, JSON.parse(saved));
+      if (!state.appointments) {
+        state.appointments = defaultState.appointments ? defaultState.appointments.slice() : [];
+      }
     }
   } catch (e) {
     console.warn('Failed to load state, using default:', e);
+  }
+  if (!state.appointments) {
+    state.appointments = [];
   }
 
   function saveState() {
@@ -1759,18 +1786,148 @@
   };
 
   window.handleConfirmBooking = function (e) {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
     if (!window.requireAuth(null, 'membuat janji temu dengan Notaris')) {
       return false;
     }
     const notaryId = document.getElementById('booking-notary-id')?.value || 'notary-1';
-    const notary = NOTARIES.find(n => n.id === notaryId) || NOTARIES[0];
+    const notary = (typeof NOTARIES !== 'undefined' ? NOTARIES.find(n => n.id === notaryId) : null) || (typeof NOTARIES !== 'undefined' ? NOTARIES[0] : {
+      id: notaryId,
+      name: 'Dr. Hendra Wijaya, S.H., M.Kn.',
+      title: 'Notaris & PPAT Berizin Kemenkumham RI',
+      avatar: 'assets/team/team_1.jpeg'
+    });
     const date = document.getElementById('booking-date')?.value || '';
-    const time = document.getElementById('booking-time')?.value || '';
+    const time = document.getElementById('booking-time')?.value || '09:00 WIB';
+    const mode = document.getElementById('booking-mode')?.value || 'chat';
+    const topic = (document.getElementById('booking-topic')?.value || '').trim();
+
+    const modeLabel = (mode === 'voice' ? 'Panggilan Suara Notaris' : (mode === 'chat' ? 'Konsultasi Chat Terenkripsi' : 'Tatap Muka di Kantor Notaris'));
+
+    const newAppointment = {
+      id: 'apt_' + Date.now(),
+      userId: state.currentUser ? state.currentUser.id : 'guest',
+      userEmail: state.currentUser ? state.currentUser.email : 'guest@example.com',
+      userName: state.currentUser ? state.currentUser.fullName : 'Pengunjung',
+      companyName: state.currentUser ? state.currentUser.companyName : 'PT Klien',
+      notaryId: notary.id,
+      notaryName: notary.name,
+      notaryTitle: notary.title,
+      notaryAvatar: notary.avatar || 'assets/team/team_1.jpeg',
+      date: date,
+      time: time,
+      topic: topic,
+      mode: mode,
+      modeLabel: modeLabel,
+      status: 'Menunggu Konfirmasi', // 'Menunggu Konfirmasi' | 'Dikonfirmasi' | 'Selesai' | 'Dibatalkan'
+      stepIndex: 1, // 1: Diajukan, 2: Dikonfirmasi, 3: Selesai
+      createdAt: new Date().toISOString()
+    };
+
+    if (!state.appointments) state.appointments = [];
+    state.appointments.unshift(newAppointment);
+    saveState();
+
+    const topicInput = document.getElementById('booking-topic');
+    if (topicInput) topicInput.value = '';
 
     closeBookingModal();
     showToast(`Janji temu resmi dengan ${notary.name} berhasil dijadwalkan pada ${date} pukul ${time}. Konfirmasi telah dikirimkan ke WhatsApp & Email Anda.`, 'success');
+
+    if (typeof realtimeChannel !== 'undefined' && realtimeChannel) {
+      try {
+        realtimeChannel.send({
+          type: 'broadcast',
+          event: 'sync-new-appointment',
+          payload: newAppointment
+        });
+      } catch (err) {
+        console.warn('Realtime appointment broadcast error:', err);
+      }
+    }
+
+    if (state.currentView === 'client_dashboard') {
+      renderClientPortal();
+    } else if (state.currentView === 'notary_dashboard') {
+      renderNotaryPortal();
+    }
+
     return true;
+  };
+
+  window.handleCancelAppointment = function (id) {
+    if (!state.appointments) state.appointments = [];
+    const apt = state.appointments.find(a => a.id === id);
+    if (!apt) return;
+    if (!confirm('Apakah Anda yakin ingin membatalkan jadwal janji temu ini?')) return;
+    apt.status = 'Dibatalkan';
+    saveState();
+    showToast('Janji temu berhasil dibatalkan.', 'info');
+
+    if (typeof realtimeChannel !== 'undefined' && realtimeChannel) {
+      try {
+        realtimeChannel.send({
+          type: 'broadcast',
+          event: 'sync-appointment-status',
+          payload: { id: apt.id, status: apt.status, stepIndex: apt.stepIndex }
+        });
+      } catch (err) {
+        console.warn('Realtime appointment broadcast error:', err);
+      }
+    }
+
+    if (state.currentView === 'client_dashboard') renderClientPortal();
+    if (state.currentView === 'notary_dashboard') renderNotaryPortal();
+  };
+
+  window.handleConfirmNotaryAppointment = function (id) {
+    if (!state.appointments) state.appointments = [];
+    const apt = state.appointments.find(a => a.id === id);
+    if (!apt) return;
+    apt.status = 'Dikonfirmasi';
+    apt.stepIndex = 2;
+    saveState();
+    showToast(`Janji temu dengan ${apt.userName} (${apt.companyName}) berhasil dikonfirmasi.`, 'success');
+
+    if (typeof realtimeChannel !== 'undefined' && realtimeChannel) {
+      try {
+        realtimeChannel.send({
+          type: 'broadcast',
+          event: 'sync-appointment-status',
+          payload: { id: apt.id, status: apt.status, stepIndex: apt.stepIndex }
+        });
+      } catch (err) {
+        console.warn('Realtime appointment broadcast error:', err);
+      }
+    }
+
+    if (state.currentView === 'notary_dashboard') renderNotaryPortal();
+    if (state.currentView === 'client_dashboard') renderClientPortal();
+  };
+
+  window.handleCompleteNotaryAppointment = function (id) {
+    if (!state.appointments) state.appointments = [];
+    const apt = state.appointments.find(a => a.id === id);
+    if (!apt) return;
+    apt.status = 'Selesai';
+    apt.stepIndex = 3;
+    saveState();
+    showToast(`Sesi janji temu dengan ${apt.userName} telah ditandai selesai. Notulensi tersimpan di sistem.`, 'success');
+
+    if (typeof realtimeChannel !== 'undefined' && realtimeChannel) {
+      try {
+        realtimeChannel.send({
+          type: 'broadcast',
+          event: 'sync-appointment-status',
+          payload: { id: apt.id, status: apt.status, stepIndex: apt.stepIndex }
+        });
+      } catch (err) {
+        console.warn('Realtime appointment broadcast error:', err);
+      }
+    }
+
+    if (state.currentView === 'notary_dashboard') renderNotaryPortal();
+    if (state.currentView === 'client_dashboard') renderClientPortal();
   };
 
   // --- OFFICIAL NOTARY ENCRYPTED VOICE CALL CONTROLLER (ITEM 4) ---
@@ -3216,6 +3373,30 @@
         handleIncomingRealtimeMessage(payload.payload);
       });
 
+      realtimeChannel.on('broadcast', { event: 'sync-new-appointment' }, (payload) => {
+        if (!state.appointments) state.appointments = [];
+        if (payload && payload.payload && !state.appointments.some(a => a.id === payload.payload.id)) {
+          state.appointments.unshift(payload.payload);
+          saveState();
+          if (state.currentView === 'client_dashboard') renderClientPortal();
+          if (state.currentView === 'notary_dashboard') renderNotaryPortal();
+        }
+      });
+
+      realtimeChannel.on('broadcast', { event: 'sync-appointment-status' }, (payload) => {
+        if (!state.appointments) state.appointments = [];
+        if (payload && payload.payload) {
+          const found = state.appointments.find(a => a.id === payload.payload.id);
+          if (found) {
+            found.status = payload.payload.status;
+            found.stepIndex = payload.payload.stepIndex;
+            saveState();
+            if (state.currentView === 'client_dashboard') renderClientPortal();
+            if (state.currentView === 'notary_dashboard') renderNotaryPortal();
+          }
+        }
+      });
+
       realtimeChannel.on('broadcast', { event: 'sync-user-register' }, (payload) => {
         if (payload && payload.payload && payload.payload.user) {
           const u = payload.payload.user;
@@ -3444,7 +3625,212 @@
     window.sendChatMessage(val);
   };
 
-  function renderClientWorkspaceTabBody(user, activeDoc, clauses, notary, msgs, transactions) {
+  function renderClientWorkspaceTabBody(user, activeDoc, clauses, notary, msgs, transactions, clientAppointments) {
+    if (!clientAppointments) {
+      clientAppointments = (state.appointments || []).filter(apt => {
+        if (!user) return false;
+        return apt.userId === user.id ||
+               apt.userEmail === user.email ||
+               (user.email && apt.userEmail && apt.userEmail.toLowerCase().includes('fajar') && user.email.toLowerCase().includes('fajar')) ||
+               (user.email && apt.userEmail && apt.userEmail.toLowerCase().includes('gelsay') && user.email.toLowerCase().includes('gelsay'));
+      });
+    }
+
+    if (state.activeClientTab === 'appointments') {
+      const aptList = clientAppointments || [];
+      return `
+        <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-6">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+            <div>
+              <div class="flex items-center gap-2">
+                <h3 class="text-lg font-bold text-[#0C1E36]">Riwayat Janji Temu & Progres Layanan</h3>
+                <span class="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] font-bold font-mono">
+                  SINKRON REALTIME
+                </span>
+              </div>
+              <p class="text-xs text-slate-500 mt-1">Pantau status pengajuan jadwal, konfirmasi notaris, dan pelacakan sesi konsultasi resmi</p>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="px-3 py-1 rounded-full bg-slate-100 text-slate-700 font-bold text-xs font-mono">
+                ${aptList.length} Janji Temu
+              </span>
+              <button onclick="openBookingModal('notary-1', 'Dr. Hendra Wijaya, S.H., M.Kn.')" class="px-4 py-2 rounded-xl bg-[#0C1E36] hover:bg-slate-800 text-amber-300 font-bold text-xs transition flex items-center gap-1.5 shadow-xs">
+                <i data-lucide="calendar-plus" class="w-3.5 h-3.5"></i>
+                <span>Jadwalkan Janji Temu</span>
+              </button>
+            </div>
+          </div>
+
+          ${aptList.length === 0 ? `
+            <div class="p-10 text-center bg-slate-50 rounded-2xl border border-slate-200 max-w-xl mx-auto space-y-4">
+              <div class="w-14 h-14 rounded-2xl bg-amber-100 text-amber-900 flex items-center justify-center mx-auto shadow-2xs">
+                <i data-lucide="calendar-clock" class="w-7 h-7"></i>
+              </div>
+              <div>
+                <h4 class="font-bold text-slate-800 text-sm">Belum Ada Riwayat Janji Temu</h4>
+                <p class="text-xs text-slate-500 mt-1 max-w-md mx-auto leading-relaxed">
+                  Anda belum memiliki jadwal janji temu dengan Notaris Rekanan. Jadwalkan konsultasi tatap muka kantor atau panggilan suara resmi untuk pendirian PT dan penelaahan kontrak.
+                </p>
+              </div>
+              <button onclick="openBookingModal('notary-1', 'Dr. Hendra Wijaya, S.H., M.Kn.')" class="px-5 py-2.5 rounded-xl bg-[#0C1E36] hover:bg-slate-800 text-amber-300 font-bold text-xs shadow-sm transition inline-flex items-center gap-2">
+                <i data-lucide="calendar" class="w-4 h-4"></i>
+                <span>Jadwalkan Janji Temu Sekarang</span>
+              </button>
+            </div>
+          ` : `
+            <div class="space-y-5">
+              ${aptList.map(apt => {
+                const isVoice = apt.mode === 'voice';
+                const isChat = apt.mode === 'chat';
+                const isDeed = apt.mode === 'in_person_deed';
+
+                const statusColor = apt.status === 'Dikonfirmasi'
+                  ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                  : (apt.status === 'Selesai'
+                    ? 'bg-slate-100 text-slate-700 border-slate-300'
+                    : (apt.status === 'Dibatalkan'
+                      ? 'bg-rose-50 text-rose-700 border-rose-200'
+                      : 'bg-amber-50 text-amber-800 border-amber-300'));
+
+                return `
+                  <div class="appointment-card p-6 rounded-3xl bg-white border border-slate-200 hover:border-emerald-500/50 transition shadow-sm space-y-4" id="appointment-card-${apt.id}">
+                    <!-- Card Top Header -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-slate-100">
+                      <div class="flex items-center gap-3">
+                        <div class="relative shrink-0">
+                          <img src="${apt.notaryAvatar || 'assets/team/team_1.jpeg'}" alt="${escapeHtml(apt.notaryName)}" class="w-12 h-12 rounded-full object-cover border-2 border-emerald-400">
+                          <span class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-400 rounded-full border-2 border-white"></span>
+                        </div>
+                        <div>
+                          <div class="flex flex-wrap items-center gap-2">
+                            <h4 class="font-bold text-sm text-[#0C1E36]">${escapeHtml(apt.notaryName)}</h4>
+                            <span class="px-2 py-0.5 rounded-full text-[9px] font-bold font-mono bg-emerald-100 text-emerald-800 border border-emerald-200">
+                              SK KEMENKUMHAM
+                            </span>
+                          </div>
+                          <p class="text-[11px] text-slate-500 mt-0.5">${escapeHtml(apt.notaryTitle || 'Notaris & PPAT Berizin')}</p>
+                          <div class="flex flex-wrap items-center gap-2 mt-1.5">
+                            <span class="appointment-datetime inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-slate-100 text-slate-800 text-xs font-bold font-mono">
+                              <i data-lucide="calendar" class="w-3.5 h-3.5 text-slate-500"></i> ${escapeHtml(apt.date)} • ${escapeHtml(apt.time)}
+                            </span>
+                            <span class="appointment-mode-badge inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold ${isVoice ? 'bg-emerald-100 text-emerald-800' : (isChat ? 'bg-blue-100 text-blue-800' : 'bg-amber-100 text-amber-900')}">
+                              <i data-lucide="${isVoice ? 'phone-call' : (isChat ? 'messages-square' : 'map-pin')}" class="w-3 h-3"></i>
+                              ${escapeHtml(apt.modeLabel || (isVoice ? 'Panggilan Suara Notaris' : (isChat ? 'Konsultasi Chat Terenkripsi' : 'Tatap Muka di Kantor Notaris')))}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="flex flex-col sm:items-end gap-1">
+                        <span class="appointment-status-badge px-3 py-1.5 rounded-full text-xs font-bold border flex items-center gap-1.5 shadow-2xs ${statusColor}">
+                          ${apt.status === 'Menunggu Konfirmasi' ? '<span class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>' : ''}
+                          ${apt.status === 'Dikonfirmasi' ? '<i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-600"></i>' : ''}
+                          ${apt.status === 'Selesai' ? '<i data-lucide="award" class="w-3.5 h-3.5 text-slate-600"></i>' : ''}
+                          <span>${escapeHtml(apt.status)}</span>
+                        </span>
+                        <span class="text-[10px] text-slate-400 font-mono">ID: ${escapeHtml(apt.id)}</span>
+                      </div>
+                    </div>
+
+                    <!-- Topic / Agenda Block -->
+                    <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 text-xs">
+                      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 font-mono mb-1">Topik Hukum / Kebutuhan Perseroan</div>
+                      <p class="appointment-topic text-slate-800 font-semibold leading-relaxed">${escapeHtml(apt.topic || 'Konsultasi hukum perseroan dan pengesahan akta')}</p>
+                    </div>
+
+                    <!-- 3-Step Visual Progress Tracker -->
+                    <div class="pt-2">
+                      <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-mono mb-3">Status & Progres Layanan</div>
+                      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 relative">
+                        <!-- Step 1 -->
+                        <div class="step-tracker-1 p-3.5 rounded-2xl border transition ${apt.stepIndex >= 1 ? 'bg-emerald-50/70 border-emerald-300 text-emerald-950' : 'bg-slate-50 border-slate-200 text-slate-500'}">
+                          <div class="flex items-center gap-2.5">
+                            <div class="w-7 h-7 rounded-full flex items-center justify-center shrink-0 font-bold text-xs ${apt.stepIndex >= 1 ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-600'}">
+                              <i data-lucide="check" class="w-4 h-4"></i>
+                            </div>
+                            <div>
+                              <div class="font-bold text-xs">1. Pengajuan Diajukan</div>
+                              <div class="text-[10px] text-slate-500 font-mono mt-0.5">Terkirim ke Notaris</div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Step 2 -->
+                        <div class="step-tracker-2 p-3.5 rounded-2xl border transition ${apt.stepIndex >= 2 ? 'bg-emerald-50/70 border-emerald-300 text-emerald-950' : (apt.stepIndex === 1 ? 'bg-amber-50/70 border-amber-300 text-amber-950' : 'bg-slate-50 border-slate-200 text-slate-500')}">
+                          <div class="flex items-center gap-2.5">
+                            <div class="w-7 h-7 rounded-full flex items-center justify-center shrink-0 font-bold text-xs ${apt.stepIndex >= 2 ? 'bg-emerald-600 text-white' : (apt.stepIndex === 1 ? 'bg-amber-500 text-slate-950 font-extrabold animate-pulse' : 'bg-slate-200 text-slate-600')}">
+                              ${apt.stepIndex >= 2 ? '<i data-lucide="check" class="w-4 h-4"></i>' : '2'}
+                            </div>
+                            <div>
+                              <div class="font-bold text-xs">2. Dikonfirmasi Notaris</div>
+                              <div class="text-[10px] font-mono mt-0.5 ${apt.stepIndex >= 2 ? 'text-emerald-700 font-semibold' : 'text-slate-500'}">
+                                ${apt.stepIndex >= 2 ? 'Jadwal Terkunci' : 'Menunggu Konfirmasi'}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Step 3 -->
+                        <div class="step-tracker-3 p-3.5 rounded-2xl border transition ${apt.stepIndex >= 3 ? 'bg-emerald-50/70 border-emerald-300 text-emerald-950' : 'bg-slate-50 border-slate-200 text-slate-500'}">
+                          <div class="flex items-center gap-2.5">
+                            <div class="w-7 h-7 rounded-full flex items-center justify-center shrink-0 font-bold text-xs ${apt.stepIndex >= 3 ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-600'}">
+                              ${apt.stepIndex >= 3 ? '<i data-lucide="check" class="w-4 h-4"></i>' : '3'}
+                            </div>
+                            <div>
+                              <div class="font-bold text-xs">3. Sesi Konsultasi & Notulensi Selesai</div>
+                              <div class="text-[10px] font-mono mt-0.5 ${apt.stepIndex >= 3 ? 'text-emerald-700 font-semibold' : 'text-slate-500'}">
+                                ${apt.stepIndex >= 3 ? 'Selesai & Notulensi Terbit' : 'Diagendakan'}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Card Actions Bar -->
+                    <div class="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
+                      <div class="text-[11px] text-slate-400 font-mono">
+                        Dibuat pada: ${new Date(apt.createdAt).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })}
+                      </div>
+
+                      <div class="flex flex-wrap items-center gap-2">
+                        ${(apt.status !== 'Dibatalkan' && apt.status !== 'Selesai') ? `
+                          <button onclick="handleCancelAppointment('${apt.id}')" class="btn-cancel-apt px-3.5 py-2 rounded-xl border border-slate-300 hover:bg-rose-50 hover:border-rose-200 text-slate-600 hover:text-rose-600 font-semibold text-xs transition">
+                            Batalkan Janji
+                          </button>
+                        ` : ''}
+
+                        ${isVoice ? `
+                          <button onclick="startVoiceCall('${apt.notaryId}')" class="btn-start-voice-call px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-xs">
+                            <i data-lucide="phone-call" class="w-3.5 h-3.5"></i>
+                            <span>Mulai Panggilan Suara</span>
+                          </button>
+                        ` : ''}
+
+                        ${isChat ? `
+                          <button onclick="openLiveChat('${apt.notaryId}')" class="btn-open-chat px-4 py-2 rounded-xl bg-[#0D7A68] hover:bg-teal-800 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-xs">
+                            <i data-lucide="messages-square" class="w-3.5 h-3.5"></i>
+                            <span>Buka Chat Notaris</span>
+                          </button>
+                        ` : ''}
+
+                        ${isDeed ? `
+                          <button onclick="showToast('Alamat kantor: SCBD Tower Lt. 18, Jakarta Selatan. Harap bawa KTP Asli dan NPWP Perusahaan.', 'info')" class="px-4 py-2 rounded-xl bg-[#0C1E36] hover:bg-slate-800 text-amber-300 font-bold text-xs transition flex items-center gap-1.5 shadow-xs">
+                            <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
+                            <span>Petunjuk Lokasi Kantor</span>
+                          </button>
+                        ` : ''}
+                      </div>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          `}
+        </div>
+      `;
+    }
+
     if (state.activeClientTab === 'chat') {
       return `
         <div class="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm flex flex-col h-[650px]">
@@ -3761,6 +4147,13 @@
     }
     const msgs = state.chatHistory[notaryId];
     const transactions = user.transactions || [];
+    const clientAppointments = (state.appointments || []).filter(apt => {
+      if (!user) return false;
+      return apt.userId === user.id ||
+             apt.userEmail === user.email ||
+             (user.email && apt.userEmail && apt.userEmail.toLowerCase().includes('fajar') && user.email.toLowerCase().includes('fajar')) ||
+             (user.email && apt.userEmail && apt.userEmail.toLowerCase().includes('gelsay') && user.email.toLowerCase().includes('gelsay'));
+    });
 
     portal.innerHTML = `
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
@@ -3849,24 +4242,29 @@
         </div>
 
         <!-- 2. Workspace Navigation Tabs -->
-        <div class="bg-white rounded-2xl border border-slate-200 p-1.5 grid grid-cols-1 sm:grid-cols-3 gap-1.5 shadow-xs">
-          <button onclick="switchClientTab('documents')" id="btn-client-tab-documents" class="flex-1 py-3 px-4 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${state.activeClientTab === 'documents' ? 'bg-[#0C1E36] text-amber-300 shadow-xs' : 'text-slate-600 hover:text-slate-900'}">
+        <div class="bg-white rounded-2xl border border-slate-200 p-1.5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1.5 shadow-xs">
+          <button onclick="switchClientTab('documents')" id="btn-client-tab-documents" class="flex-1 py-3 px-3 sm:px-4 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${state.activeClientTab === 'documents' ? 'bg-[#0C1E36] text-amber-300 shadow-xs' : 'text-slate-600 hover:text-slate-900'}">
             <i data-lucide="file-text" class="w-4 h-4"></i>
-            <span>Berkas & Kontrak Perseroan</span>
+            <span>Berkas & Kontrak</span>
           </button>
-          <button onclick="switchClientTab('chat')" id="btn-client-tab-chat" class="flex-1 py-3 px-4 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${state.activeClientTab === 'chat' ? 'bg-[#0C1E36] text-amber-300 shadow-xs' : 'text-slate-600 hover:text-slate-900'}">
+          <button onclick="switchClientTab('appointments')" id="btn-client-tab-appointments" class="flex-1 py-3 px-3 sm:px-4 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${state.activeClientTab === 'appointments' ? 'bg-[#0C1E36] text-amber-300 shadow-xs' : 'text-slate-600 hover:text-slate-900'}">
+            <i data-lucide="calendar-clock" class="w-4 h-4"></i>
+            <span>Riwayat Janji Temu</span>
+            <span class="px-1.5 py-0.5 rounded-full text-[10px] font-mono ${state.activeClientTab === 'appointments' ? 'bg-amber-400/20 text-amber-300 font-extrabold' : 'bg-slate-100 text-slate-700'}">${clientAppointments.length}</span>
+          </button>
+          <button onclick="switchClientTab('chat')" id="btn-client-tab-chat" class="flex-1 py-3 px-3 sm:px-4 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${state.activeClientTab === 'chat' ? 'bg-[#0C1E36] text-amber-300 shadow-xs' : 'text-slate-600 hover:text-slate-900'}">
             <i data-lucide="messages-square" class="w-4 h-4"></i>
-            <span>Konsultasi Notaris (Chat Live)</span>
+            <span>Konsultasi Chat</span>
           </button>
-          <button onclick="switchClientTab('invoices')" id="btn-client-tab-invoices" class="flex-1 py-3 px-4 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${state.activeClientTab === 'invoices' ? 'bg-[#0C1E36] text-amber-300 shadow-xs' : 'text-slate-600 hover:text-slate-900'}">
+          <button onclick="switchClientTab('invoices')" id="btn-client-tab-invoices" class="flex-1 py-3 px-3 sm:px-4 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${state.activeClientTab === 'invoices' ? 'bg-[#0C1E36] text-amber-300 shadow-xs' : 'text-slate-600 hover:text-slate-900'}">
             <i data-lucide="receipt" class="w-4 h-4"></i>
-            <span>Riwayat Tagihan & Faktur Pajak</span>
+            <span>Riwayat Tagihan</span>
           </button>
         </div>
 
         <!-- 3. Workspace Tab Content -->
         <div id="client-workspace-tab-content">
-          ${renderClientWorkspaceTabBody(user, activeDoc, interpolatedClauses, notary, msgs, transactions)}
+          ${renderClientWorkspaceTabBody(user, activeDoc, interpolatedClauses, notary, msgs, transactions, clientAppointments)}
         </div>
       </div>
     `;
@@ -4667,7 +5065,7 @@
           </button>
           <button onclick="switchNotaryPortalTab('schedule')" id="btn-notary-tab-schedule" class="py-3 px-4 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${activeNotaryTab === 'schedule' ? 'bg-emerald-500 text-slate-950 font-extrabold shadow-xs' : 'text-emerald-200 hover:text-white'}">
             <i data-lucide="calendar" class="w-4 h-4"></i>
-            <span>Buku Agenda Temu & Panggilan Suara (2)</span>
+            <span>Buku Agenda Temu & Panggilan Suara (${(state.appointments || []).length})</span>
           </button>
         </div>
 
@@ -4765,6 +5163,9 @@
     }
 
     if (tab === 'schedule') {
+      if (!state.appointments) state.appointments = [];
+      const appointments = state.appointments;
+
       return `
         <div class="p-6 sm:p-8 space-y-6">
           <div class="flex items-center justify-between pb-4 border-b border-slate-100">
@@ -4772,56 +5173,85 @@
               <h3 class="font-bold text-base text-[#0C1E36]">Buku Agenda Janji Temu Resmi Notaris</h3>
               <p class="text-xs text-slate-500">Jadwal tatap muka kantor dan konsultasi panggilan suara terdaftar untuk Dr. Hendra Wijaya</p>
             </div>
-            <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold font-mono">2 Sesi Terjadwal</span>
+            <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold font-mono">${appointments.length} Sesi Terjadwal</span>
           </div>
 
-          <div class="space-y-4">
-            <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 hover:border-emerald-500/50 transition">
-              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div class="flex items-start gap-3">
-                  <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0">
-                    <i data-lucide="phone-call" class="w-5 h-5"></i>
-                  </div>
-                  <div>
-                    <div class="flex items-center gap-2">
-                      <h4 class="font-bold text-sm text-[#0C1E36]">Fajar Nugraha (PT Sinergi Digital Indonesia)</h4>
-                      <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">Panggilan Suara Notaris (Voice Call HD)</span>
-                    </div>
-                    <p class="text-xs text-slate-600 mt-1">Agenda: Konsultasi Persyaratan Modal Ditempatkan 25% & Pengecekan 3 Opsi Nama PT di AHU Online</p>
-                    <p class="text-[11px] text-slate-400 font-mono mt-0.5">Waktu: Besok, Pukul 10:00 - 10:45 WIB • Jalur Suara Langsung Terenkripsi</p>
-                  </div>
-                </div>
-                <div class="flex items-center gap-2">
-                  <button onclick="startVoiceCall('notary-1')" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-xs">
-                    <i data-lucide="phone-call" class="w-3.5 h-3.5"></i> Mulai Panggilan Suara
-                  </button>
-                </div>
-              </div>
+          ${appointments.length === 0 ? `
+            <div class="p-10 text-center bg-slate-50 rounded-2xl border border-slate-200 max-w-xl mx-auto space-y-3">
+              <i data-lucide="calendar-x" class="w-10 h-10 text-slate-400 mx-auto"></i>
+              <h4 class="font-bold text-slate-800 text-sm">Belum Ada Agenda Janji Temu</h4>
+              <p class="text-xs text-slate-500">Belum ada sesi konsultasi yang diajukan oleh klien saat ini.</p>
             </div>
+          ` : `
+            <div class="space-y-4">
+              ${appointments.map(apt => {
+                const isVoice = apt.mode === 'voice';
+                const isChat = apt.mode === 'chat';
+                const isDeed = apt.mode === 'in_person_deed';
 
-            <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 hover:border-emerald-500/50 transition">
-              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div class="flex items-start gap-3">
-                  <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0">
-                    <i data-lucide="map-pin" class="w-5 h-5"></i>
-                  </div>
-                  <div>
-                    <div class="flex items-center gap-2">
-                      <h4 class="font-bold text-sm text-[#0C1E36]">Gelsay Behrous (PT Gelsay Law Nusantara)</h4>
-                      <span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 text-[10px] font-bold">Tatap Muka di Kantor</span>
+                const statusBadge = apt.status === 'Dikonfirmasi'
+                  ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
+                  : (apt.status === 'Selesai'
+                    ? 'bg-slate-100 text-slate-700 border-slate-300'
+                    : (apt.status === 'Dibatalkan'
+                      ? 'bg-rose-100 text-rose-700 border-rose-200'
+                      : 'bg-amber-100 text-amber-800 border-amber-300'));
+
+                return `
+                  <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 hover:border-emerald-500/50 transition" id="notary-apt-${apt.id}">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div class="flex items-start gap-3">
+                        <div class="w-10 h-10 rounded-xl ${isVoice ? 'bg-emerald-100 text-emerald-800' : (isChat ? 'bg-blue-100 text-blue-800' : 'bg-amber-100 text-amber-800')} flex items-center justify-center shrink-0">
+                          <i data-lucide="${isVoice ? 'phone-call' : (isChat ? 'messages-square' : 'map-pin')}" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                          <div class="flex flex-wrap items-center gap-2">
+                            <h4 class="font-bold text-sm text-[#0C1E36]">${escapeHtml(apt.userName)} (${escapeHtml(apt.companyName)})</h4>
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${isVoice ? 'bg-emerald-100 text-emerald-800' : (isChat ? 'bg-blue-100 text-blue-800' : 'bg-amber-100 text-amber-900')}">
+                              ${escapeHtml(apt.modeLabel || (isVoice ? 'Panggilan Suara Notaris' : (isChat ? 'Konsultasi Chat Terenkripsi' : 'Tatap Muka di Kantor')))}
+                            </span>
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold border ${statusBadge}">
+                              ${escapeHtml(apt.status)}
+                            </span>
+                          </div>
+                          <p class="text-xs text-slate-600 mt-1">Agenda: <strong class="text-slate-800">${escapeHtml(apt.topic || '-')}</strong></p>
+                          <p class="text-[11px] text-slate-400 font-mono mt-0.5">Waktu: ${escapeHtml(apt.date)} • ${escapeHtml(apt.time)} • Klien: ${escapeHtml(apt.userEmail)}</p>
+                        </div>
+                      </div>
+
+                      <div class="flex flex-wrap items-center gap-2">
+                        ${apt.status === 'Menunggu Konfirmasi' ? `
+                          <button onclick="handleConfirmNotaryAppointment('${apt.id}')" class="btn-confirm-notary-apt px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-xs">
+                            <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                            <span>Konfirmasi Janji</span>
+                          </button>
+                        ` : ''}
+
+                        ${apt.status === 'Dikonfirmasi' ? `
+                          <button onclick="handleCompleteNotaryAppointment('${apt.id}')" class="btn-complete-notary-apt px-4 py-2 rounded-xl bg-[#0C1E36] hover:bg-slate-800 text-amber-300 font-bold text-xs transition flex items-center gap-1.5 shadow-xs">
+                            <i data-lucide="check-check" class="w-3.5 h-3.5"></i>
+                            <span>Tandai Selesai</span>
+                          </button>
+                        ` : ''}
+
+                        ${isVoice ? `
+                          <button onclick="startVoiceCall('${apt.notaryId}')" class="px-4 py-2 rounded-xl bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-bold text-xs transition flex items-center gap-1.5">
+                            <i data-lucide="phone-call" class="w-3.5 h-3.5"></i> Mulai Panggilan Suara
+                          </button>
+                        ` : ''}
+
+                        ${isChat ? `
+                          <button onclick="state.activeAdminChatEmail = '${apt.userEmail}'; switchNotaryPortalTab('chat');" class="px-4 py-2 rounded-xl bg-blue-100 hover:bg-blue-200 text-blue-800 font-bold text-xs transition flex items-center gap-1.5">
+                            <i data-lucide="messages-square" class="w-3.5 h-3.5"></i> Chat Klien
+                          </button>
+                        ` : ''}
+                      </div>
                     </div>
-                    <p class="text-xs text-slate-600 mt-1">Agenda: Pembacaan & Penandatanganan Minuta Akta Pendirian PT di hadapan Notaris</p>
-                    <p class="text-[11px] text-slate-400 font-mono mt-0.5">Waktu: Lusa, Pukul 14:00 - 15:30 WIB • Lokasi: Kantor Notaris SCBD Tower Lt. 18, Jakarta Selatan</p>
                   </div>
-                </div>
-                <div class="flex items-center gap-2">
-                  <button onclick="showToast('Konfirmasi kesiapan ruang penandatanganan dikirim ke klien.', 'success')" class="px-4 py-2 rounded-xl bg-[#0C1E36] hover:bg-slate-800 text-amber-300 font-bold text-xs transition flex items-center gap-1.5 shadow-xs">
-                    <i data-lucide="check" class="w-3.5 h-3.5"></i> Konfirmasi Hadir
-                  </button>
-                </div>
-              </div>
+                `;
+              }).join('')}
             </div>
-          </div>
+          `}
         </div>
       `;
     }
