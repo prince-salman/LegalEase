@@ -600,6 +600,10 @@
       bg = 'bg-rose-950 text-rose-100 border-rose-500/40';
       icon = 'alert-triangle';
       iconColor = 'text-rose-400';
+    } else if (type === 'warning') {
+      bg = 'bg-amber-950 text-amber-100 border-amber-500/40';
+      icon = 'alert-circle';
+      iconColor = 'text-amber-400';
     } else if (type === 'info') {
       bg = 'bg-[#162B48] text-white border-amber-500/30';
       icon = 'info';
@@ -628,6 +632,19 @@
       setTimeout(() => toast.remove(), 300);
     }, 4500);
   }
+
+  // --- AUTH-GATE REUSABLE HELPER (ITEMS 3 & 13) ---
+  window.requireAuth = function (actionCallback, actionDescription) {
+    if (!state.currentUser) {
+      showToast(`Silakan masuk ke akun Anda terlebih dahulu untuk ${actionDescription || 'mengakses fitur ini'}.`, 'warning');
+      openAuthModal('login');
+      return false;
+    }
+    if (typeof actionCallback === 'function') {
+      actionCallback();
+    }
+    return true;
+  };
 
   // --- DYNAMIC PRODUCTION NAVBAR (GUEST vs CLIENT vs ADMIN) ---
   function syncNavbarUser() {
@@ -1012,6 +1029,9 @@
   };
 
   window.downloadCurrentDocAsWord = function () {
+    if (!window.requireAuth(null, 'mengunduh draf dokumen hukum resmi (.doc)')) {
+      return false;
+    }
     const doc = CONTRACT_TEMPLATES[state.activeDocKey] || CONTRACT_TEMPLATES.pks;
 
     let wordHtml = `
@@ -1706,14 +1726,18 @@
     printWindow.document.close();
   };
 
-  // --- BOOKING MODAL ---
+  // --- BOOKING MODAL (ITEM 3: AUTH-GATE) ---
   window.openBookingModal = function (notaryId, notaryName) {
+    if (!window.requireAuth(null, 'membuat janji temu dengan Notaris')) {
+      return false;
+    }
+
     const modal = document.getElementById('booking-modal');
     const notaryIdInput = document.getElementById('booking-notary-id');
     const subTitle = document.getElementById('booking-notary-subtitle');
     const dateInput = document.getElementById('booking-date');
 
-    if (!modal) return;
+    if (!modal) return false;
     if (notaryIdInput) notaryIdInput.value = notaryId || 'notary-1';
     if (subTitle) subTitle.textContent = notaryName || 'Dr. Hendra Wijaya, S.H., M.Kn.';
     if (dateInput) {
@@ -1723,6 +1747,7 @@
 
     modal.classList.remove('hidden');
     if (window.lucide) window.lucide.createIcons();
+    return true;
   };
 
   window.closeBookingModal = function () {
@@ -1732,6 +1757,9 @@
 
   window.handleConfirmBooking = function (e) {
     e.preventDefault();
+    if (!window.requireAuth(null, 'membuat janji temu dengan Notaris')) {
+      return false;
+    }
     const notaryId = document.getElementById('booking-notary-id')?.value || 'notary-1';
     const notary = NOTARIES.find(n => n.id === notaryId) || NOTARIES[0];
     const date = document.getElementById('booking-date')?.value || '';
@@ -1739,6 +1767,18 @@
 
     closeBookingModal();
     showToast(`Janji temu resmi dengan ${notary.name} berhasil dijadwalkan pada ${date} pukul ${time}. Konfirmasi telah dikirimkan ke WhatsApp & Email Anda.`, 'success');
+    return true;
+  };
+
+  // --- TELECONSULTATION / VOICE CALL CONTROLLER (ITEM 13: AUTH-GATE) ---
+  window.startVoiceCall = function (notaryId) {
+    if (!window.requireAuth(null, 'memulai sesi video / telepon dengan Notaris')) {
+      return false;
+    }
+    const notId = notaryId || state.activeChatNotaryId || 'notary-1';
+    const notary = NOTARIES.find(n => n.id === notId) || NOTARIES[0];
+    showToast(`Menghubungkan sesi telekonsultasi resmi dengan ${notary.name}...`, 'info');
+    return true;
   };
 
   // --- APK GUIDE MODAL & SHA CHECKSUM ---
@@ -2811,8 +2851,11 @@
     }
   }
 
-  // --- LIVE CHAT CONTROLLER FUNCTIONS ---
+  // --- LIVE CHAT CONTROLLER FUNCTIONS (ITEM 13: AUTH-GATE) ---
   window.openLiveChat = function (notaryId) {
+    if (!window.requireAuth(null, 'mengakses konsultasi live chat dengan Notaris')) {
+      return false;
+    }
     if (notaryId) {
       state.activeChatNotaryId = notaryId;
     }
@@ -3191,8 +3234,7 @@
     const adminView = document.getElementById('admin-portal-view');
 
     if (viewName === 'client_dashboard') {
-      if (!state.currentUser) {
-        openAuthModal('login');
+      if (!window.requireAuth(null, 'mengakses portal klien')) {
         return;
       }
       if (publicView) publicView.classList.add('hidden');
