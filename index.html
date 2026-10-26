@@ -221,7 +221,7 @@
           <i data-lucide="message-square" class="w-3.5 h-3.5"></i>
           <span>Chat Notaris</span>
         </button>
-        <a href="assets/LegalEase-v2.4.1.apk" download="LegalEase-v2.4.1.apk" class="hidden lg:flex px-4 py-2 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition items-center gap-2 shadow-sm hover:shadow">
+        <a href="assets/LegalEase-v2.4.1.apk" download="LegalEase-v2.4.1.apk" onclick="triggerApkDownload(event); return true;" class="hidden lg:flex px-4 py-2 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition items-center gap-2 shadow-sm hover:shadow">
           <i data-lucide="smartphone" class="w-4 h-4"></i>
           <span>Download APK</span>
         </a>
@@ -264,7 +264,7 @@
           <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
           <i data-lucide="message-square" class="w-4 h-4"></i> Konsultasi Chat Notaris Online
         </button>
-        <a href="assets/LegalEase-v2.4.1.apk" download="LegalEase-v2.4.1.apk" class="w-full py-2.5 rounded-full bg-emerald-600 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-xs">
+        <a href="assets/LegalEase-v2.4.1.apk" download="LegalEase-v2.4.1.apk" onclick="triggerApkDownload(event); return true;" class="w-full py-2.5 rounded-full bg-emerald-600 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-xs">
           <i data-lucide="download" class="w-4 h-4"></i> Download File APK (19.5 MB)
         </a>
       </div>
@@ -301,7 +301,7 @@
 
         <!-- Primary Action Buttons -->
         <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3.5">
-          <a href="assets/LegalEase-v2.4.1.apk" download="LegalEase-v2.4.1.apk" class="group w-full sm:w-auto px-7 py-3.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-3">
+          <a href="assets/LegalEase-v2.4.1.apk" download="LegalEase-v2.4.1.apk" onclick="triggerApkDownload(event); return true;" class="group w-full sm:w-auto px-7 py-3.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-3">
             <i data-lucide="smartphone" class="w-4 h-4"></i>
             <span>Download LegalEase APK (v2.4.1 • 19.5 MB)</span>
             <span class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center group-hover:translate-y-0.5 transition-transform">
@@ -468,9 +468,15 @@
             </p>
 
             <!-- Direct Download Button -->
-            <a href="assets/LegalEase-v2.4.1.apk" download="LegalEase-v2.4.1.apk" class="w-full py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-3 mb-2.5 group">
+            <a href="assets/LegalEase-v2.4.1.apk" download="LegalEase-v2.4.1.apk" onclick="triggerApkDownload(event); return true;" class="w-full py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-3 mb-2.5 group">
               <i data-lucide="download" class="w-5 h-5 group-hover:translate-y-0.5 transition-transform"></i>
               <span>Download File APK (19.5 MB)</span>
+            </a>
+
+            <!-- Fallback Mirror GitHub Link -->
+            <a href="https://github.com/prince-salman/LegalEase/raw/main/assets/LegalEase-v2.4.1.apk" target="_blank" rel="noopener noreferrer" onclick="if(typeof triggerApkFallbackDownload==='function'){triggerApkFallbackDownload(); return false;}" class="w-full py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition flex items-center justify-center gap-1.5 mb-2.5 border border-slate-200">
+              <i data-lucide="external-link" class="w-3.5 h-3.5 text-slate-600"></i>
+              <span>Server Cadangan (Mirror GitHub Direct APK)</span>
             </a>
 
             <!-- Live APK View (Webview Simulator) Button -->
@@ -762,7 +768,7 @@
             </p>
           </div>
           <div class="mt-6 pt-4 border-t border-slate-200/80 flex items-center text-xs font-bold text-[#0D7A68]">
-            <a href="#download" class="hover:underline flex items-center">Download APK <i data-lucide="chevron-right" class="w-4 h-4 ml-1"></i></a>
+            <a href="assets/LegalEase-v2.4.1.apk" download="LegalEase-v2.4.1.apk" onclick="triggerApkDownload(event); return true;" class="hover:underline flex items-center">Download APK <i data-lucide="chevron-right" class="w-4 h-4 ml-1"></i></a>
           </div>
         </div>
 
@@ -1302,7 +1308,7 @@
 
         <div class="flex flex-wrap items-center justify-center gap-6 text-xs text-slate-300 font-medium">
           <a href="#hero" class="hover:text-amber-300 transition">Beranda</a>
-          <a href="#download" class="hover:text-amber-300 transition text-emerald-400 font-bold flex items-center gap-1">
+          <a href="assets/LegalEase-v2.4.1.apk" download="LegalEase-v2.4.1.apk" onclick="triggerApkDownload(event); return true;" class="hover:text-amber-300 transition text-emerald-400 font-bold flex items-center gap-1">
             <i data-lucide="smartphone" class="w-3.5 h-3.5"></i> Download APK
           </a>
           <a href="#notaris" class="hover:text-amber-300 transition">Notaris & PPAT</a>
@@ -1704,7 +1710,7 @@
           <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-400"></i>
           Arsitektur: <strong>Android WebView Native Shell</strong> (100% Basic to Web)
         </span>
-        <a href="assets/LegalEase-v2.4.1.apk" download="LegalEase-v2.4.1.apk" class="px-3 py-1 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] inline-flex items-center gap-1 shadow-2xs">
+        <a href="assets/LegalEase-v2.4.1.apk" download="LegalEase-v2.4.1.apk" onclick="triggerApkDownload(event); return true;" class="px-3 py-1 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] inline-flex items-center gap-1 shadow-2xs">
           <i data-lucide="download" class="w-3 h-3"></i> Unduh File APK
         </a>
       </div>
@@ -1762,9 +1768,12 @@
           </div>
         </div>
 
-        <div class="pt-3 border-t border-slate-200">
-          <a href="assets/LegalEase-v2.4.1.apk" download="LegalEase-v2.4.1.apk" class="w-full py-3 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition">
+        <div class="pt-3 border-t border-slate-200 space-y-2">
+          <a href="assets/LegalEase-v2.4.1.apk" download="LegalEase-v2.4.1.apk" onclick="triggerApkDownload(event); return true;" class="w-full py-3 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition">
             <i data-lucide="download" class="w-4 h-4"></i> Download File APK Sekarang
+          </a>
+          <a href="https://github.com/prince-salman/LegalEase/raw/main/assets/LegalEase-v2.4.1.apk" target="_blank" rel="noopener noreferrer" onclick="if(typeof triggerApkFallbackDownload==='function'){triggerApkFallbackDownload(); return false;}" class="w-full py-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs flex items-center justify-center gap-1.5 transition border border-slate-200">
+            <i data-lucide="external-link" class="w-3.5 h-3.5 text-slate-600"></i> Server Cadangan (Mirror GitHub)
           </a>
         </div>
       </div>

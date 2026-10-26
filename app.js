@@ -578,6 +578,7 @@
   }
 
   // --- TOAST NOTIFICATIONS ---
+  window.showToast = showToast;
   function showToast(message, type) {
     window.showToast = showToast;
     type = type || 'success';
@@ -1786,6 +1787,69 @@
       prompt("Salin SHA-256 Checksum Berkas APK:", sha);
     }
   };
+
+  // --- APK RELIABLE DOWNLOAD TRIGGER & FALLBACK ---
+  window.triggerApkDownload = function (evt) {
+    const apkRelativePath = 'assets/LegalEase-v2.4.1.apk';
+    const apkFileName = 'LegalEase-v2.4.1.apk';
+
+    // Friendly toast notification
+    const toastMsg = 'Mengunduh berkas LegalEase-v2.4.1.apk (19.5 MB)... Periksa folder Unduhan browser Anda.';
+    if (typeof showToast === 'function') {
+      showToast(toastMsg, 'success');
+    } else if (typeof window.showToast === 'function') {
+      window.showToast(toastMsg, 'success');
+    }
+
+    // Determine whether this was clicked from an <a> anchor with direct href
+    const target = evt ? (evt.currentTarget || evt.target) : null;
+    const isDirectAnchor = target && (target.tagName === 'A' || (target.closest && target.closest('a'))) &&
+      (target.getAttribute('href') === apkRelativePath || (target.closest && target.closest('a').getAttribute('href') === apkRelativePath));
+
+    // If invoked programmatically or from an element without native download href, trigger programmatic download
+    if (!isDirectAnchor) {
+      const a = document.createElement('a');
+      a.href = apkRelativePath;
+      a.download = apkFileName;
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        if (a.parentNode) {
+          a.parentNode.removeChild(a);
+        }
+      }, 1000);
+    }
+
+    return true;
+  };
+
+  // Fallback trigger to remote mirror repository
+  window.triggerApkFallbackDownload = function () {
+    const githubFallbackUrl = 'https://github.com/prince-salman/LegalEase/raw/main/assets/LegalEase-v2.4.1.apk';
+    const toastMsg = 'Mengunduh berkas LegalEase dari server cadangan GitHub (19.5 MB)...';
+    if (typeof showToast === 'function') {
+      showToast(toastMsg, 'info');
+    } else if (typeof window.showToast === 'function') {
+      window.showToast(toastMsg, 'info');
+    }
+
+    const a = document.createElement('a');
+    a.href = githubFallbackUrl;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    a.download = 'LegalEase-v2.4.1.apk';
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      if (a.parentNode) {
+        a.parentNode.removeChild(a);
+      }
+    }, 1000);
+    return true;
+  };
+
 
   // --- PRODUCTION AUTH MODAL (LOGIN, REGISTER, PROFILE) ---
   window.selectRegPlan = function (planId) {
