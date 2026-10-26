@@ -24,7 +24,7 @@ for tool in [AAPT, D8, ZIPALIGN, APKSIGNER, PLATFORM_JAR]:
 print("All SDK tools found!")
 
 # Clean and recreate build folders
-for sub in ["gen", "obj", "bin", "src/com/legalease/app", "res/values", "res/mipmap-hdpi", "res/mipmap-xhdpi", "res/mipmap-xxhdpi", "assets/www"]:
+for sub in ["gen", "obj", "bin", "dex", "src/com/legalease/app", "res/values", "res/mipmap-hdpi", "res/mipmap-xhdpi", "res/mipmap-xxhdpi", "assets/www"]:
     os.makedirs(os.path.join(BUILD_DIR, sub), exist_ok=True)
 
 # 1. AndroidManifest.xml
@@ -46,6 +46,7 @@ manifest_content = """<?xml version="1.0" encoding="utf-8"?>
 
     <application
         android:allowBackup="true"
+        android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
@@ -55,6 +56,7 @@ manifest_content = """<?xml version="1.0" encoding="utf-8"?>
             android:name=".MainActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:exported="true"
+            android:hardwareAccelerated="true"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -118,6 +120,14 @@ public class MainActivity extends Activity {
         mWebView = new WebView(this);
         setContentView(mWebView);
 
+        // Native scrolling and touch response settings
+        mWebView.setFocusable(true);
+        mWebView.setFocusableInTouchMode(true);
+        mWebView.setVerticalScrollBarEnabled(true);
+        mWebView.setHorizontalScrollBarEnabled(false);
+        mWebView.setScrollBarStyle(android.view.View.SCROLLBARS_INSIDE_OVERLAY);
+        mWebView.setOverScrollMode(android.view.View.OVER_SCROLL_IF_CONTENT_SCROLLS);
+
         WebSettings settings = mWebView.getSettings();
         settings.setJavaScriptEnabled(true);
         settings.setDomStorageEnabled(true);
@@ -127,14 +137,26 @@ public class MainActivity extends Activity {
         settings.setMediaPlaybackRequiresUserGesture(false);
         settings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
         settings.setUseWideViewPort(true);
-        settings.setLoadWithOverviewMode(true);
+        settings.setLoadWithOverviewMode(false);
+        settings.setSupportZoom(false);
+        settings.setBuiltInZoomControls(false);
+        settings.setDisplayZoomControls(false);
         settings.setUserAgentString(settings.getUserAgentString() + " LegalEaseMobileApp/2.4.1 (Android WebView)");
 
         mWebView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                view.loadUrl(url);
-                return true;
+                if (url == null) return false;
+                if (url.startsWith("file:///android_asset/") || url.startsWith("javascript:") || url.contains("#")) {
+                    return false;
+                }
+                try {
+                    android.content.Intent intent = new android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url));
+                    view.getContext().startActivity(intent);
+                    return true;
+                } catch (Exception e) {
+                    return false;
+                }
             }
         });
 
@@ -206,7 +228,7 @@ for root, dirs, files in os.walk(os.path.join(BUILD_DIR, "obj")):
 cmd_d8 = [
     D8,
     "--min-api", "26",
-    "--output", os.path.join(BUILD_DIR, "bin")
+    "--output", os.path.join(BUILD_DIR, "dex")
 ] + all_classes
 subprocess.run(cmd_d8, shell=True, check=True)
 
@@ -223,7 +245,7 @@ cmd_aapt_pack = [
     "-A", os.path.join(BUILD_DIR, "assets"),
     "-I", PLATFORM_JAR,
     "-F", unaligned_apk,
-    os.path.join(BUILD_DIR, "bin") # adds classes.dex
+    os.path.join(BUILD_DIR, "dex") # adds classes.dex cleanly
 ]
 subprocess.run(cmd_aapt_pack, check=True)
 

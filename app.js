@@ -2154,7 +2154,7 @@
   };
 
   window.copySha256Checksum = function () {
-    const sha = "e19747767ad82c73205b0fa52c7b579bdc30dd5cfeafb1a4879a34acfef14b0f";
+    const sha = "69a12be6a66d7921892c946837f472958696554e93e85917198f43aae3c5ad5e";
     if (navigator.clipboard) {
       navigator.clipboard.writeText(sha).then(() => {
         showToast(`SHA-256 Checksum disalin: ${sha.slice(0, 16)}...`, 'success');
@@ -5450,6 +5450,14 @@
   };
 
   document.addEventListener('DOMContentLoaded', () => {
+    // Check if running inside LegalEase Native Android App WebView
+    const isMobileApp = (navigator.userAgent && navigator.userAgent.includes('LegalEaseMobileApp')) || window.location.protocol === 'file:';
+    if (isMobileApp) {
+      document.documentElement.classList.add('is-mobile-app');
+      document.body.classList.add('is-mobile-app');
+      console.log('✓ Running inside Native LegalEase Android App WebView');
+    }
+
     initMobileMenu();
     initBackToTop();
     initRealtimeChannel();

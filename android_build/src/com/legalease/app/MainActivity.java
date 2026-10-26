@@ -20,6 +20,14 @@ public class MainActivity extends Activity {
         mWebView = new WebView(this);
         setContentView(mWebView);
 
+        // Native scrolling and touch response settings
+        mWebView.setFocusable(true);
+        mWebView.setFocusableInTouchMode(true);
+        mWebView.setVerticalScrollBarEnabled(true);
+        mWebView.setHorizontalScrollBarEnabled(false);
+        mWebView.setScrollBarStyle(android.view.View.SCROLLBARS_INSIDE_OVERLAY);
+        mWebView.setOverScrollMode(android.view.View.OVER_SCROLL_IF_CONTENT_SCROLLS);
+
         WebSettings settings = mWebView.getSettings();
         settings.setJavaScriptEnabled(true);
         settings.setDomStorageEnabled(true);
@@ -29,14 +37,26 @@ public class MainActivity extends Activity {
         settings.setMediaPlaybackRequiresUserGesture(false);
         settings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
         settings.setUseWideViewPort(true);
-        settings.setLoadWithOverviewMode(true);
+        settings.setLoadWithOverviewMode(false);
+        settings.setSupportZoom(false);
+        settings.setBuiltInZoomControls(false);
+        settings.setDisplayZoomControls(false);
         settings.setUserAgentString(settings.getUserAgentString() + " LegalEaseMobileApp/2.4.1 (Android WebView)");
 
         mWebView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                view.loadUrl(url);
-                return true;
+                if (url == null) return false;
+                if (url.startsWith("file:///android_asset/") || url.startsWith("javascript:") || url.contains("#")) {
+                    return false;
+                }
+                try {
+                    android.content.Intent intent = new android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url));
+                    view.getContext().startActivity(intent);
+                    return true;
+                } catch (Exception e) {
+                    return false;
+                }
             }
         });
 

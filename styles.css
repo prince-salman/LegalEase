@@ -1,8 +1,27 @@
-html, body {
+html {
   overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
   width: 100%;
-  max-width: 100vw;
   box-sizing: border-box;
+}
+
+body {
+  overflow-x: hidden;
+  overflow-y: visible;
+  position: relative;
+  width: 100%;
+  min-height: 100%;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  box-sizing: border-box;
+}
+
+/* In-App specific cleanup */
+.is-mobile-app a[href*=".apk"],
+.is-mobile-app button[onclick*="openApkViewModal"] {
+  display: none !important;
 }
 
 *, *::before, *::after {

@@ -11,3 +11,8 @@ android_build/bin/
 android_build/obj/
 android_build/gen/
 *.idsig
+
+android_build/dex/
+.superpowers/
+__pycache__/
+tests/__pycache__/
