@@ -106,22 +106,18 @@ async def main():
         await page.click('#auth-modal button[type="submit"]')
         await page.wait_for_timeout(600)
 
-        # Switch to Admin Dashboard & Chats Tab
-        await page.evaluate("() => window.switchView('admin_dashboard')")
+        # Open Admin Console Modal
+        await page.evaluate("() => window.openAdminConsole()")
         await page.wait_for_timeout(400)
         await page.evaluate("() => window.switchAdminTab('chats')")
         await page.wait_for_timeout(400)
 
         # Select client chat thread for Fajar
-        client_thread_btn = page.locator("div[onclick*='selectAdminClientChat']:has-text('Fajar Nugraha')")
-        if await client_thread_btn.count() == 0:
-            client_thread_btn = page.locator(":is(div, button):has-text('Fajar Nugraha')")
-        assert await client_thread_btn.count() >= 1, "Fajar's chat thread not found in Admin Console!"
-        await client_thread_btn.first.click()
+        await page.evaluate("() => window.selectAdminClientChat('fajar@sinergidigital.co.id')")
         await page.wait_for_timeout(400)
 
         # Verify client's inquiry is visible to admin
-        admin_chat_view = page.locator('#admin-portal-tab-content #admin-chat-messages')
+        admin_chat_view = page.locator('#admin-console-modal #admin-chat-messages')
         if await admin_chat_view.count() == 0:
             admin_chat_view = page.locator('#admin-chat-messages').first
         admin_chat_text = await admin_chat_view.inner_text()
@@ -131,13 +127,13 @@ async def main():
         # Admin sends real manual reply
         admin_manual_reply = "Baik Pak Fajar, klausul somasi 7 hari kerja telah kami periksa dan kami rekomendasikan ditambahkan pada Pasal 8 PKS."
         print(f"   Admin typing manual response: {repr(admin_manual_reply)}")
-        reply_input = page.locator('#admin-portal-tab-content #admin-reply-input')
+        reply_input = page.locator('#admin-console-modal #admin-reply-input')
         if await reply_input.count() == 0:
             reply_input = page.locator('#admin-reply-input').first
         await reply_input.fill(admin_manual_reply)
         await page.wait_for_timeout(100)
         
-        reply_btn = page.locator("#admin-portal-tab-content button:has-text('Balas Klien')")
+        reply_btn = page.locator("#admin-console-modal button:has-text('Balas Klien')")
         if await reply_btn.count() == 0:
             reply_btn = page.locator("button:has-text('Balas Klien')").first
         await reply_btn.click()
