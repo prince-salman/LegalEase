@@ -281,3 +281,14 @@ body {
   break-inside: avoid;
   page-break-inside: avoid;
 }
+
+/* Halodoc Mobile UI Optimization (Item 16) */
+@media (max-width: 768px) {
+  body {
+    padding-bottom: 65px !important;
+  }
+}
+
+.halodoc-service-item:active > div {
+  transform: scale(0.92);
+}

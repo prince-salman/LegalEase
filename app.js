@@ -679,6 +679,20 @@
     const desktopContainer = document.getElementById('nav-auth-container');
     const mobileContainer = document.getElementById('mobile-auth-container');
     const mobileAvatarBtn = document.getElementById('mobile-user-avatar-btn');
+    const mobileUserDisplay = document.getElementById('mobile-user-display-name');
+    const mobileUserInitials = document.getElementById('mobile-user-avatar-initials');
+
+    if (mobileUserDisplay) {
+      mobileUserDisplay.textContent = user ? (user.fullName || user.companyName || 'Klien LegalEase') : 'Klien Bisnis & Korporasi';
+    }
+    if (mobileUserInitials) {
+      if (user && user.fullName) {
+        const parts = user.fullName.trim().split(/\s+/);
+        mobileUserInitials.textContent = parts.length > 1 ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase() : parts[0].slice(0, 2).toUpperCase();
+      } else {
+        mobileUserInitials.textContent = 'LE';
+      }
+    }
 
     // 1. GUEST VISITOR (NOT LOGGED IN)
     if (!user) {
@@ -5385,6 +5399,55 @@
       </div>
     `;
   }
+
+  
+  // --- HALODOC-INSPIRED MOBILE BOTTOM NAV DOCK (Item 16) ---
+  window.handleMobileBottomNav = function (tab) {
+    ['beranda', 'riwayat', 'profil', 'bantuan'].forEach(t => {
+      const btn = document.getElementById('btn-bottom-' + t);
+      if (btn) {
+        const span = btn.querySelector('span');
+        if (t === tab) {
+          btn.className = 'flex flex-col items-center justify-center py-1 px-2 text-[#2E9B95] group cursor-pointer';
+          if (span) span.className = 'text-[10px] font-bold leading-none';
+        } else {
+          btn.className = 'flex flex-col items-center justify-center py-1 px-2 text-slate-500 hover:text-slate-800 group cursor-pointer';
+          if (span) span.className = 'text-[10px] font-medium leading-none';
+        }
+      }
+    });
+
+    if (tab === 'beranda') {
+      window.switchView('public');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (tab === 'chat') {
+      window.openLiveChat();
+    } else if (tab === 'riwayat') {
+      if (state.currentUser) {
+        window.switchView('client_dashboard');
+        window.switchClientTab('appointments');
+      } else {
+        window.requireAuth(() => {
+          window.switchView('client_dashboard');
+          window.switchClientTab('appointments');
+        }, 'melihat riwayat janji temu');
+      }
+    } else if (tab === 'profil') {
+      if (state.currentUser) {
+        window.switchView('client_dashboard');
+        window.switchClientTab('overview');
+      } else {
+        window.openAuthModal('login');
+      }
+    } else if (tab === 'bantuan') {
+      const faqSec = document.getElementById('faq');
+      if (faqSec) {
+        faqSec.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        showToast('Pusat Bantuan LegalEase: WhatsApp Notaris Siaga +62-811-9876-0001 (24 Jam)', 'info');
+      }
+    }
+  };
 
   document.addEventListener('DOMContentLoaded', () => {
     initMobileMenu();
