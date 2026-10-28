@@ -50,7 +50,8 @@ def main():
         'tests/test_whatsapp_chat.py',
         'tests/test_theme_tokens.py',
         'tests/test_halodoc_mobile_ui.py',
-        'tests/test_pwa_and_preloader.py'
+        'tests/test_pwa_and_preloader.py',
+        'tests/test_kenotariatan_and_business_card.py'
     ]
 
     failed = []

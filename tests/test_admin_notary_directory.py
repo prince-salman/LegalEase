@@ -50,7 +50,7 @@ async def run():
         assert 'notaris@legalease.co.id' in tab_content
         assert 'Kartika Permatasari, S.H., M.Kn.' in tab_content
         assert 'Bagus Pratama Putra, S.H., M.Kn.' in tab_content
-        assert 'Nadia Kusumawardhani, S.H., M.Kn.' in tab_content
+        assert 'Dea Cheryna, S.H., M.Kn.' in tab_content
         print('   All 4 Notaries successfully visible in Admin Gede Console!')
 
         # Test clicking Audit Kepatuhan button

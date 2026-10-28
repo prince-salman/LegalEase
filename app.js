@@ -332,7 +332,7 @@
     },
     activeChatNotaryId: 'notary-1',
     chatHistory: {},
-    activeDocKey: 'pks',
+    activeDocKey: 'akta_pt',
     notarySearchQuery: '',
     notaryCategoryFilter: 'all',
     docFormData: {
@@ -384,101 +384,80 @@
   const NOTARIES = [
     {
       id: 'notary-1',
-      name: 'Dr. Hendra Wijaya, S.H., M.Kn.',
-      title: 'Notaris & Pejabat Pembuat Akta Tanah (PPAT)',
-      office: 'Kantor Notaris Jakarta Selatan',
-      address: 'Sudirman Central Business District (SCBD), Jakarta Selatan',
-      skNumber: 'SK Kemenkumham RI: AHU-0019284.AH.02.01.Tahun 2017',
+      name: 'Dea Cheryna, S.H., M.Kn.',
+      title: 'Kenotariatan & Pejabat Pembuat Akta Tanah (PPAT)',
+      office: 'Kantor Notaris & PPAT Dea Cheryna, S.H., M.Kn.',
+      address: 'Grand Wisata Celebration Boulevard AA 15/26, Tambun Selatan, Bekasi',
+      skNumber: 'SK Kemenkumham RI: AHU-0019284.AH.02.01 (I.N.I & IPPAT)',
       experience: '16 Tahun Pengalaman',
-      rating: 4.95,
-      reviewsCount: 342,
-      specialties: ['Pendirian PT / CV / PMA', 'Perjanjian Bisnis (PKS)', 'Legal Due Diligence', 'Pertanahan & PPAT'],
+      rating: 4.98,
+      reviewsCount: 382,
+      specialties: ['Akta Pendirian PT / CV / PMA', 'Kenotariatan & Akta Autentik', 'Pertanahan & PPAT', 'Akta Jual Beli (AJB) & Hibah'],
       status: 'Online & Tersedia',
       category: 'pt',
-      avatar: 'assets/team/team_1.jpeg',
-      bio: 'Spesialis hukum korporasi, pendirian perseroan permodalan asing (PMA), dan restrukturisasi merger & akuisisi berizin resmi Kemenkumham RI.'
+      avatar: 'assets/notaris/dea_cheryna.jpg',
+      businessCard: 'assets/notaris/kartu_nama_dea_cheryna.jpg',
+      phone: '0811 187 2012',
+      email: 'notaris.deacheryna@yahoo.com',
+      bio: 'Notaris & Pejabat Pembuat Akta Tanah (PPAT) berizin resmi Kemenkumham RI, terdaftar di Ikatan Notaris Indonesia (I.N.I.) & Ikatan Pejabat Pembuat Akta Tanah (IPPAT). Spesialis layanan kenotariatan, pendirian perseroan (PT/CV/PMA), serta transaksi pertanahan.'
     },
     {
       id: 'notary-2',
-      name: 'Kartika Permatasari, S.H., M.Kn.',
-      title: 'Notaris & Konsultan HAKI Terdaftar',
-      office: 'Kantor Notaris Jakarta Pusat',
-      address: 'Jl. M.H. Thamrin No. 28, Menteng, Jakarta Pusat',
+      name: 'Dr. Hendra Wijaya, S.H., M.Kn.',
+      title: 'Notaris Rekanan & Pejabat Pembuat Akta Tanah',
+      office: 'Kantor Notaris Jakarta Selatan',
+      address: 'Sudirman Central Business District (SCBD), Jakarta Selatan',
       skNumber: 'SK Kemenkumham RI: AHU-0038192.AH.02.01.Tahun 2019',
-      experience: '11 Tahun Pengalaman',
-      rating: 4.92,
-      reviewsCount: 218,
-      specialties: ['Pendaftaran Merek & HAKI', 'Kontrak Kerja Karyawan (PKWT/PKWTT)', 'Non-Disclosure Agreement (NDA)', 'Akta Hibah & Waris'],
+      experience: '14 Tahun Pengalaman',
+      rating: 4.95,
+      reviewsCount: 290,
+      specialties: ['Akta Pendirian PT & CV', 'Pendaftaran Merek & HAKI', 'Perubahan Anggaran Dasar RUPS', 'Akta Yayasan'],
       status: 'Online & Tersedia',
       category: 'haki',
-      avatar: 'assets/team/team_7.jpeg',
-      bio: 'Berpengalaman mendampingi lebih dari 400 startup teknologi dalam perlindungan hak kekayaan intelektual dan penyusunan instrumen kontrak bilateral.'
+      avatar: 'assets/notaris/notary_partner_male.jpg',
+      bio: 'Berpengalaman mendampingi perseroan dalam penyusunan minuta akta autentik, perizinan OSS RBA, dan legalitas badan usaha.'
     },
     {
       id: 'notary-3',
-      name: 'Bagus Pratama Putra, S.H., M.Kn.',
-      title: 'Notaris Korporasi & Pejabat Pembuat Akta Tanah',
-      office: 'Kantor Notaris Surabaya & Sidoarjo',
-      address: 'Pakuwon City Business Center, Surabaya Timur',
+      name: 'Kartika Permatasari, S.H., M.Kn.',
+      title: 'Kenotariatan & Pejabat Pembuat Akta Tanah (PPAT)',
+      office: 'Kantor Notaris Jakarta Pusat',
+      address: 'Jl. M.H. Thamrin No. 28, Menteng, Jakarta Pusat',
       skNumber: 'SK Kemenkumham RI: AHU-0082711.AH.02.01.Tahun 2018',
-      experience: '14 Tahun Pengalaman',
-      rating: 4.91,
-      reviewsCount: 189,
-      specialties: ['Akta Jual Beli Tanah (PPAT)', 'Perjanjian Kredit Bank', 'RUPS & Perubahan Anggaran Dasar', 'Perizinan OSS RBA'],
+      experience: '12 Tahun Pengalaman',
+      rating: 4.93,
+      reviewsCount: 218,
+      specialties: ['Akta Jual Beli Tanah (PPAT)', 'Akta Hibah & Pembagian Hak Bersama', 'Perjanjian Kredit Notaril', 'APHT & SKMHT'],
       status: 'Tersedia Konsultasi',
       category: 'ppat',
-      avatar: 'assets/team/team_5.jpeg',
+      avatar: 'assets/notaris/notary_partner_female.jpg',
       bio: 'Fokus pada hukum properti, transaksi hak atas tanah komersial, perizinan OSS RBA serta penyelenggaraan RUPS Perubahan Anggaran Dasar Perseroan.'
     },
     {
       id: 'notary-4',
-      name: 'Nadia Kusumawardhani, S.H., M.Kn.',
+      name: 'Bagus Pratama Putra, S.H., M.Kn.',
       title: 'Notaris & Konsultan Restrukturisasi Modal',
-      office: 'Kantor Notaris Bandung & Jawa Barat',
-      address: 'Jl. Ir. H. Juanda No. 112, Dago, Kota Bandung',
+      office: 'Kantor Notaris Surabaya & Sidoarjo',
+      address: 'Pakuwon City Business Center, Surabaya Timur',
       skNumber: 'SK Kemenkumham RI: AHU-0045199.AH.02.01.Tahun 2021',
-      experience: '8 Tahun Pengalaman',
-      rating: 4.89,
-      reviewsCount: 145,
-      specialties: ['Perjanjian Investasi (SAFE/Notes)', 'Perjanjian Pemegang Saham (SHA)', 'Kemitraan UMKM', 'Akta Yayasan & Perkumpulan'],
+      experience: '10 Tahun Pengalaman',
+      rating: 4.91,
+      reviewsCount: 165,
+      specialties: ['Akta Investasi & Saham', 'Akta Perkumpulan & Yayasan', 'Kemitraan Usaha Bersama', 'Perubahan Modal AD/ART'],
       status: 'Online & Tersedia',
       category: 'pt',
-      avatar: 'assets/team/team_3.png',
-      bio: 'Berpengalaman dalam perumusan Shareholders Agreement (SHA), vesting schedule pendiri, dan legal audit untuk putaran pendanaan Pre-Seed hingga Series A.'
+      avatar: 'assets/notaris/notary_partner_male2.jpg',
+      bio: 'Berpengalaman dalam perumusan akta restrukturisasi modal, vesting schedule pendiri, dan legal audit untuk penanaman modal perseroan.'
     }
   ];
 
   // --- CONTRACT TEMPLATES DATA ---
   const CONTRACT_TEMPLATES = {
-    pks: {
-      key: 'pks',
-      title: 'Perjanjian Kerjasama Kemitraan Bisnis (PKS)',
-      subtitle: 'Standar KUHPerdata Pasal 1320 & 1338',
-      docNo: '042/PKS-LE/X/2026',
-      clauses: [
-        {
-          title: 'PASAL 1: KETENTUAN UMUM KEMITRAAN',
-          content: 'Pihak Pertama dan Pihak Kedua sepakat untuk mengikatkan diri dalam kemitraan strategis pelaksanaan kegiatan usaha dan penyediaan layanan teknologi terintegrasi dengan itikad baik (good faith) sesuai ketentuan hukum Negara Republik Indonesia.'
-        },
-        {
-          title: 'PASAL 2: RUANG LINGKUP PEKERJAAN & NILAI KONTRAK',
-          content: 'Pihak Pertama menunjuk Pihak Kedua untuk melaksanakan operasional proyek kemitraan dengan total nilai komitmen sebesar {{contractValue}}, yang dibayarkan berdasarkan termin penyelesaian milestone pekerjaan yang disepakati secara tertulis oleh kedua belah pihak.'
-        },
-        {
-          title: 'PASAL 3: KERAHASIAAN INFORMASI (CONFIDENTIALITY)',
-          content: 'Semua informasi teknis, data finansial, arsitektur kode sumber, dan dokumentasi yang diserahkan selama berjalannya perjanjian ini bersifat sangat rahasia dan dilarang diungkapkan kepada pihak ketiga manapun tanpa persetujuan tertulis terlebih dahulu.'
-        },
-        {
-          title: 'PASAL 4: DOMISILI HUKUM & PENYELESAIAN SENGKETA',
-          content: 'Segala perselisihan yang timbul sehubungan dengan penafsiran atau pelaksanaan Perjanjian ini akan diselesaikan terlebih dahulu melalui musyawarah mufakat. Apabila tidak tercapai mufakat, Para Pihak sepakat memilih domisili hukum tetap di Kantor Pengadilan Negeri {{contractCity}}.'
-        }
-      ]
-    },
     akta_pt: {
       key: 'akta_pt',
       title: 'Draf Akta Pendirian Perseroan Terbatas (PT)',
       subtitle: 'Sesuai UU No. 40/2007 jo. UU Cipta Kerja No. 6/2023',
-      docNo: '088/NOT-HW/AKTA-PT/X/2026',
+      docNo: '088/NOT-DC/AKTA-PT/X/2026',
       clauses: [
         {
           title: 'PASAL 1: NAMA DAN TEMPAT KEDUDUKAN PERSEROAN',
@@ -498,75 +477,79 @@
         }
       ]
     },
-    pkwt: {
-      key: 'pkwt',
-      title: 'Perjanjian Kerja Waktu Tertentu (PKWT)',
-      subtitle: 'Standar Ketenagakerjaan PP No. 35 Tahun 2021',
-      docNo: '019/HR-LE/PKWT/X/2026',
+    akta_cv: {
+      key: 'akta_cv',
+      title: 'Draf Akta Pendirian Persekutuan Komanditer (CV)',
+      subtitle: 'Sesuai Permenkumham No. 17/2018 tentang Pendaftaran CV/Firma',
+      docNo: '045/NOT-DC/AKTA-CV/X/2026',
       clauses: [
         {
-          title: 'PASAL 1: STATUS DAN PENEMPATAN KERJA',
-          content: 'Perusahaan mempekerjakan Karyawan dengan status Pekerja Waktu Tertentu (PKWT) untuk jangka waktu 12 (dua belas) bulan terhitung sejak tanggal {{contractDate}} dengan penempatan kerja di {{contractCity}}.'
+          title: 'PASAL 1: NAMA DAN TEMPAT KEDUDUKAN PERSEKUTUAN',
+          content: 'Persekutuan Komanditer ini didirikan dengan nama "{{party1Name}}" dan bertempat kedudukan di {{contractCity}} untuk jangka waktu yang tidak ditentukan.'
         },
         {
-          title: 'PASAL 2: HAK UPAH & KOMPENSASI PP NO. 35/2021',
-          content: 'Karyawan berhak menerima gaji pokok beserta tunjangan bulanan yang disepakati. Pada akhir masa kontrak kerja, Karyawan berhak menerima uang kompensasi PKWT yang perhitungannya mengacu secara tegas pada ketentuan Pasal 15 s/d Pasal 17 PP No. 35 Tahun 2021.'
+          title: 'PASAL 2: PESERO PENGURUS & PESERO DIAM',
+          content: 'Pihak Pertama bertindak selaku Pesero Pengurus (Komplementer) yang bertanggung jawab penuh, dan Pihak Kedua bertindak selaku Pesero Diam (Komanditer) yang bertanggung jawab sebatas pemasukannya sebesar {{contractValue}}.'
         },
         {
-          title: 'PASAL 3: HAK KEKAYAAN INTELEKTUAL (WORK MADE FOR HIRE)',
-          content: 'Seluruh karya cipta, kode program, arsitektur sistem, desain, dan dokumentasi yang dihasilkan Karyawan selama masa kerja menjadi hak milik mutlak dan eksklusif Perusahaan tanpa kewajiban royalti tambahan.'
+          title: 'PASAL 3: PENDAFTARAN SISTEM ADMINISTRASI BADAN USAHA',
+          content: 'Para Pesero memberi kuasa kepada Notaris untuk mendaftarkan Akta Pendirian ini ke dalam Sistem Administrasi Badan Usaha (SABU) Ditjen AHU Kemenkumham RI guna penerbitan Surat Keterangan Terdaftar (SKT).'
         }
       ]
     },
-    nda: {
-      key: 'nda',
-      title: 'Perjanjian Kerahasiaan Timbal Balik (Mutual NDA)',
-      subtitle: 'Perlindungan Rahasia Dagang UU No. 30/2000',
-      docNo: '055/NDA-LE/X/2026',
+    akta_perubahan: {
+      key: 'akta_perubahan',
+      title: 'Akta Pernyataan Keputusan RUPS & Perubahan Anggaran Dasar',
+      subtitle: 'Sesuai Pasal 21 UU Perseroan Terbatas & AHU Online',
+      docNo: '032/NOT-DC/RUPS-PAD/X/2026',
       clauses: [
         {
-          title: 'PASAL 1: DEFINISI INFORMASI RAHASIA',
-          content: 'Informasi Rahasia mencakup segala data teknis, finansial, arsitektur perangkat lunak, algoritma, data pelanggan, strategi pemasaran, dan rencana bisnis yang diungkapkan oleh salah satu Pihak kepada Pihak lainnya.'
+          title: 'PASAL 1: KEPUTUSAN RUPS & PERUBAHAN DIREKSI',
+          content: 'Rapat Umum Pemegang Saham (RUPS) menyetujui perubahan susunan pengurus perseroan dan penerimaan modal disetor baru sebesar {{contractValue}} yang disahkan di hadapan Notaris.'
         },
         {
-          title: 'PASAL 2: KEWAJIBAN PENCEGAHAN KEBOCORAN',
-          content: 'Pihak Penerima berjanji untuk menjaga kerahasiaan tersebut dengan standar kehati-hatian yang setara dengan cara menjaga rahasia dagang miliknya sendiri, dan tidak menduplikasi atau mengekspor informasi tanpa izin tertulis.'
+          title: 'PASAL 2: PELAPORAN KEPADA MENTERI HUKUM DAN HAM RI',
+          content: 'Direksi memberi kuasa kepada Notaris untuk memberitahukan perubahan anggaran dasar ini kepada Menteri Hukum dan HAM RI guna memperoleh Surat Penerimaan Pemberitahuan Perubahan Anggaran Dasar.'
         }
       ]
     },
-    sha: {
-      key: 'sha',
-      title: 'Perjanjian Antar Pemegang Saham (Shareholders Agreement)',
-      subtitle: 'Standar Tata Kelola Saham Pendiri & Investor',
-      docNo: '031/SHA-LE/X/2026',
+    ajb_ppat: {
+      key: 'ajb_ppat',
+      title: 'Draf Akta Jual Beli (AJB) Tanah & Bangunan (PPAT)',
+      subtitle: 'Standar PP No. 24/1997 & Perkaban No. 8/2012',
+      docNo: '112/PPAT-DC/AJB/X/2026',
       clauses: [
         {
-          title: 'PASAL 1: STRUKTUR KEPEMILIKAN & VESTING SCHEDULE',
-          content: 'Para Pihak sepakat bahwa kepemilikan saham para pendiri tunduk pada mekanisme vesting selama 4 (empat) tahun dengan 1-year cliff guna menjaga komitmen jangka panjang operasional perusahaan.'
+          title: 'PASAL 1: OBJEK TRANSAKSI JUAL BELI',
+          content: 'Pihak Pertama menjual kepada Pihak Kedua hak atas sebidang tanah dan bangunan yang terletak di {{contractCity}} dengan nilai transaksi yang disepakati sebesar {{contractValue}}.'
         },
         {
-          title: 'PASAL 2: HAK MENOLAK TERLEBIH DAHULU (ROFR)',
-          content: 'Apabila salah satu pemegang saham bermaksud menjual saham miliknya kepada pihak luar, pemegang saham lainnya berhak membeli saham tersebut secara proporsional dengan harga dan ketentuan yang sama.'
+          title: 'PASAL 2: PENDAFTARAN BALIK NAMA DI KANTOR PERTANAHAN',
+          content: 'Akta ini dibuat dan ditandatangani di hadapan Pejabat Pembuat Akta Tanah (PPAT) guna pendaftaran peralihan hak (balik nama sertipikat) pada Kantor Pertanahan (BPN) setempat.'
         }
       ]
     },
     surat_kuasa: {
       key: 'surat_kuasa',
-      title: 'Surat Kuasa Khusus Pengurusan Badan Hukum',
+      title: 'Surat Kuasa Notaril Pengurusan Badan Hukum',
       subtitle: 'Standar Administrasi Notaris & Kemenkumham RI',
-      docNo: '012/SKK-LE/X/2026',
+      docNo: '012/SKK-DC/X/2026',
       clauses: [
         {
-          title: 'PASAL 1: IDENTITAS PEMBERI DAN PENERIMA KUASA',
-          content: 'Pemberi Kuasa dengan ini memberikan kuasa khusus yang tidak dapat dicabut kembali kepada Penerima Kuasa untuk bertindak atas nama dan mewakili {{party1Name}} dalam segala urusan legalitas perseroan.'
+          title: 'PASAL 1: PEMBERIAN KUASA KHUSUS',
+          content: 'Pemberi Kuasa memberikan kuasa khusus kepada Notaris & PPAT Dea Cheryna, S.H., M.Kn. untuk bertindak mewakili {{party1Name}} di hadapan instansi Kemenkumham RI dan BPN.'
         },
         {
-          title: 'PASAL 2: RUANG LINGKUP KUASA',
-          content: 'Menghadap Notaris, pejabat Kementerian Hukum dan HAM RI, Dinas Penanaman Modal, serta instansi OSS guna menyerahkan dokumen, menandatangani berkas permohonan, dan menerima salinan akta resmi.'
+          title: 'PASAL 2: PENANDATANGANAN DOKUMEN DAN AKTA',
+          content: 'Penerima Kuasa berwenang menandatangani permohonan, menyerahkan berkas persyaratan, dan mengambil salinan akta resmi bersertifikasi.'
         }
       ]
     }
   };
+  // Backward-compatibility alias
+  CONTRACT_TEMPLATES.pks = CONTRACT_TEMPLATES.akta_pt;
+  CONTRACT_TEMPLATES.pkwt = CONTRACT_TEMPLATES.akta_cv;
+  CONTRACT_TEMPLATES.nda = CONTRACT_TEMPLATES.akta_perubahan;
 
   // --- SOUND SYNTHESIZER FOR PAYMENT CHIME ---
   function playSuccessChime() {
@@ -961,13 +944,32 @@
             </span>
           </div>
 
-          <div class="flex flex-wrap gap-1.5 mb-4">
+          <div class="flex flex-wrap gap-1.5 mb-3">
             ${notary.specialties.map(spec => `
               <span class="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-[10px] text-slate-700 font-medium">
                 ${spec}
               </span>
             `).join('')}
           </div>
+
+          ${notary.businessCard ? `
+          <div class="mb-4">
+            <button type="button" onclick="openNotaryBusinessCardModal('${notary.id}')" class="w-full py-2 px-3 rounded-2xl bg-gradient-to-r from-amber-50 via-teal-50/40 to-emerald-50 hover:from-amber-100 hover:to-emerald-100 border border-amber-300 text-slate-900 font-bold text-xs flex items-center justify-between transition-all shadow-2xs group cursor-pointer">
+              <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded-lg bg-white border border-amber-200 flex items-center justify-center text-amber-700 shadow-2xs group-hover:scale-105 transition-transform">
+                  <i data-lucide="credit-card" class="w-3.5 h-3.5 text-[#C29236]"></i>
+                </div>
+                <div class="text-left">
+                  <div class="text-[11px] font-bold text-[#0C1E36]">Kartu Nama Resmi Notaris & PPAT</div>
+                  <div class="text-[9px] text-slate-500 font-normal">Klik untuk lihat kartu nama berizin resmi I.N.I & IPPAT</div>
+                </div>
+              </div>
+              <span class="px-2 py-0.5 rounded-lg bg-[#0C1E36] text-amber-300 text-[10px] font-extrabold flex items-center gap-1">
+                Lihat <i data-lucide="arrow-right" class="w-3 h-3"></i>
+              </span>
+            </button>
+          </div>
+          ` : ''}
         </div>
 
         <div class="pt-4 border-t border-slate-200 flex items-center gap-2">
@@ -2153,6 +2155,17 @@
     if (modal) modal.classList.add('hidden');
   };
 
+  window.openNotaryBusinessCardModal = function (notaryId) {
+    const modal = document.getElementById('notary-business-card-modal');
+    if (modal) modal.classList.remove('hidden');
+    if (window.lucide) window.lucide.createIcons();
+  };
+
+  window.closeNotaryBusinessCardModal = function () {
+    const modal = document.getElementById('notary-business-card-modal');
+    if (modal) modal.classList.add('hidden');
+  };
+
   window.switchGuideTab = function (osType) {
     const btnAndroid = document.getElementById('guide-tab-btn-android');
     const btnIos = document.getElementById('guide-tab-btn-ios');
@@ -2314,7 +2327,7 @@
   }
 
   window.copySha256Checksum = function () {
-    const sha = "7944d9e4dc8de74ddfe443cbe49741d414b67ccafb565be1c2a9a4e7f3259a96";
+    const sha = "8d00d6266b5cfa8485be2e983ceed86706bc08bd9b5f397587e8ac29b909c2af";
     if (navigator.clipboard) {
       navigator.clipboard.writeText(sha).then(() => {
         showToast(`SHA-256 Checksum disalin: ${sha.slice(0, 16)}...`, 'success');

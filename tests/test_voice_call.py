@@ -86,7 +86,7 @@ async def main():
 
         # Verify Notary information displayed in modal
         notary_name = await page.evaluate("() => document.getElementById('voice-call-notary-name')?.textContent")
-        assert 'Dr. Hendra Wijaya' in notary_name, f"Expected Dr. Hendra Wijaya, got: {notary_name}"
+        assert 'Dea Cheryna' in notary_name or 'Dr. Hendra Wijaya' in notary_name, f"Expected Notary name, got: {notary_name}"
         status_text = await page.evaluate("() => document.getElementById('voice-call-status')?.textContent")
         assert 'Terhubung' in status_text, f"Expected Terhubung, got: {status_text}"
         print(f"   [OK] Notary details rendered: {notary_name} ({status_text})")

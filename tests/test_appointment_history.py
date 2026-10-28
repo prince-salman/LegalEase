@@ -100,7 +100,7 @@ async def main():
         card_text = await apt_cards[0].inner_text()
         assert appointment_topic in card_text, f"Expected topic '{appointment_topic}' in card text"
         assert '09:00 WIB' in card_text, "Expected '09:00 WIB' in card text"
-        assert 'Dr. Hendra Wijaya' in card_text, "Expected Notary name in card text"
+        assert 'Dr. Hendra Wijaya' in card_text or 'Dea Cheryna' in card_text, "Expected Notary name in card text"
         assert 'Menunggu Konfirmasi' in card_text, "Expected initial status 'Menunggu Konfirmasi'"
         assert '1. Pengajuan Diajukan' in card_text, "Expected Step 1 '1. Pengajuan Diajukan'"
         print("   [OK] Appointment card details verified: Topic, Date/Time, and Step 1 ('Menunggu Konfirmasi')")
@@ -190,7 +190,7 @@ async def main():
         print("   [OK] voice-call-modal opened successfully from appointment card!")
 
         call_notary = await page.evaluate("() => document.getElementById('voice-call-notary-name')?.textContent")
-        assert 'Dr. Hendra Wijaya' in call_notary, f"Expected Dr. Hendra Wijaya in call modal, got: {call_notary}"
+        assert 'Dr. Hendra Wijaya' in call_notary or 'Dea Cheryna' in call_notary, f"Expected Dr. Hendra Wijaya or Dea Cheryna in call modal, got: {call_notary}"
         print(f"   [OK] Voice call connected to: {call_notary}")
 
         # End voice call

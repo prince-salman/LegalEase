@@ -141,7 +141,7 @@ async def main():
         booking_closed = await page.evaluate("() => document.getElementById('booking-modal').classList.contains('hidden')")
         assert booking_closed, "Booking modal should close after confirmation"
         toast_text = await page.inner_text('#toast-container')
-        assert 'Janji temu resmi dengan Dr. Hendra Wijaya, S.H., M.Kn. berhasil dijadwalkan' in toast_text
+        assert 'berhasil dijadwalkan' in toast_text and ('Dea Cheryna' in toast_text or 'Dr. Hendra Wijaya' in toast_text)
         print("   [OK] Booking confirmed successfully with confirmation toast!")
 
         # -------------------------------------------------------------
