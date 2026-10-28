@@ -2467,15 +2467,15 @@
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-1.5 pt-0.5">
               <button type="button" id="quick-fill-gelsay" onclick="quickFillDemoAccount('gelsay')" class="px-2.5 py-2 rounded-lg bg-white border border-amber-200 hover:border-amber-400 hover:bg-amber-100/50 text-[11px] font-bold text-slate-800 text-left transition flex items-center gap-1.5 shadow-2xs group cursor-pointer">
-                <span class="text-sm">🏢</span>
+                <svg class="w-4 h-4 text-amber-700 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
                 <span class="truncate group-hover:text-amber-950">Klien Korporasi (PT Gelsay)</span>
               </button>
               <button type="button" id="quick-fill-fajar" onclick="quickFillDemoAccount('fajar')" class="px-2.5 py-2 rounded-lg bg-white border border-amber-200 hover:border-amber-400 hover:bg-amber-100/50 text-[11px] font-bold text-slate-800 text-left transition flex items-center gap-1.5 shadow-2xs group cursor-pointer">
-                <span class="text-sm">👤</span>
+                <svg class="w-4 h-4 text-amber-700 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
                 <span class="truncate group-hover:text-amber-950">Klien Bisnis (Fajar)</span>
               </button>
               <button type="button" id="quick-fill-admin" onclick="quickFillDemoAccount('admin')" class="px-2.5 py-2 rounded-lg bg-white border border-amber-200 hover:border-amber-400 hover:bg-amber-100/50 text-[11px] font-bold text-slate-800 text-left transition flex items-center gap-1.5 shadow-2xs group cursor-pointer">
-                <span class="text-sm">⚖️</span>
+                <svg class="w-4 h-4 text-amber-700 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"/></svg>
                 <span class="truncate group-hover:text-amber-950">Admin Notaris (Dr. Hendra)</span>
               </button>
             </div>
@@ -3692,7 +3692,7 @@
       });
 
       realtimeChannel.subscribe((status) => {
-        console.log('📡 Supabase Realtime Cross-Device Status:', status);
+        console.log('[Supabase Realtime] Cross-Device Status:', status);
       });
     } catch (e) {
       console.warn('Realtime channel error:', e);
@@ -4121,19 +4121,19 @@
           <!-- Quick Query Pills -->
           <div class="px-6 py-2.5 bg-white border-t border-slate-100 flex items-center gap-2 overflow-x-auto no-scrollbar shrink-0">
             <button type="button" onclick="sendQuickPrompt('Bagaimana syarat dan modal pendirian PT sesuai UU Cipta Kerja?')" class="px-3 py-1.5 rounded-full bg-slate-100 hover:bg-teal-50 text-[11px] font-semibold text-slate-700 hover:text-[#2E9B95] hover:border-[#2E9B95]/30 border border-slate-200 whitespace-nowrap transition">
-              💼 Syarat & Modal PT
+              Syarat & Modal PT
             </button>
-            <button type="button" onclick="sendQuickPrompt('Bagaimana aturan uang kompensasi PKWT sesuai PP 35/2021?')" class="px-3 py-1.5 rounded-full bg-slate-100 hover:bg-teal-50 text-[11px] font-semibold text-slate-700 hover:text-[#2E9B95] hover:border-[#2E9B95]/30 border border-slate-200 whitespace-nowrap transition">
-              📜 Kompensasi PKWT
+            <button type="button" onclick="sendQuickPrompt('Bagaimana prosedur pembuatan Akta Pendirian CV di Notaris?')" class="px-3 py-1.5 rounded-full bg-slate-100 hover:bg-teal-50 text-[11px] font-semibold text-slate-700 hover:text-[#2E9B95] hover:border-[#2E9B95]/30 border border-slate-200 whitespace-nowrap transition">
+              Akta Pendirian CV
             </button>
             <button type="button" onclick="sendQuickPrompt('Bagaimana prosedur pendaftaran merek dagang HAKI di DJKI?')" class="px-3 py-1.5 rounded-full bg-slate-100 hover:bg-teal-50 text-[11px] font-semibold text-slate-700 hover:text-[#2E9B95] hover:border-[#2E9B95]/30 border border-slate-200 whitespace-nowrap transition">
-              ™️ Pendaftaran HAKI
+              Pendaftaran HAKI
             </button>
-            <button type="button" onclick="sendQuickPrompt('Apakah klausul kerahasiaan NDA mengikat dan ada denda wanprestasi?')" class="px-3 py-1.5 rounded-full bg-slate-100 hover:bg-teal-50 text-[11px] font-semibold text-slate-700 hover:text-[#2E9B95] hover:border-[#2E9B95]/30 border border-slate-200 whitespace-nowrap transition">
-              🔒 Klausul NDA
+            <button type="button" onclick="sendQuickPrompt('Bagaimana tahapan pembuatan Akta Jual Beli (AJB) tanah di PPAT?')" class="px-3 py-1.5 rounded-full bg-slate-100 hover:bg-teal-50 text-[11px] font-semibold text-slate-700 hover:text-[#2E9B95] hover:border-[#2E9B95]/30 border border-slate-200 whitespace-nowrap transition">
+              AJB Tanah PPAT
             </button>
             <button type="button" onclick="sendQuickPrompt('Berapa rincian tarif akta notaris dan PNBP Kemenkumham?')" class="px-3 py-1.5 rounded-full bg-slate-100 hover:bg-teal-50 text-[11px] font-semibold text-slate-700 hover:text-[#2E9B95] hover:border-[#2E9B95]/30 border border-slate-200 whitespace-nowrap transition">
-              ⚖️ Tarif Akta & PNBP
+              Tarif Akta & PNBP
             </button>
           </div>
 
