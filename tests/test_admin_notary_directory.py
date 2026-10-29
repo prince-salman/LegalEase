@@ -46,12 +46,9 @@ async def run():
         # Verify notaries rendered
         tab_content = await page.inner_text('#admin-portal-tab-content')
         assert 'Direktori & Pengawasan Dewan Notaris Rekanan' in tab_content
-        assert 'Dr. Hendra Wijaya, S.H., M.Kn.' in tab_content
-        assert 'notaris@legalease.co.id' in tab_content
-        assert 'Kartika Permatasari, S.H., M.Kn.' in tab_content
-        assert 'Bagus Pratama Putra, S.H., M.Kn.' in tab_content
         assert 'Dea Cheryna, S.H., M.Kn.' in tab_content
-        print('   All 4 Notaries successfully visible in Admin Gede Console!')
+        assert 'notaris@legalease.co.id' in tab_content
+        print('   Verified Partner Notary Dea Cheryna successfully visible in Admin Console!')
 
         # Test clicking Audit Kepatuhan button
         await page.click('button:has-text("Audit Kepatuhan")')

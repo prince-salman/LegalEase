@@ -843,7 +843,7 @@
       </div>
 
       <!-- 4 Notaries Grid Container -->
-      <div id="notaries-cards-container" class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+      <div id="notaries-cards-container" class="grid grid-cols-1 max-w-2xl mx-auto gap-6">
         <!-- Dynamically rendered by app.js -->
       </div>
 
@@ -1655,7 +1655,7 @@
       <div class="p-5 px-6 bg-[#0C1E36] text-white flex items-center justify-between">
         <div>
           <h3 class="text-sm font-bold text-white">Jadwalkan Janji Temu Notaris</h3>
-          <p id="booking-notary-subtitle" class="text-[11px] text-amber-300">Dr. Hendra Wijaya, S.H., M.Kn.</p>
+          <p id="booking-notary-subtitle" class="text-[11px] text-amber-300">Dea Cheryna, S.H., M.Kn.</p>
         </div>
         <button onclick="closeBookingModal()" class="w-8 h-8 rounded-full bg-white/10 text-slate-300 hover:text-white flex items-center justify-center transition">
           <i data-lucide="x" class="w-4 h-4"></i>
@@ -1762,7 +1762,7 @@
               <span class="text-xs font-extrabold tracking-tight">Rp 10.000</span>
             </div>
             <div class="w-48 border-b-2 border-slate-900 pb-1">
-              <span id="doc-sign-party2" class="text-xs font-bold text-slate-900">Dr. Hendra Wijaya, S.H., M.Kn.</span>
+              <span id="doc-sign-party2" class="text-xs font-bold text-slate-900">Dea Cheryna, S.H., M.Kn.</span>
             </div>
             <div class="flex items-center justify-center gap-1 mt-1">
               <span class="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/80">
@@ -2149,12 +2149,12 @@
     <div class="p-3 sm:p-4 bg-[#0C1E36] text-white flex items-center justify-between border-b border-white/10 shrink-0 gap-2">
       <div class="flex items-center gap-2.5 min-w-0 flex-1">
         <div class="relative shrink-0">
-          <img id="chat-notary-avatar" src="assets/team/team_1.jpeg" alt="Notaris" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover border-2 border-emerald-400">
+          <img id="chat-notary-avatar" src="assets/notaris/dea_cheryna.jpg" alt="Notaris Dea Cheryna" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover border-2 border-emerald-400">
           <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-400 rounded-full border-2 border-[#0C1E36]"></span>
         </div>
         <div class="leading-tight min-w-0 flex-1">
           <div class="flex items-center gap-1.5">
-            <h4 id="chat-notary-name" class="font-bold text-xs text-white truncate">Dr. Hendra Wijaya, S.H.</h4>
+            <h4 id="chat-notary-name" class="font-bold text-xs text-white truncate">Dea Cheryna, S.H., M.Kn.</h4>
             <span class="hidden md:inline-block text-[9px] text-emerald-300 bg-emerald-950/60 px-1.5 py-0.2 rounded font-mono font-semibold shrink-0">SK AHU</span>
           </div>
           <p id="chat-notary-title" class="text-[10px] text-slate-300 mt-0.5 truncate">Notaris & PPAT • Online Siaga</p>
@@ -2163,11 +2163,8 @@
 
       <div class="flex items-center gap-1.5 shrink-0">
         <!-- Notary Dropdown Switcher (compact on tablet/desktop) -->
-        <select id="chat-notary-select" onchange="switchChatNotary(this.value)" class="hidden sm:block bg-white/10 hover:bg-white/20 text-amber-300 text-[10px] font-bold px-2 py-1.5 rounded-xl border border-white/10 focus:outline-none cursor-pointer max-w-[130px] truncate" title="Ganti Notaris">
-          <option value="notary-1" class="text-slate-900">Dr. Hendra (PT)</option>
-          <option value="notary-2" class="text-slate-900">Kartika (HAKI)</option>
-          <option value="notary-3" class="text-slate-900">Bagus (PPAT)</option>
-          <option value="notary-4" class="text-slate-900">Nadia (SHA)</option>
+        <select id="chat-notary-select" onchange="switchChatNotary(this.value)" class="hidden sm:block bg-white/10 hover:bg-white/20 text-amber-300 text-[10px] font-bold px-2 py-1.5 rounded-xl border border-white/10 focus:outline-none cursor-pointer max-w-[170px] truncate" title="Pilihan Notaris">
+          <option value="notary-1" class="text-slate-900">Dea Cheryna (Notaris & PPAT)</option>
         </select>
 
         <!-- Voice Call Button -->
@@ -2205,7 +2202,7 @@
     <!-- Typing Indicator (Hidden by default) -->
     <div id="chat-typing-indicator" class="hidden px-4 py-2 bg-[#FAF9F5] flex items-center gap-2 text-[11px] text-slate-500 shrink-0">
       <img id="chat-typing-avatar" src="assets/team/team_1.jpeg" class="w-5 h-5 rounded-full object-cover">
-      <span id="chat-typing-label">Dr. Hendra Wijaya sedang mengetik telaah hukum...</span>
+      <span id="chat-typing-label">Dea Cheryna, S.H., M.Kn. sedang mengetik telaah hukum...</span>
       <div class="inline-flex gap-1 ml-1">
         <span class="typing-dot"></span>
         <span class="typing-dot"></span>
@@ -2302,7 +2299,7 @@
       </div>
 
       <!-- Notary Information -->
-      <h3 id="voice-call-notary-name" class="font-serif-editorial font-bold text-xl sm:text-2xl text-white tracking-wide">Dr. Hendra Wijaya, S.H., M.Kn.</h3>
+      <h3 id="voice-call-notary-name" class="font-serif-editorial font-bold text-xl sm:text-2xl text-white tracking-wide">Dea Cheryna, S.H., M.Kn.</h3>
       <p id="voice-call-notary-title" class="text-xs text-cyan-200 font-medium mt-1">Notaris & PPAT Rekanan Resmi Kemenkumham RI</p>
 
       <!-- Status Indicator -->

@@ -163,22 +163,22 @@
     transactions: []
   };
 
-  // Official Regular Partner Notary Account (Notaris Rekanan Biasa - Bukan Admin Besar)
+  // Official Regular Partner Notary Account (Notaris Rekanan Resmi)
   const NOTARY_ACCOUNT = {
-    id: 'usr_notary_hendra_01',
-    fullName: 'Dr. Hendra Wijaya, S.H., M.Kn.',
-    initials: 'HW',
-    companyName: 'Kantor Notaris & PPAT Dr. Hendra Wijaya (Jakarta Selatan)',
+    id: 'usr_notary_dea_01',
+    fullName: 'Dea Cheryna, S.H., M.Kn.',
+    initials: 'DC',
+    companyName: 'Kantor Notaris & PPAT Dea Cheryna, S.H., M.Kn.',
     email: 'notaris@legalease.co.id',
-    phone: '0812-7788-9900',
-    city: 'Jakarta Selatan',
+    phone: '0811 187 2012',
+    city: 'Bekasi',
     role: 'notary',
     notaryId: 'notary-1',
     plan: 'notary_partner',
     planName: 'Notaris Rekanan Berlisensi',
     planDuration: 'Lisensi AHU Aktif (Hingga 2030)',
-    skNumber: 'SK Kemenkumham RI: AHU-0019284.AH.02.01.Tahun 2017',
-    office: 'Sudirman Central Business District (SCBD), Jakarta Selatan',
+    skNumber: 'SK Kemenkumham RI: AHU-0019284.AH.02.01 (I.N.I & IPPAT)',
+    office: 'Grand Wisata Celebration Boulevard AA 15/26, Tambun Selatan, Bekasi',
     isAuthenticated: true,
     transactions: []
   };
@@ -395,59 +395,12 @@
       specialties: ['Akta Pendirian PT / CV / PMA', 'Kenotariatan & Akta Autentik', 'Pertanahan & PPAT', 'Akta Jual Beli (AJB) & Hibah'],
       status: 'Online & Tersedia',
       category: 'pt',
+      categories: ['pt', 'haki', 'ppat', 'all'],
       avatar: 'assets/notaris/dea_cheryna.jpg',
       businessCard: 'assets/notaris/kartu_nama_dea_cheryna.jpg',
       phone: '0811 187 2012',
       email: 'notaris.deacheryna@yahoo.com',
       bio: 'Notaris & Pejabat Pembuat Akta Tanah (PPAT) berizin resmi Kemenkumham RI, terdaftar di Ikatan Notaris Indonesia (I.N.I.) & Ikatan Pejabat Pembuat Akta Tanah (IPPAT). Spesialis layanan kenotariatan, pendirian perseroan (PT/CV/PMA), serta transaksi pertanahan.'
-    },
-    {
-      id: 'notary-2',
-      name: 'Dr. Hendra Wijaya, S.H., M.Kn.',
-      title: 'Notaris Rekanan & Pejabat Pembuat Akta Tanah',
-      office: 'Kantor Notaris Jakarta Selatan',
-      address: 'Sudirman Central Business District (SCBD), Jakarta Selatan',
-      skNumber: 'SK Kemenkumham RI: AHU-0038192.AH.02.01.Tahun 2019',
-      experience: '14 Tahun Pengalaman',
-      rating: 4.95,
-      reviewsCount: 290,
-      specialties: ['Akta Pendirian PT & CV', 'Pendaftaran Merek & HAKI', 'Perubahan Anggaran Dasar RUPS', 'Akta Yayasan'],
-      status: 'Online & Tersedia',
-      category: 'haki',
-      avatar: 'assets/notaris/notary_partner_male.jpg',
-      bio: 'Berpengalaman mendampingi perseroan dalam penyusunan minuta akta autentik, perizinan OSS RBA, dan legalitas badan usaha.'
-    },
-    {
-      id: 'notary-3',
-      name: 'Kartika Permatasari, S.H., M.Kn.',
-      title: 'Kenotariatan & Pejabat Pembuat Akta Tanah (PPAT)',
-      office: 'Kantor Notaris Jakarta Pusat',
-      address: 'Jl. M.H. Thamrin No. 28, Menteng, Jakarta Pusat',
-      skNumber: 'SK Kemenkumham RI: AHU-0082711.AH.02.01.Tahun 2018',
-      experience: '12 Tahun Pengalaman',
-      rating: 4.93,
-      reviewsCount: 218,
-      specialties: ['Akta Jual Beli Tanah (PPAT)', 'Akta Hibah & Pembagian Hak Bersama', 'Perjanjian Kredit Notaril', 'APHT & SKMHT'],
-      status: 'Tersedia Konsultasi',
-      category: 'ppat',
-      avatar: 'assets/notaris/notary_partner_female.jpg',
-      bio: 'Fokus pada hukum properti, transaksi hak atas tanah komersial, perizinan OSS RBA serta penyelenggaraan RUPS Perubahan Anggaran Dasar Perseroan.'
-    },
-    {
-      id: 'notary-4',
-      name: 'Bagus Pratama Putra, S.H., M.Kn.',
-      title: 'Notaris & Konsultan Restrukturisasi Modal',
-      office: 'Kantor Notaris Surabaya & Sidoarjo',
-      address: 'Pakuwon City Business Center, Surabaya Timur',
-      skNumber: 'SK Kemenkumham RI: AHU-0045199.AH.02.01.Tahun 2021',
-      experience: '10 Tahun Pengalaman',
-      rating: 4.91,
-      reviewsCount: 165,
-      specialties: ['Akta Investasi & Saham', 'Akta Perkumpulan & Yayasan', 'Kemitraan Usaha Bersama', 'Perubahan Modal AD/ART'],
-      status: 'Online & Tersedia',
-      category: 'pt',
-      avatar: 'assets/notaris/notary_partner_male2.jpg',
-      bio: 'Berpengalaman dalam perumusan akta restrukturisasi modal, vesting schedule pendiri, dan legal audit untuk penanaman modal perseroan.'
     }
   ];
 
@@ -738,7 +691,7 @@
           <div class="p-3 bg-emerald-50 rounded-2xl border border-emerald-200 flex items-center justify-between">
             <div>
               <div class="font-bold text-xs text-[#0C1E36] flex items-center gap-1">
-                <span>Dr. Hendra Wijaya (Notaris Rekanan)</span>
+                <span>Dea Cheryna (Notaris Rekanan)</span>
               </div>
               <div class="text-[10px] text-emerald-800 font-mono">notaris@legalease.co.id</div>
             </div>
@@ -898,6 +851,9 @@
         n.specialties.some(s => s.toLowerCase().includes(q));
 
       if (filter === 'all') return matchQuery;
+      if (Array.isArray(n.categories)) {
+        return matchQuery && n.categories.includes(filter);
+      }
       return matchQuery && n.category === filter;
     });
 
@@ -1815,7 +1771,7 @@
 
     if (!modal) return false;
     if (notaryIdInput) notaryIdInput.value = notaryId || 'notary-1';
-    if (subTitle) subTitle.textContent = notaryName || 'Dr. Hendra Wijaya, S.H., M.Kn.';
+    if (subTitle) subTitle.textContent = notaryName || 'Dea Cheryna, S.H., M.Kn.';
     if (dateInput) {
       const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0];
       dateInput.value = tomorrow;
@@ -1839,7 +1795,7 @@
     const notaryId = document.getElementById('booking-notary-id')?.value || 'notary-1';
     const notary = (typeof NOTARIES !== 'undefined' ? NOTARIES.find(n => n.id === notaryId) : null) || (typeof NOTARIES !== 'undefined' ? NOTARIES[0] : {
       id: notaryId,
-      name: 'Dr. Hendra Wijaya, S.H., M.Kn.',
+      name: 'Dea Cheryna, S.H., M.Kn.',
       title: 'Notaris & PPAT Berizin Kemenkumham RI',
       avatar: 'assets/team/team_1.jpeg'
     });
@@ -1991,7 +1947,7 @@
     const notId = notaryId || state.activeChatNotaryId || 'notary-1';
     const notary = (typeof NOTARIES !== 'undefined' ? NOTARIES.find(n => n.id === notId) : null) || (typeof NOTARIES !== 'undefined' ? NOTARIES[0] : {
       id: notId,
-      name: 'Dr. Hendra Wijaya, S.H., M.Kn.',
+      name: 'Dea Cheryna, S.H., M.Kn.',
       title: 'Notaris & PPAT Rekanan Resmi Kemenkumham RI',
       avatar: 'assets/team/team_1.jpeg'
     });
@@ -2476,7 +2432,7 @@
               </button>
               <button type="button" id="quick-fill-admin" onclick="quickFillDemoAccount('admin')" class="px-2.5 py-2 rounded-lg bg-white border border-amber-200 hover:border-amber-400 hover:bg-amber-100/50 text-[11px] font-bold text-slate-800 text-left transition flex items-center gap-1.5 shadow-2xs group cursor-pointer">
                 <svg class="w-4 h-4 text-amber-700 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"/></svg>
-                <span class="truncate group-hover:text-amber-950">Admin Notaris (Dr. Hendra)</span>
+                <span class="truncate group-hover:text-amber-950">Notaris Rekanan (Dea Cheryna)</span>
               </button>
             </div>
           </div>
@@ -2707,7 +2663,7 @@
     } else if (type === 'admin') {
       emailInput.value = 'admin@legalease.co.id';
       passInput.value = 'admin';
-      showToast('Kredensial Admin Notaris (Dr. Hendra) berhasil diisi.', 'info');
+      showToast('Kredensial Notaris Rekanan (Dea Cheryna) berhasil diisi.', 'info');
     }
   };
 
@@ -3893,7 +3849,7 @@
               <span class="px-3 py-1 rounded-full bg-slate-100 text-slate-700 font-bold text-xs font-mono">
                 ${aptList.length} Janji Temu
               </span>
-              <button onclick="openBookingModal('notary-1', 'Dr. Hendra Wijaya, S.H., M.Kn.')" class="px-4 py-2 rounded-xl bg-[#0C1E36] hover:bg-slate-800 text-amber-300 font-bold text-xs transition flex items-center gap-1.5 shadow-xs">
+              <button onclick="openBookingModal('notary-1', 'Dea Cheryna, S.H., M.Kn.')" class="px-4 py-2 rounded-xl bg-[#0C1E36] hover:bg-slate-800 text-amber-300 font-bold text-xs transition flex items-center gap-1.5 shadow-xs">
                 <i data-lucide="calendar-plus" class="w-3.5 h-3.5"></i>
                 <span>Jadwalkan Janji Temu</span>
               </button>
@@ -3911,7 +3867,7 @@
                   Anda belum memiliki jadwal janji temu dengan Notaris Rekanan. Jadwalkan konsultasi tatap muka kantor atau panggilan suara resmi untuk pendirian PT dan penelaahan kontrak.
                 </p>
               </div>
-              <button onclick="openBookingModal('notary-1', 'Dr. Hendra Wijaya, S.H., M.Kn.')" class="px-5 py-2.5 rounded-xl bg-[#0C1E36] hover:bg-slate-800 text-amber-300 font-bold text-xs shadow-sm transition inline-flex items-center gap-2">
+              <button onclick="openBookingModal('notary-1', 'Dea Cheryna, S.H., M.Kn.')" class="px-5 py-2.5 rounded-xl bg-[#0C1E36] hover:bg-slate-800 text-amber-300 font-bold text-xs shadow-sm transition inline-flex items-center gap-2">
                 <i data-lucide="calendar" class="w-4 h-4"></i>
                 <span>Jadwalkan Janji Temu Sekarang</span>
               </button>
@@ -5072,7 +5028,7 @@
     if (!email || !state.adminClientChats[email]) return;
 
     const now = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB';
-    const notName = 'Dr. Hendra Wijaya, S.H., M.Kn.';
+    const notName = 'Dea Cheryna, S.H., M.Kn.';
 
     // Append to admin chat thread
     const adminReplyMsg = {
@@ -5220,7 +5176,7 @@
               sender: 'client',
               senderName: 'Fajar Nugraha',
               senderAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
-              text: 'Selamat siang Bapak Notaris Dr. Hendra Wijaya. Kami dari PT Sinergi Digital Indonesia sedang mereview draf Perjanjian Kerja Sama (PKS) B2B. Mohon arahan terkait klausul kerahasiaan dan domisili hukum penyelesaian sengketa.',
+              text: 'Selamat siang Ibu Notaris Dea Cheryna, S.H., M.Kn. Kami dari PT Sinergi Digital Indonesia sedang berkonsultasi terkait Akta Pendirian PT dan perizinan OSS RBA. Mohon arahannya.',
               timestamp: '10:15 WIB'
             }
           ]
@@ -5240,7 +5196,7 @@
           <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div class="flex items-center gap-4">
               <div class="relative shrink-0">
-                <img src="assets/team/team_1.jpeg" alt="Dr. Hendra Wijaya" class="w-16 h-16 rounded-2xl object-cover border-2 border-emerald-400 shadow-md">
+                <img src="assets/notaris/dea_cheryna.jpg" alt="Dea Cheryna" class="w-16 h-16 rounded-2xl object-cover border-2 border-emerald-400 shadow-md">
                 <span class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-400 rounded-full border-2 border-[#0A2920]"></span>
               </div>
               <div>
@@ -5255,7 +5211,7 @@
                   Dr. Hendra Wijaya, S.H., M.Kn.
                 </h1>
                 <p class="text-xs text-slate-200 mt-0.5">
-                  Notaris & PPAT Wilayah Kerja Jakarta Selatan • Spesialisasi Pendirian PT, PMA, dan Kontrak Bisnis
+                  Notaris & PPAT Wilayah Kerja Kabupaten Bekasi • Spesialisasi Pendirian PT, PMA, dan Transaksi Pertanahan
                 </p>
               </div>
             </div>
@@ -5333,7 +5289,7 @@
           <!-- Left: Client Threads -->
           <div class="${activeChat ? 'hidden md:flex' : 'flex'} w-full md:w-80 border-b md:border-b-0 md:border-r border-slate-200 bg-slate-50 flex-col shrink-0">
             <div class="p-3 border-b border-slate-200 flex items-center justify-between">
-              <span class="text-xs font-bold text-slate-800">Klien Binaan Dr. Hendra</span>
+              <span class="text-xs font-bold text-slate-800">Klien Binaan Dea Cheryna</span>
               <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold">${clients.length} Percakapan</span>
             </div>
             <div class="flex-1 overflow-y-auto divide-y divide-slate-200">
@@ -5392,7 +5348,7 @@
               </div>
 
               <form onsubmit="handleSendNotaryWorkstationReply(event)" class="p-3 bg-white border-t border-slate-200 flex items-center gap-2 shrink-0">
-                <input type="text" id="notary-workstation-reply-input" autocomplete="off" placeholder="Tulis tanggapan notaris resmi (Dr. Hendra Wijaya) ke klien..." class="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 text-xs focus:outline-none focus:border-emerald-600 focus:bg-white font-medium">
+                <input type="text" id="notary-workstation-reply-input" autocomplete="off" placeholder="Tulis tanggapan notaris resmi (Dea Cheryna, S.H., M.Kn.) ke klien..." class="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 text-xs focus:outline-none focus:border-emerald-600 focus:bg-white font-medium">
                 <button type="submit" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs">
                   <i data-lucide="send" class="w-4 h-4"></i> Balas Klien
                 </button>
@@ -5418,7 +5374,7 @@
           <div class="flex items-center justify-between pb-4 border-b border-slate-100">
             <div>
               <h3 class="font-bold text-base text-[#0C1E36]">Buku Agenda Janji Temu Resmi Notaris</h3>
-              <p class="text-xs text-slate-500">Jadwal tatap muka kantor dan konsultasi panggilan suara terdaftar untuk Dr. Hendra Wijaya</p>
+              <p class="text-xs text-slate-500">Jadwal tatap muka kantor dan konsultasi panggilan suara terdaftar untuk Dea Cheryna, S.H., M.Kn.</p>
             </div>
             <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold font-mono">${appointments.length} Sesi Terjadwal</span>
           </div>
